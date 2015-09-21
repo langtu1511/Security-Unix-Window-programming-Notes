@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>VNC server</title>
+</head><body><br/>
+<b>start VNC with custom resolution</b><ul><tt><span style="color: #00007f"><li style="list-style-type: none"></li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">vncserver :1 -geometry 1300x740</span></tt></li>
+</ul>
+<br/>
+<b>VNC configuration</b><br/>
+<ul><li style="list-style-type: none"><span style="color: #00007f"><tt>&nbsp;/root/.vnc/xstartup</tt></span></li>
+</ul>
+<br/>
+<hr/><br/>
+<tt>#!/bin/sh<br/>
+<br/>
+xrdb $HOME/.Xresources<br/>
+xsetroot -solid grey<br/>
+<b>autocutsel -fork</b><br/>
+#x-terminal-emulator -geometry 80x24+10+10 -ls -title "$VNCDESKTOP Desktop" &amp;<br/>
+#x-window-manager &amp;<br/>
+# Fix to make GNOME work<br/>
+export XKL_XMODMAP_DISABLE=1<br/>
+</tt><tt>/etc/X11/Xsession</tt><br/>
+<br/>
+<hr/><ul><span style="font-size: 14pt"><b><li style="list-style-type: none"><span style="color: #00007f">in CentOS</span></li>
+</b></span><li style="list-style-type: none"></li>
+</ul>
+<img src="image.png" width="600" height="400" /><br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+END</body></html>

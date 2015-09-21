@@ -1,0 +1,233 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>rsync</title>
+</head><body><br/>
+REF:<ul><li style="list-style-type: none">***** <a href="https://www.digitalocean.com/community/tutorials/how-to-use-rsync-to-sync-local-and-remote-directories-on-a-vps">https://www.digitalocean.com/community/tutorials/how-to-use-rsync-to-sync-local-and-remote-directories-on-a-vps</a></li>
+<li style="list-style-type: none">***** <a href="http://www.evbackup.com/support-commonly-used-rsync-arguments/">http://www.evbackup.com/support-commonly-used-rsync-arguments/</a></li>
+</ul>
+<br/>
+<b><span style="font-size: 14pt"><div style="text-align: center">How To Use Rsync to Sync Local and Remote Directories on a VPS</div></span></b><br/>
+<br/>
+<b><span style="font-size: 12pt">Introduction</span></b><br/>
+<ul><li style="list-style-type: none">Rsync, which stands for "remote sync", is a remote and local file synchronization tool. It uses an algorithm that minimizes the amount of data copied by only moving the portions of files that have changed.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">In this guide, we will cover the basic usage of this powerful utility. We will be using an Ubuntu 12.04 VPS in the examples, but you can use any modern Linux distribution to follow along.</li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">What Is Rsync?</span></b><br/>
+<ul><li style="list-style-type: none">Rsync is a very flexible network-enabled syncing tool. It can also refer to the network protocol developed to utilize this tool.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">When we reference rsync in this guide, we are mainly referring to the utility, and not the protocol.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Due to its ubiquity on Linux and Unix-like systems and its popularity as a tool for system scripts, it is included on most Linux distributions by default.</li>
+<li style="list-style-type: none"></li>
+</ul>
+<span style="font-size: 12pt"><b>Basic Syntax</b></span><br/>
+<ul><li style="list-style-type: none">The basic syntax of rsync is very straight forward, and operates in a way that is similar to ssh, scp, and cp.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">We will create two test directories and some test files with the following commands:</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><span style="color: #00007f"><tt><li style="list-style-type: none">cd ~</li>
+<li style="list-style-type: none">mkdir dir1</li>
+<li style="list-style-type: none">mkdir dir2</li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>touch dir1/file{1..100}</tt></span></li>
+</ul>
+</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">We also have an empty directory called dir2.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">To sync the contents of dir1 to dir2 on the same system, type:</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none"><span style="color: #00007f"><tt>rsync -r dir1/ dir2</tt></span></li>
+</ul>
+</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">The -r option means recursive, which is necessary for directory syncing.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">We could also use the -a flag instead:</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none"><span style="color: #00007f"><tt>rsync -a dir1/ dir2</tt></span></li>
+</ul>
+</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">The -a option is a combination flag.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">It stands for "archive" and syncs recursively and preserves symbolic links, special and device files, modification times, group, owner, and permissions.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">It is more commonly used than -r and is usually what you want to use.</li>
+</ul>
+<br/>
+<span style="font-size: 12pt"><b>An Important Note</b></span><br/>
+<ul><li style="list-style-type: none">You may have noticed that there is a trailing slash (/) at the end of the first argument in the above commands:</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none"><span style="color: #00007f"><tt>rsync -a dir1/ dir2</tt></span></li>
+</ul>
+</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">This is necessary to mean "the contents of dir1".</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">The alternative, without the trailing slash, would place dir1, including the directory, within dir2. This would create a hierarchy that looks like:</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none"><span style="color: #00007f"><tt>~/dir2/dir1/[files]</tt></span></li>
+</ul>
+</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Always double-check your arguments before executing an rsync command.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Rsync provides a method for doing this by passing the -n or --dry-run options. The -v flag (for verbose) is also necessary to get the appropriate output:</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><span style="color: #00007f"><tt><li style="list-style-type: none">rsync -anv dir1/ dir2</li>
+<li style="list-style-type: none">sending incremental file list</li>
+<li style="list-style-type: none">./</li>
+<li style="list-style-type: none">file1</li>
+<li style="list-style-type: none">file10</li>
+<li style="list-style-type: none">file100</li>
+<li style="list-style-type: none">file11</li>
+<li style="list-style-type: none">file12</li>
+<li style="list-style-type: none">file13</li>
+<li style="list-style-type: none">file14</li>
+<li style="list-style-type: none">file15</li>
+<li style="list-style-type: none">file16</li>
+<li style="list-style-type: none">file17</li>
+<li style="list-style-type: none">file18</li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>. . .</tt></span></li>
+</ul>
+</li>
+<li style="list-style-type: none">Compare this output to the output we get when we remove the trailing slash:</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><span style="color: #00007f"><tt><li style="list-style-type: none">rsync -anv dir1 dir2</li>
+<li style="list-style-type: none">sending incremental file list</li>
+<li style="list-style-type: none">dir1/</li>
+<li style="list-style-type: none">dir1/file1</li>
+<li style="list-style-type: none">dir1/file10</li>
+<li style="list-style-type: none">dir1/file100</li>
+<li style="list-style-type: none">dir1/file11</li>
+<li style="list-style-type: none">dir1/file12</li>
+<li style="list-style-type: none">dir1/file13</li>
+<li style="list-style-type: none">dir1/file14</li>
+<li style="list-style-type: none">dir1/file15</li>
+<li style="list-style-type: none">dir1/file16</li>
+<li style="list-style-type: none">dir1/file17</li>
+<li style="list-style-type: none">dir1/file18</li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>. . .</tt></span></li>
+</ul>
+</li>
+<li style="list-style-type: none">You can see here that the directory itself is transfered.</li>
+</ul>
+<br/>
+<span style="font-size: 12pt"><b>How To Use Rsync to Sync with a Remote System</b></span><br/>
+<ul><li style="list-style-type: none">Syncing to a remote system is trivial if you have SSH access to the remote machine and rsync installed on both sides. If you need to set up SSH keys, click here.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Once you have SSH access verified on between the two machines, you can sync the dir1 folder from earlier to a remote computer by using this syntax (note that we want to transfer the actual directory in this case, so we omit the trailing slash):</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none"><span style="color: #00007f"><tt>rsync -a ~/dir1 username@remote_host:destination_directory</tt></span></li>
+</ul>
+</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">This is called a "push" operation because it pushes a directory from the local system to a remote system.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">The opposite operation is "pull". It is used to sync a remote directory to the local system. If the dir1 were on the remote system instead of our local system, the syntax would be:</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none"><span style="color: #00007f"><tt>rsync -a username@remote_host:/home/username/dir1 place_to_sync_on_local_machine</tt></span></li>
+</ul>
+</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Like "cp" and similar tools, the source is always the first argument, and the destination is always the second.</li>
+</ul>
+<br/>
+<span style="font-size: 12pt"><b>Useful Options for Rsync</b></span><br/>
+<ul><li style="list-style-type: none">Rsync provides many options for altering the default behavior of the utility. We have already discussed some of the more necessary flags.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">If you are transferring files that have not already been compressed, like text files, you can reduce the network transfer by adding compression with the -z option:</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none"><span style="color: #00007f"><tt>rsync -az source destination</tt></span></li>
+</ul>
+</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">The -P flag is very helpful. It combines the flags --progress and --partial. The first of these gives you a progress bar for the transfers and the second allows you to resume interrupted transfers:</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none"><span style="color: #00007f"><tt>rsync -azP source destination</tt></span></li>
+</ul>
+</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">sending incremental file list</li>
+<li style="list-style-type: none"><ul><tt><span style="color: #00007f"><li style="list-style-type: none">./</li>
+<li style="list-style-type: none">file1</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0 100% &nbsp; &nbsp;0.00kB/s &nbsp; &nbsp;0:00:00 (xfer#1, to-check=99/101)</li>
+<li style="list-style-type: none">file10</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0 100% &nbsp; &nbsp;0.00kB/s &nbsp; &nbsp;0:00:00 (xfer#2, to-check=98/101)</li>
+<li style="list-style-type: none">file100</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0 100% &nbsp; &nbsp;0.00kB/s &nbsp; &nbsp;0:00:00 (xfer#3, to-check=97/101)</li>
+<li style="list-style-type: none">file11</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0 100% &nbsp; &nbsp;0.00kB/s &nbsp; &nbsp;0:00:00 (xfer#4, to-check=96/101)</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">. . .</span></tt></li>
+</ul>
+</li>
+<li style="list-style-type: none">If we run the command again, we will get a shorter output, because no changes have been made.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">This illustrates rsync's ability to use modification times to determine if changes have been made.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none"><tt><span style="color: #00007f">rsync -azP source destination</span></tt></li>
+</ul>
+</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">sending incremental file list</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none"><span style="color: #00007f"><tt>sent 818 bytes received 12 bytes 1660.00 bytes/sec</tt></span></li>
+</ul>
+</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">total size is 0 speedup is 0.00</li>
+<li style="list-style-type: none">We can update the modification time on some of the files and see that rsync intelligently re-copies only the changed files:</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><span style="color: #00007f"><li style="list-style-type: none"><tt>touch dir1/file{1..10}</tt></li>
+</span><li style="list-style-type: none"><span style="color: #00007f"><tt>rsync -azP source destination</tt></span></li>
+</ul>
+</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">sending incremental file list</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><span style="color: #00007f"><tt><li style="list-style-type: none">file1</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0 100% &nbsp; &nbsp;0.00kB/s &nbsp; &nbsp;0:00:00 (xfer#1, to-check=99/101)</li>
+<li style="list-style-type: none">file10</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0 100% &nbsp; &nbsp;0.00kB/s &nbsp; &nbsp;0:00:00 (xfer#2, to-check=98/101)</li>
+<li style="list-style-type: none">file2</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0 100% &nbsp; &nbsp;0.00kB/s &nbsp; &nbsp;0:00:00 (xfer#3, to-check=87/101)</li>
+<li style="list-style-type: none">file3</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0 100% &nbsp; &nbsp;0.00kB/s &nbsp; &nbsp;0:00:00 (xfer#4, to-check=76/101)</li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>. . .</tt></span></li>
+</ul>
+</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">In order to keep two directories truly in sync, it is necessary to delete files from the destination directory if they are removed from the source. By default, rsync does not delete anything from the destination directory.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">We can change this behavior with the --delete option. Before using this option, use the --dry-run option and do testing to prevent data loss:</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none"><span style="color: #00007f"><tt>rsync -a --delete source destination</tt></span></li>
+</ul>
+</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">If you wish to exclude certain files or directories located inside a directory you are syncing, you can do so by specifying them in a comma-separated list following the --exclude= option:</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none"><span style="color: #00007f"><tt>rsync -a --exclude=pattern_to_exclude source destination</tt></span></li>
+</ul>
+</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">If we have specified a pattern to exclude, we can override that exclusion for files that match a different pattern by using the --include= option.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none"><span style="color: #00007f"><tt>rsync -a --exclude=pattern_to_exclude --include=pattern_to_include source destination</tt></span></li>
+</ul>
+</li>
+</ul>
+<br/>
+<span style="font-size: 12pt"><b>Conclusion</b></span><br/>
+<ul><li style="list-style-type: none">Rsync can simplify file transfers over networked connections and add robustness to local directory syncing. The flexibility of rsync makes it a good option for many different file-level operations.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">A mastery of rsync allows you to design complex backup operations and obtain fine-grained control over what is transferred and how.</li>
+<li style="list-style-type: none"></li>
+</ul>
+<br/>
+<br/>
+END</body></html>

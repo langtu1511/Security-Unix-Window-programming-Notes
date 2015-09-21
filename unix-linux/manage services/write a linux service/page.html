@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>write a Linux service</title>
+</head><body><br/>
+<br/>
+http://www.cyberciti.biz/tips/linux-write-sys-v-init-script-to-start-stop-service.html<br/>
+<br/>
+<b><span style="font-size: 12pt">Linux: How to write a System V init script to start, stop, and restart my own application or service </span></b>&nbsp;<br/>
+<br/>
+<br/>
+<br/>
+<tt>#!/bin/bash<br/>
+#<br/>
+# chkconfig: 35 90 12<br/>
+# description: Foo server<br/>
+#<br/>
+# Get function from functions library<br/>
+. /etc/init.d/functions<br/>
+# Start the service FOO<br/>
+start() {<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; initlog -c "echo -n Starting FOO server: "<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; /path/to/FOO &amp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ### Create the lock file ###<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; touch /var/lock/subsys/FOO<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; success $"FOO server startup"<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; echo<br/>
+}<br/>
+# Restart the service FOO<br/>
+stop() {<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; initlog -c "echo -n Stopping FOO server: "<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; killproc FOO<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ### Now, delete the lock file ###<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; rm -f /var/lock/subsys/FOO<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; echo<br/>
+}<br/>
+### main logic ###<br/>
+case "$1" in<br/>
+&nbsp; start)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; start<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ;;<br/>
+&nbsp; stop)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; stop<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ;;<br/>
+&nbsp; status)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; status FOO<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ;;<br/>
+&nbsp; restart|reload|condrestart)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; stop<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; start<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ;;<br/>
+&nbsp; *)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; echo $"Usage: $0 {start|stop|restart|reload|status}"<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; exit 1<br/>
+esac<br/>
+</tt><tt>exit 0</tt><br/>
+<br/>
+<br/>
+Above script is specific to Cent OS or Fedora Core/Red Hat Linux. But it should work on all other Linux distro as well. Make sure you replace the FOO name (word/path start with FOO) with actual application name.<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+END</body></html>

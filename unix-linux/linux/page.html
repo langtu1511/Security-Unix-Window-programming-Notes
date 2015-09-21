@@ -1,0 +1,34 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>network configurations</title>
+</head><body><hr/><b>--------------------- UBUNTU ------------</b><br/>
+* Edit file /etc/network/interfaces<ul><i><li style="list-style-type: none"></li>
+</i><tt><span style="color: #00007f"><li style="list-style-type: none">auto eth0 </li>
+<li style="list-style-type: none">iface eth0 inet static </li>
+<li style="list-style-type: none">address 10.0.0.100 </li>
+<li style="list-style-type: none">netmask 255.255.255.0 </li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">gateway 10.0.0.1 &nbsp;</span></tt></li>
+</ul>
+<hr/><b>------------------------ CentOS ---------------------</b><br/>
+* &nbsp;vi /etc/sysconfig/network-scripts/ifcfg-ens33<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">HWADDR=00:0C:29:7D:E4:4A</li>
+<li style="list-style-type: none">TYPE=Ethernet</li>
+<li style="list-style-type: none">BOOTPROTO=static / dhcp</li>
+<li style="list-style-type: none">PEERDNS=no</li>
+<li style="list-style-type: none">NAME=ens33</li>
+<li style="list-style-type: none">UUID=3ebfd7fc-1bb9-40fa-b0a6-0b06ddb58984</li>
+<li style="list-style-type: none">ONBOOT=yes</li>
+<li style="list-style-type: none">IPADDRS=10.10.1.2</li>
+<li style="list-style-type: none">NETMASK=255.255.255.0</li>
+<li style="list-style-type: none">GATEWAY=10.10.1.254</li>
+</span></tt></ul>
+<hr/><br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+END</body></html>

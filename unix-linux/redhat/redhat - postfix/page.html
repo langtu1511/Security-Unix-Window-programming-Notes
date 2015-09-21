@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Redhat - Postfix</title>
+</head><body><br/>
+<br/>
+<img src="image.png" /><br/>
+<br/>
+<span style="font-family: ff0"><div style="text-align: left"><span style="font-size: 10pt">A fully functional email system from a sender standpoint requires an email client (MUA) to compose an email message with all the relevant information, a program (MSA) that takes this email message and submits it to a temporary location (mail queue) for further processing, and another program (MTA) for transporting that email message over the network or the Internet to the destination system (another MTA) using the SMTP protocol. On the receiving side, the MTA receives that message and invokes an MDA, which forwards the message to a temporary mail spool location and holds it there until an MUA picks it up and saves it in the mailbox of the user via either POP3 or IMAP protocol. The mail server authenticates the user before allowing the MUA to access their email. See Figure 23-1 for a high-level process flow. </span></div></span><br/>
+<br/>
+<b><span style="font-size: 12pt">[+] Postfix configuration</span></b><br/>
+<ul><li style="list-style-type: none"><b>[+] Location</b></li>
+<tt><span style="color: #00007f"><li style="list-style-type: none"></li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">/etc/postfix</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none"><b>[+] The access file</b></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><tt><span style="color: #00007f">/etc/postfix/access</span></tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><tt><li style="list-style-type: none">192.168.122.20 OK</li>
+</tt><li style="list-style-type: none"><tt>example.com REJECT</tt></li>
+</ul>
+</li>
+</ul>
+<ul><li style="list-style-type: none">Create indexed database</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><tt><span style="color: #00007f"># postmap /etc/postfix/access</span></tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><b>[+] The canonical file</b></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><tt><span style="color: #00007f"># postmap /etc/postfix/canonical</span></tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><b>[+] The generic file</b></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><tt><span style="color: #00007f"># postmap /etc/postfix/generic</span></tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"></li>
+</ul>
+<b><span style="font-size: 12pt">[+] Commands</span></b><br/>
+<ul><li style="list-style-type: none"><b>[+] Display default configuration</b></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><tt><span style="color: #00007f"># postconf -d</span></tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><b>[+] Display defined configuration</b></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><tt><span style="color: #00007f"># postconf -n</span></tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"></li>
+</ul>
+END</body></html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>pfsense command line</title>
+</head><body><br/>
+The firewall rules may (very temporarily) be disabled using the following shell command:<br/>
+<ul><li style="list-style-type: none"><span style="color: #00007f">pfctl -d &nbsp;</span></li>
+</ul>
+<br/>
+Once access is regained, turn the firewall back on using:<br/>
+<ul><li style="list-style-type: none"><span style="color: #00007f">pfctl -e &nbsp;</span></li>
+</ul>
+<br/>
+Alternately, the loaded ruleset is left in /tmp/rules.debug. That could be edited to fix the connectivity issue and reload those rules like so:<br/>
+<ul><li style="list-style-type: none"><span style="color: #00007f">pfctl -f /tmp/rules.debug &nbsp;</span></li>
+</ul>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+</body></html>

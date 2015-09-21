@@ -1,0 +1,261 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>iptables</title>
+</head><body><span style="color: #000000"><br/>
+<span style="font-size: 16pt"><div style="text-align: center"><b>IPTABLES</b></div><br/>
+</span><br/>
+</span><img src="image.png" width="300" height="740" /><b>&nbsp; </b><ul><li style="list-style-type: none"><a href="http://cs490.hubner.org/wiki/index.php?title=CPT-202_Spring_2013:_IPtables">http://cs490.hubner.org/wiki/index.php?title=CPT-202_Spring_2013:_IPtables</a><b></b></li>
+</ul>
+<b><span style="color: #000000"><br/>
+</span></b><span style="color: #000000"><b>Types of tables:</b>&nbsp;FILTER, NAT, MANGLE.<br/>
+<br/>
+</span><span style="color: #000000"><b>Types of chains: </b></span><ul><li><span style="color: #00007f">INPUT</span><span style="color: #000000">: to control packets entering the interface. This chain applies for all packets destine to firewall.</span></li>
+<li><span style="color: #00007f">OUTPUT</span><span style="color: #000000">: to control packets leaving the interface. This chain applies for all packets originating from firewall.</span></li>
+<li><span style="color: #00007f">FOWARD</span><span style="color: #000000">: to control packets being masqueraded or sent to remote hosts. This chain applies for all packets passing through firewall.</span></li>
+</ul>
+<span style="color: #000000"><br/>
+</span><span style="color: #000000"><b><span style="font-size: 11pt">iptables –t TABLE –A CHAIN –[i|o] IFACE –s w.x.y.z –d a.b.c.d –p PROT –m state --state STATE –j ACTION</span></b></span><ul><span style="color: #00007f"><li>TABLE = nat | filter | mangle</li>
+<li>&nbsp;CHAIN = INPUT | OUTPUT | FORWARD | PREROUTING | POSTROUTING</li>
+<li>IFACE = eth0 | eth1 | ppp0 | ...</li>
+<li>PROT = tcp | icmp | udp | …</li>
+<li>STATE = NEW | ESTABLISHED | RELATED | …</li>
+<li>ACTION = DROP | ACCEPT | REJECT | DNAT | SNAT | …</li>
+</span></ul>
+<span style="font-family: sans"><span style="font-size: 10pt"><span style="color: #000000"><br/>
+</span></span></span><span style="font-family: sans"><span style="font-size: 10pt"><span style="color: #000000"><b>iptable options</b></span></span></span><ul><span style="font-family: Courier New"><span style="color: #00007f"><li style="list-style-type: none"><b>-p</b>&nbsp;protocol type (tcp, udp, icmp)</li>
+<li style="list-style-type: none"><b>-s</b>&nbsp;source IP address &amp; port number</li>
+<li style="list-style-type: none"><b>-d</b>&nbsp;dest IP address &amp; port number</li>
+<li style="list-style-type: none"><b>-i</b>&nbsp;interface name (lo, ppp0, eth0)</li>
+<li style="list-style-type: none"><b>-j</b>&nbsp;target (ACCEPT, DROP, REJECT)</li>
+<li style="list-style-type: none"><b>-l</b>&nbsp;log this packet</li>
+<li style="list-style-type: none"><b>--sport</b>&nbsp;source port</li>
+<li style="list-style-type: none"><b>--dport</b>&nbsp;dest port</li>
+</span></span><li style="list-style-type: none"><span style="font-family: Courier New"><span style="color: #00007f"><b>--icmp-type</b></span></span></li>
+</ul>
+<span style="color: #000000"><br/>
+</span><span style="color: #000000"><span style="font-family: sans"><b>Operations to manage whole chains</b></span></span><ul><span style="font-family: Courier New"><li><b><span style="color: #00007f">N:</span></b><span style="color: #00007f">&nbsp;create a new chain</span></li>
+<span style="color: #00007f"><li><b>P:</b>&nbsp;change the policy of built-in chain</li>
+<li><b>L: </b>list the rules in a chain</li>
+<li><b>F:</b>&nbsp;flush the rules out of a chain</li>
+</span><b><span style="font-size: 11pt"><span style="color: #000000"><li style="list-style-type: none"></li>
+</span></span></b></span></ul>
+<b><span style="color: #000000"><span style="font-size: 10pt"><span style="font-family: sans">Manipulate rules inside a chain</span></span></span></b><ul><span style="font-family: Courier New"><li><span style="color: #00007f"><b>A:</b>&nbsp;append a new rule to a chain</span></li>
+<span style="color: #00007f"><li><b>I:</b>&nbsp;insert a new rule at some position in a chain</li>
+<li><b>R:</b>&nbsp;Replace a rule at some position in a chain</li>
+</span></span><li><span style="color: #00007f">&nbsp;<b><span style="font-family: Courier New">D:</span></b><span style="font-family: Courier New">&nbsp;delete a rule in a chain</span></span></li>
+</ul>
+<span style="color: #000000"><br/>
+</span><span style="color: #000000"><b>Action Targets/Jumps:</b>&nbsp;</span><span style="color: #00007f">ACCEPT, REJECT, DROP, MASQUERAD, RETURN,</span><span style="color: #000000"><br/>
+</span><span style="color: #000000"><br/>
+</span><span style="color: #000000"><b><span style="font-size: 12pt">Examples:</span></b></span><br/>
+<ul><li style="list-style-type: none"><span style="color: #00007f">Iptables –A input –s 192.168.100.0/24 –p tcp –j ACCEPT</span><span style="color: #000000">&nbsp;(A: Append)</span></li>
+</ul>
+<span style="color: #000000"><br/>
+</span><span style="color: #000000"><i><b>Permit SSH&amp; deny TELNET</b></i></span><ul><span style="color: #00007f"><li style="list-style-type: none"></li>
+<li style="list-style-type: none">Iptables –A INPUT –p tcp --dport 22 –j ACCEPT</li>
+</span><li style="list-style-type: none"><span style="color: #00007f">Iptables –A INPUT –p tcp --dport telnet –j DROP</span></li>
+<li style="list-style-type: none"></li>
+</ul>
+<span style="color: #000000"><i><b>Delete rule (D: Delete)</b></i><br/>
+</span><ul><span style="color: #00007f"><li style="list-style-type: none">Iptables –D INPUT 2 ou</li>
+</span><li style="list-style-type: none"><span style="color: #00007f">Iptables –D INPUT -p tcp--dport telnet –j DROP</span></li>
+</ul>
+<br/>
+<span style="color: #000000"><i><b>Erase the whole content of the table:</b></i><br/>
+</span><span style="color: #00007f">iptables -F</span><br/>
+<span style="color: #000000"><br/>
+<i><b>Listing :</b></i><br/>
+</span><ul><span style="color: #00007f"><li style="list-style-type: none">iptables -L -t FILTER</li>
+<li style="list-style-type: none">iptables -L -t MANGLE</li>
+</span><li style="list-style-type: none"><span style="color: #00007f">iptables -L -t nat</span></li>
+</ul>
+<span style="color: #000000"><br/>
+<i><b>Protocol based filter:</b></i><br/>
+</span><ul><li style="list-style-type: none"><span style="color: #00007f">iptables -A INPUT -p udp --dport 514 -j ACCEPT</span></li>
+</ul>
+<span style="color: #000000"><br/>
+<b><i>Create new chain:</i></b><br/>
+</span><ul><li style="list-style-type: none"><span style="color: #00007f">iptables -N nom</span><span style="color: #000000">&nbsp;(ex: iptables -N INTRANET)</span></li>
+</ul>
+<span style="color: #000000"><br/>
+<b><i>Rename a chain:</i></b><br/>
+</span><ul><li style="list-style-type: none"><span style="color: #00007f">iptables -E old_name new_name</span></li>
+</ul>
+<span style="color: #000000"><br/>
+<b><i>Redirection to a user created chain:</i></b><br/>
+</span><ul><li style="list-style-type: none"><span style="color: #00007f">iptables -A INPUT -s 10.10.10.0/24 -j INTRANET</span></li>
+</ul>
+<span style="color: #000000"><br/>
+</span><span style="color: #000000"><b><i>ICMP:</i></b></span><ul><span style="color: #00007f"><li style="list-style-type: none"></li>
+<li style="list-style-type: none">iptables -A OUTPUT -p icmp --icmp-type echo-reply -j DROP</li>
+</span><li style="list-style-type: none"><span style="color: #00007f">iptables -p icmp --help : for more details about icmp</span></li>
+</ul>
+<span style="color: #000000"><br/>
+<b><i>Many ports :</i></b><br/>
+</span><ul><li style="list-style-type: none"><span style="color: #00007f">iptables -A INPUT -p tcp -m multiport --dport 23,80 -j DROP</span></li>
+</ul>
+<span style="color: #000000"><br/>
+<b><i>@ MAC:</i></b><br/>
+</span><ul><li style="list-style-type: none"><span style="color: #00007f">iptables -A INPUT -p tcp -m mac --mac-source 00:bb:aa:cc:ed:08 -j DROP</span></li>
+</ul>
+<span style="color: #000000"><br/>
+<b><i>@ MAC:</i></b><br/>
+</span><ul><li style="list-style-type: none"><span style="color: #00007f">iptables -A INPUT -p tcp -m mac --mac-destination 00:bb:aa:cc:ed:08 -j DROP</span></li>
+</ul>
+<br/>
+<b><i><span style="color: #000000">Default policy</span></i></b><ul><span style="color: #00007f"><li style="list-style-type: none"></li>
+<li style="list-style-type: none">iptables –P INPUT DROP</li>
+</span><li style="list-style-type: none"><span style="color: #00007f">iptables –P OUTPUT ACCEPT</span></li>
+</ul>
+<span style="color: #000000"><br/>
+</span><span style="color: #000000"><b><i>ICMP rate limiting (echo-request ou ping): 1 by seconde</i></b></span><ul><span style="color: #00007f"><li style="list-style-type: none"></li>
+</span><li style="list-style-type: none"><span style="color: #00007f">iptables -A INPUT -p icmp -icmp-type echo-request -m limit --limit 1/s -i eth0 -j ACCEPT</span></li>
+</ul>
+<span style="color: #000000"><br/>
+</span><span style="color: #000000"><b><i>To protect against « SYNflooding», limit the SYN request to 5 packet per second</i></b></span><ul><li style="list-style-type: none"></li>
+<span style="color: #00007f"><li style="list-style-type: none">iptables -A INPUT -p tcp -syn -m limit --limit 5/s -j ACCEPT</li>
+</span></ul>
+<span style="color: #00007f"><hr/></span><span style="color: #000000"><br/>
+<span style="font-size: 12pt"><b>Filtering</b></span><br/>
+<br/>
+<b><i>ICMP rate limiting (echo-request ou ping): 1 by seconde</i></b><br/>
+</span><ul><li style="list-style-type: none"><span style="color: #00007f">iptables -A INPUT -p icmp -icmp-type echo-request -m limit --limit 1/s -i eth0 -j ACCEPT</span></li>
+</ul>
+<span style="color: #000000"><br/>
+<b><i>To protect against « SYNflooding», limit the SYN request to 5 packet per second</i></b><br/>
+</span><ul><li style="list-style-type: none"><span style="color: #00007f">iptables -A INPUT -p tcp -syn -m limit --limit 5/s -j ACCEPT</span></li>
+</ul>
+<span style="color: #000000"><hr/><br/>
+<b><span style="font-size: 12pt">User chain</span></b><br/>
+<br/>
+</span><span style="color: #000000"><b><i>Create new user chain:</i></b></span><ul><span style="color: #00007f"><li style="list-style-type: none"></li>
+</span><li style="list-style-type: none"><span style="color: #00007f">iptables –N tcppaquets</span></li>
+</ul>
+<span style="color: #000000"><br/>
+<b><i>Redirect the TCP traffic to your newly created chain</i></b><br/>
+</span><ul><li style="list-style-type: none"><span style="color: #00007f">iptables –A INPUT –p tcp –j tcppaquets</span></li>
+</ul>
+<span style="color: #000000"><hr/><br/>
+<b><span style="font-size: 12pt">Statefull firewall</span></b><br/>
+</span><span style="color: #000000"><i><b>4 possible states for connection :</b></i></span><ul><li style="list-style-type: none"><span style="color: #000000">1. </span><span style="color: #00007f"><b>NEW</b></span><span style="color: #000000">: new request for connection</span></li>
+<li style="list-style-type: none"><span style="color: #000000">2. </span><span style="color: #00007f"><b>ESTABLISHED</b></span><span style="color: #000000">: connection is already established</span></li>
+<li style="list-style-type: none"><span style="color: #000000">3. </span><span style="color: #00007f"><b>RELATED</b></span><span style="color: #000000">: connection is related to another connection</span></li>
+<li style="list-style-type: none"><span style="color: #000000">4. </span><span style="color: #00007f"><b>INVALID</b></span><span style="color: #000000">: received packets do not belong to any existing connection</span></li>
+</ul>
+<span style="color: #000000"><br/>
+<i><b>Authorize the input packets for established connection</b></i><br/>
+</span><ul><span style="color: #00007f"><li style="list-style-type: none">iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT</li>
+<li style="list-style-type: none">Iptables -A INPUT -p tcp -j REJECT</li>
+</span><li style="list-style-type: none"><span style="color: #00007f">iptables -A OUTPOUT -p tcp --d port 22 -m state –-state NEW,ESTABLISHED,RELATED -j ACCEPT</span></li>
+<span style="color: #000000"><li style="list-style-type: none"></li>
+</span></ul>
+<span style="color: #000000"><hr/></span><span style="color: #00007f"><br/>
+</span><b><span style="font-size: 12pt"><span style="color: #000000">Log files<br/>
+</span></span></b><span style="font-size: 10pt"><b><span style="color: #000000"><i>Exemple</i></span></b><span style="color: #000000">:</span><ul><li style="list-style-type: none"></li>
+<li style="list-style-type: none"><span style="color: #00007f">iptables-A OUTPUT-j LOG (nano /etc/syslog.conf)</span></li>
+<span style="color: #00007f"><li style="list-style-type: none">iptables-A INPUT-j LOG</li>
+</span><li style="list-style-type: none"><span style="color: #00007f">iptables-A FORWARD-j LOG</span></li>
+<span style="color: #000000"><li style="list-style-type: none"></li>
+</span></ul>
+</span><span style="font-size: 10pt"><span style="color: #000000"><i><b>Log rejected packets inside /var/log/messages</b></i></span></span><ul><span style="font-size: 10pt"><li style="list-style-type: none"><span style="color: #00007f">iptables -N LOG_DROP</span></li>
+<span style="color: #00007f"><li style="list-style-type: none">iptables -A LOG_DROP -p tcp --d port 22 -j LOG --log-prefix "ssh access attempt"</li>
+<li style="list-style-type: none">iptables -A LOG_DROP -p tcp --d port 22 -j DROP</li>
+</span><li style="list-style-type: none"><span style="color: #00007f">iptables –I INPUT 1 –j LOG_DROP</span></li>
+</span><li style="list-style-type: none"></li>
+</ul>
+<hr/><span style="color: #000000"><br/>
+<b><span style="font-size: 12pt">Backup your configuration</span></b><br/>
+</span><ul><span style="color: #00007f"><li style="list-style-type: none">iptables-save &gt; file.txt</li>
+<li style="list-style-type: none">iptables–F</li>
+<li style="list-style-type: none">iptables–L</li>
+<li style="list-style-type: none">iptables-restore &lt; file.txt</li>
+<li style="list-style-type: none">iptables–L</li>
+</span><span style="color: #000000"><li style="list-style-type: none"></li>
+</span></ul>
+<span style="color: #000000"><hr/><span style="font-size: 12pt"><b><br/>
+</b></span><span style="font-size: 12pt"><b>SNAT</b></span><br/>
+<img src="screenshot.png" /><br/>
+<i><b>IP source address and port modifcation</b></i><br/>
+</span><ul><li style="list-style-type: none"><span style="color: #00007f"><tt>iptables -t nat -A POSTROUTING -j SNAT--to 1.2.3.4</tt></span></li>
+</ul>
+<span style="color: #000000"><br/>
+<i><b>Changing source IP@ from 1.2.3.4=&gt;1.2.3.8</b></i><br/>
+</span><ul><li style="list-style-type: none"><span style="color: #00007f"><tt>iptables -t nat -A POSTROUTING -j SNAT --to 1.2.3.4-1.2.3.8</tt></span></li>
+</ul>
+<span style="color: #000000"><br/>
+<b><i>Changing source IP@ to 1.2.3.4 port 1-1023</i></b><br/>
+</span><ul><span style="color: #00007f"><li style="list-style-type: none"><tt>iptables -t nat -A POSTROUTING -j SNAT --to 1.2.3.4:1-1023</tt></li>
+</span></ul>
+<span style="color: #000000"><hr/><br/>
+<span style="font-size: 12pt"><b>DNAT</b></span><br/>
+<img src="screenshot 2.png" /><br/>
+<i><b>Modification of destination IP address to 1.2.3.4</b></i><br/>
+</span><ul><li style="list-style-type: none"><span style="color: #00007f"><tt>iptables - tnat -A PREROUTING –j DNAT --to 1.2.3.4</tt></span></li>
+</ul>
+<span style="color: #000000"><br/>
+<b><i>Load balancing of servers</i></b><br/>
+</span><ul><li style="list-style-type: none"><span style="color: #00007f"><tt>iptables -t nat -A PREROUTING -i eth1 -j DNAT --to-destination 10.0.1.2-10.0.1.4</tt></span></li>
+</ul>
+<span style="color: #000000"><br/>
+<b><i>Modification of destination IPaddress from1.2.3.4=&gt;1.2.3.8</i></b><br/>
+</span><ul><li style="list-style-type: none"><span style="color: #00007f"><tt>iptables -t nat -A PREROUTING –j DNAT --to 1.2.3.4-1.2.3.8</tt></span></li>
+</ul>
+<span style="color: #000000"><br/>
+<b><i>Port redirection and destination IPaddress modification tp:1.2.3.4 port 8080</i></b><br/>
+</span><ul><span style="color: #00007f"><li style="list-style-type: none"><tt>iptables -t nat -A PREROUTING –p tcp --dport 80 -j DNAT --to 1.2.3.4:8080</tt></li>
+</span></ul>
+<span style="color: #000000"><hr/><br/>
+<span style="font-size: 12pt"><b>MASQUERADING</b></span><br/>
+<img src="screenshot 3.png" /><br/>
+<b>Masquerading</b>: changing source IP address to the address of your firewall (iptables).<br/>
+Association between private @IPs 192.168.0.0/24 and the IP address of interface eth1<br/>
+</span><ul><span style="color: #00007f"><li style="list-style-type: none"><tt>iptables -t nat -A POSTROUTING -o eth1 -s 192.168.0.0/24 –j MASQUERADE</tt></li>
+</span></ul>
+<span style="color: #000000"><hr/></span><br/>
+<span style="color: #000000"><span style="font-size: 12pt"><b>Port Redirection</b></span><br/>
+<br/>
+<img src="screenshot 4.png" /><br/>
+<i><b>Port redirection: from 80 to 8080</b></i><br/>
+</span><ul><span style="color: #00007f"><li style="list-style-type: none"><tt>iptables -t nat -A PREROUTING -p tcp -d 80.15.82.16 --dport 80 -j DNAT --to 192.168.0.101:8080</tt></li>
+</span><li style="list-style-type: none"></li>
+</ul>
+<span style="color: #000000"><br/>
+<b><i>Just only the port 2323 to port 23:</i></b><br/>
+</span><ul><span style="color: #00007f"><tt><li style="list-style-type: none">iptables -t nat -A PREROUTING -p tcp --dport 2323 -j REDIRECT --to-ports 23</li>
+<li style="list-style-type: none">iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080 &nbsp;</li>
+</tt></span></ul>
+<br/>
+<span style="color: #000000"><hr/><br/>
+<b><span style="font-size: 12pt">ROUTING</span></b><br/>
+<b>Routingfrom one interface to another:</b><br/>
+</span><ul><span style="color: #00007f"><li style="list-style-type: none"><tt>iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE</tt></li>
+</span></ul>
+<b><span style="color: #000000"><br/>
+</span></b><b><span style="color: #000000">Turn Linux into router: (your Linux computer become a router)</span></b><ul><li style="list-style-type: none"><span style="color: #000000">1.</span><span style="color: #00007f">&nbsp;<tt>echo1 &gt; /proc/sys/net/ipv4/ip_forward</tt></span></li>
+<span style="color: #00007f"><li style="list-style-type: none">2. <tt>route add –net 10.0.0.0/24 netmask 255.255.255.0 gw 192.168.1.20 &amp;&amp;</tt></li>
+<li style="list-style-type: none"><tt>&nbsp; route –nr</tt></li>
+<li style="list-style-type: none">3. <tt>nano /etc/sysctl.conf </tt>et modifier la valeur du <tt>net.ipv4.ip_forward de 0 à 1</tt></li>
+</span><li style="list-style-type: none"><span style="color: #00007f">network-manager:<tt>&nbsp;/etc/init.d/network-manager stop</tt></span></li>
+</ul>
+<span style="color: #000000"><br/>
+<b>Ubuntu</b>: <ul><li style="list-style-type: none"><tt>stop network-manager</tt></li>
+</ul>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+END<br/>
+</span></body></html>

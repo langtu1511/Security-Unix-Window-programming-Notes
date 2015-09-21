@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node>
+<version>6</version>
+<dict>
+  <key>expanded</key><true/>
+  <key>duplicate_of</key><string>b1580f4b-1481-47bd-a94e-65219a8c5c3d</string>
+  <key>nodeid</key><string>1b6f2e57-7ce1-42cf-9f5d-72398f18e045</string>
+  <key>modified_time</key><integer>1425288169</integer>
+  <key>content_type</key><string>text/xhtml+xml</string>
+  <key>created_time</key><integer>1422439478</integer>
+  <key>info_sort_dir</key><integer>1</integer>
+  <key>title</key><string>Linux - timezone</string>
+  <key>version</key><integer>6</integer>
+  <key>order</key><integer>1</integer>
+  <key>info_sort</key><string>order</string>
+</dict>
+</node>

@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Redhat - Virsh command</title>
+</head><body><br/>
+REF:<ul><li style="list-style-type: none"><a href="https://raymii.org/s/articles/virt-install_introduction_and_copy_paste_distro_install_commands.html">https://raymii.org/s/articles/virt-install_introduction_and_copy_paste_distro_install_commands.html</a></li>
+</ul>
+<br/>
+<br/>
+<br/>
+<b><span style="font-size: 12pt">[+] Install a server with kickstart</span></b><br/>
+<ul><tt><li style="list-style-type: none">virt-install -name=server1.example.com \</li>
+<li style="list-style-type: none">--ram=1024 </li>
+<li style="list-style-type: none">--vcpus=2 \</li>
+<li style="list-style-type: none">--autostart \</li>
+<li style="list-style-type: none">--os-type=linux \</li>
+<li style="list-style-type: none">--os-variant=rhel7 \</li>
+<li style="list-style-type: none">--disk vol=rhpol_virsh/rovol_virsh.img \</li>
+<li style="list-style-type: none">(--disk path=/images/server1-disk1.img)</li>
+<li style="list-style-type: none">--network bridge=br0 \</li>
+<li style="list-style-type: none">--location ftp://192.168.1.100/pub/rhel7 \</li>
+<li style="list-style-type: none">--extra-args (or -x) "console=ttyS0,ks=ftp://192.168.0.100/pub/rhel7/ks.cfg"</li>
+</tt></ul>
+<br/>
+<br/>
+<span style="font-size: 12pt"><b>[+] Network management</b></span><ul><li style="list-style-type: none"></li>
+<tt><li style="list-style-type: none"></li>
+<li style="list-style-type: none">virsh net-list --all</li>
+<li style="list-style-type: none">virsh net-info my_network</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"></li>
+</tt><li style="list-style-type: none"><b>+ Create file name my_network.xml with content</b></li>
+<tt><li style="list-style-type: none"></li>
+<li style="list-style-type: none">&lt;network&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;name&gt;my_network&lt;/name&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;forward mode='nat'&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;nat&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &lt;port start='1024' end='65535'/&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;/nat&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;/forward&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;bridge name='virbr0' stp='on' delay='0'/&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;ip address='192.168.122.1' netmask='255.255.255.0'&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;dhcp&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &lt;range start='192.168.122.2' end='192.168.122.254'/&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;/dhcp&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;/ip&gt;</li>
+<li style="list-style-type: none">&lt;/network&gt;</li>
+<li style="list-style-type: none"></li>
+</tt><li style="list-style-type: none"><b>+ Define network</b></li>
+<tt><li style="list-style-type: none"></li>
+<li style="list-style-type: none">virsh net-define my_network.xml</li>
+<li style="list-style-type: none"></li>
+</tt><li style="list-style-type: none"><b>+ Auto start/start network</b></li>
+<tt><li style="list-style-type: none"></li>
+<li style="list-style-type: none">virsh net-autostart my_network</li>
+</tt><li style="list-style-type: none"><tt>virsh net-start my_network</tt></li>
+</ul>
+<br/>
+<br/>
+<span style="font-size: 12pt"><b>[+] Pool management</b></span><br/>
+<ul><tt><li style="list-style-type: none">virsh pool-list --all</li>
+<li style="list-style-type: none">virsh pool-define-as rhpol_virsh dir - - - - /var/lib/libvirt/rhpool_virsh</li>
+<li style="list-style-type: none"></li>
+</tt></ul>
+<br/>
+<span style="font-size: 12pt"><b>[+] Volume management</b></span><br/>
+<ul><tt><li style="list-style-type: none">virsh vol-list --all</li>
+</tt></ul>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+END</body></html>

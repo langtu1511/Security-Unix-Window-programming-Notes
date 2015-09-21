@@ -1,0 +1,191 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Redhat - DNS</title>
+</head><body><br/>
+<b>REF:</b><ul><li style="list-style-type: none">- DNS Security: <a href="https://www.isc.org/downloads/bind/dnssec/">https://www.isc.org/downloads/bind/dnssec/</a></li>
+</ul>
+<br/>
+IntroductionThis is a simple primer aimed at correcting some common mistakes when people run their own DNS servers. The document describes formats that relate directly to BIND format zone files, however the parameters relate directly to other nameservers and if you do not understand the format of your nameserver you should really ask some one to help you. <br/>
+<br/>
+The BIND format is used because the most common tools used for viewing the end result will report in the native BIND format.<br/>
+The SOA record.The SOA record seems to be the biggest cause of issues with people managing their own nameservers, this could be because a few documents exist which explain the last parameter of the SOA in contradicting ways. <br/>
+<br/>
+The SOA record has seven distinct fields in two main parts. The first part being outside of the parentheses, the second within. <br/>
+<br/>
+The first part of the SOA record is very simple and in our example below resolves to the following information:<ul><li>ns0.sorbs.net &lt;--- the server that holds the master zone files.</li>
+<li>dnsadmin.sorbs.net &lt;--- the email address of the DNS administrator.</li>
+</ul>
+<br/>
+The second part of the SOA record is where the most confusion occurs and it consists of five fields. These fields are described below in the normal order of the record:<ul><li><b>2005082810</b> &lt;--- <span style="color: #00007f"><tt>Serial Number</tt></span>&nbsp;for the zone - this needs to be increased each time a change is made.</li>
+<li><b>7200</b> &lt;--- <span style="color: #00007f"><tt>Refresh time</tt></span>&nbsp;- the time in seconds between when the secondary nameservers will attempt to contact the master to check for a new zone files.</li>
+<li><b>3600</b> &lt;--- <span style="color: #00007f"><tt>Retry time</tt></span>&nbsp;- the time in seconds between when the secondary nameserver will attempt reconnection with the master server following an error.</li>
+<li><b>2418200</b> &lt;--- <span style="color: #00007f"><tt>Expire Time</tt></span>&nbsp;- how long any secondary nameserver will serve queries as valid before returning SERVFAIL (2) because of lack of contact with the master nameserver.</li>
+<li><b>3600</b> &lt;--- <span style="color: #00007f"><tt>Minimum Cache Time</tt></span>&nbsp;(negative cache TTL) - How long the caching nameserver will remember negative lookups - for example where there is no entry (NXDOMAIN(3))</li>
+</ul>
+The last field is the usual one that causes confusion. The original plan was to use the field as the "default TTL", however this was deprecated with the replacement plan the entry is used as the negative cache TTL. <br/>
+<br/>
+<b><span style="font-size: 12pt">Example Entry: <br/>
+</span></b><br/>
+<tt>&nbsp;<span style="color: #00007f">IN SOA ns0.sorbs.net. dnsadmin.sorbs.net. ( </span></tt><ul><span style="color: #00007f"><tt><li style="list-style-type: none">2005082810 ; serial </li>
+<li style="list-style-type: none">7200 ; refresh </li>
+<li style="list-style-type: none">3600 ; retry </li>
+<li style="list-style-type: none">2418200 ; expire </li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>3600 ; negative cache )</tt></span><tt>&nbsp;</tt></li>
+</ul>
+<br/>
+<b>Note: <span style="color: #00007f"><i>The user part of the email address cannot have a "." in it</i></span></b>. This means "dnsadmin@sorbs.net" is valid where "dns.admin@sorbs.net" must not be used in the SOA record. This is because the first period is replaced with the @ symbol.<br/>
+<br/>
+<span style="font-size: 12pt"><b>The $TTL parameter</b></span><br/>
+<br/>
+For setting the TTL on each/all entries the $TTL parameter is used, this parameter can be used multiple times and will change the default value each time it is encountered. For example:<ul><li>$TTL 3600 &lt;--- will set all entries subsequent to this line as having a 1 hour TTL.</li>
+<li>$TTL 86400 &lt;--- will set all entries subsequent to this line as having a 1 day TTL.</li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">A Records</span></b><br/>
+<br/>
+A Records are used to specify IP addresses for hosts. They can also be used to create a single name for a group of hosts. For example you might have 3 web servers in a cluster. A records can also be used to specify an IP address for a domain name, however there are some important considerations to look at when this is implemented. An example of an A records follows: <br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">www &#09;&#09;IN A 127.0.0.1 </li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>www.sorbs.net. &#09;IN A 127.0.0.1</tt></span>&nbsp;</li>
+</ul>
+<br/>
+You'll note that the second line ends in a "." (period) and this is to indicate that the defined domain is not to be appended to the hostname. The first line does not have the period and therefore the zone name will be appended to the hostname. You should <b>not</b> use the definition with the trailing period unless you are sure you know what you are doing. <br/>
+<br/>
+The following example shows how to specify multiple IP addresses for the same hostname. <br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">www IN A 127.0.0.1 </li>
+<li style="list-style-type: none">www IN A 127.0.0.2 </li>
+</tt><li style="list-style-type: none"><tt>www IN A 127.0.0.3 </tt></li>
+</span></ul>
+<br/>
+<b><span style="font-size: 12pt">MX Records<br/>
+</span></b><br/>
+MX Records are used to specify the mail servers and their priority that receive the mail for this domain. You <b>must not</b> put IP addresses or IP literals in an MX record. An example MX record is as follows: <br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">@ IN MX 5 mail.sorbs.net. </li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>@ IN MX 10 scorpion </tt></span></li>
+</ul>
+<br/>
+The first line in this example shows a fully qualified hostname specified (Note the trailing period). The second line specifies just a hostname to which the zone domain name will be appended. Mail <b>should</b> always be delivered to mail.sorbs.net and only be delivered to scorpion.sorbs.net when mail.sorbs.net is not contactable. <br/>
+<br/>
+<b>Note</b>: MX records <b>should not</b> reference CNAME records as this causes unnecessary recursion.<br/>
+<br/>
+<span style="font-size: 12pt"><b>CNAME Records</b></span><br/>
+<br/>
+The CNAME record is a little different to the other resource records in that there <b>must not</b> be any other records referring to the hostname specified. For this reason you <b>must not</b> specify a CNAME record for a domain name. Example CNAME records follow: <br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">www IN CNAME sorbs.net. </li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>ftp IN CNAME www </tt></span></li>
+</ul>
+<br/>
+As with A and MX records you can specify fully qualified hostnames by adding the trailing period.<br/>
+<br/>
+<span style="font-size: 12pt"><b>NS Records</b></span><br/>
+<br/>
+NS Records are probably the biggest cause of misconfigurations for a domain, and yet they are extremely simple when used in the most common configurations. NS records specify the nameservers that are authoritive for a particular domain or sub domain. As with MX records NS records <b>must</b> specify hostnames and not IP addresses. The requirement to specify hostnames and not IP addresses is the part that causes the most issues and misconfigurations with nameservers though. <br/>
+<br/>
+<b>The chicken and egg problem (otherwise known as "glue" records):</b> <br/>
+<br/>
+Consider creating the zone for "<tt>example.com</tt>"... You create two nameservers in the <tt>example.com</tt>&nbsp;domain called <tt>ns0.example.com</tt>&nbsp;and <tt>ns1.example.com</tt>. Following the rules you specify NS records for the domain as follows: <br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">@ IN NS ns0.example.com. </li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>@ IN NS ns1.example.com. </tt></span></li>
+</ul>
+<br/>
+So now you want to lookup "<tt>www.example.com</tt>" the problem begins when you ask for the nameservers that are authoritive for <tt>example.com</tt>... The root nameservers will have the IP address of your nameserver and you will be directed to look the domain up on that server. You then lookup <tt>www.example.com</tt>&nbsp;record at the nameserver and the server returns the A record that you request... All simple so far? <br/>
+<br/>
+Ok lets make it complicated we'll add a sub domain ("<tt>friend.example.com</tt>") to <tt>example.com</tt>&nbsp;and give that to a friend. The friend then creates his own nameservers called <tt>ns0.friend.example.com</tt>&nbsp;and <tt>ns1.friend.example.com</tt>&nbsp;and I create the following entries in my <tt>example.com</tt>&nbsp;zone file: <br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">friend IN NS ns0.friend.example.com. </li>
+<li style="list-style-type: none">friend IN NS ns1.friend.example.com. </li>
+</tt></span><li style="list-style-type: none"></li>
+</ul>
+We reload our zones and then test the configuration, and find nothing gets to any address in the sub domain <tt>friend.example.com</tt>. The reason for the failure is the lack of "glue". The explanation is that the lookup for <tt>www.friend.example.com</tt>&nbsp;will go to the <tt>example.com</tt>&nbsp;nameserver and ask for the NS record for <tt>friend.example.com</tt>&nbsp;to which the server will reply "<tt>ns0.friend.example.com</tt>" and "<tt>ns1.friend.example.com</tt>". Your nameserver will then attempt to resolve <tt>ns0.friend.example.com</tt>&nbsp;to make the final query on <tt>www.friend.example.com</tt>... so it will lookup <tt>example.com</tt>&nbsp;and ask the <tt>example.com</tt>&nbsp;nameservers for the location of the<tt>&nbsp;friend.example.com</tt>&nbsp;nameservers to which it will return the NS records "<tt>ns0.friend.example.com</tt>" and "<tt>ns1.friend.example.com</tt>"... The process then repeats, and repeats and repeats... To solve this issue you need to add "Glue" records these records are simple A records in the parent domain that match the hostname of the nameservers. In our example this would make mean adding the following records: <br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">friend IN NS ns0.friend.example.com. </li>
+<li style="list-style-type: none">friend IN NS ns1.friend.example.com. </li>
+<li style="list-style-type: none">ns0.friend IN A 127.0.0.2 </li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>ns1.friend IN A 127.0.0.3 </tt></span></li>
+</ul>
+<br/>
+Using in the real world you would use the <tt><span style="color: #00007f">$ORIGIN</span></tt>&nbsp;definition, the following example is the 'proper' way: <ul><span style="color: #00007f"><tt><li style="list-style-type: none"></li>
+<li style="list-style-type: none">$ORIGIN example.com. </li>
+<li style="list-style-type: none">@ &nbsp; &#09;IN NS ns0.example.com. </li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none">IN NS ns1.example.com. </li>
+</ul>
+</li>
+</ul>
+</li>
+<li style="list-style-type: none">ns0 &#09;IN A 127.0.0.1 </li>
+<li style="list-style-type: none">ns1 &#09;IN A 127.0.0.2 </li>
+<li style="list-style-type: none">$ORIGIN friend.example.com. </li>
+<li style="list-style-type: none">@ &#09;IN NS ns0.friend.example.com. </li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none">IN NS ns1.friend.example.com. </li>
+</ul>
+</li>
+</ul>
+</li>
+<li style="list-style-type: none">ns0 &#09;IN A 127.0.0.3 </li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>ns1 &#09;IN A 127.0.0.4 </tt></span></li>
+</ul>
+<br/>
+Further reading and other InformationThis document is provided as simple guide to common issues that are often the cause of tickets logged to the SORBS support system. It is designed to help point you in the right direction for correcting issues to help you resolve your SORBS issues yourself. <br/>
+<br/>
+Common DNS problems are described in detail in the various RFCs particularly <a href="http://www.sorbs.net/faq/rfc1912.html">RFC1912</a>. <br/>
+<br/>
+More information on the 'Negative Cache TTL' can be found in <a href="http://www.sorbs.net/faq/rfc2308.html">RFC2308</a>.<br/>
+<br/>
+<span style="font-size: 12pt"><b>Quick Definition Reference</b></span><br/>
+<br/>
+To specify all entries until the next $ORIGIN line will be for the domain sorbs.net. <br/>
+<ul><li style="list-style-type: none"><span style="color: #00007f"><tt>$ORIGIN sorbs.net </tt></span></li>
+</ul>
+<br/>
+To specify that all entries without a TTL specified will have a 3600 second (1 hour) TTL until the next $TTL line. <br/>
+<ul><li style="list-style-type: none"><span style="color: #00007f"><tt>$TTL 3600</tt></span></li>
+</ul>
+<b><br/>
+</b>To specify that this entry refers to the current <span style="color: #00007f"><tt>$ORIGIN</tt></span>&nbsp;(or the zone definition if no $ORIGIN is specified).<br/>
+<ul><li style="list-style-type: none"><span style="color: #00007f"><tt><b>@</b>&nbsp;IN NS ns0.example.net. </tt></span></li>
+</ul>
+<br/>
+To specify that www.$ORIGIN will have two IP addresses associated with it. <br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">www &#09;IN A 127.0.0.1 </li>
+</tt></span><li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><span style="color: #00007f"><tt><li style="list-style-type: none">IN A 127.0.0.2 </li>
+</tt></span></ul>
+</li>
+</ul>
+</li>
+<li style="list-style-type: none"></li>
+</ul>
+To specify the A record for ftp.$ORIGIN will have a TTL of 86400 seconds (1 day) regardless of a previous $TTL command. <br/>
+<ul><li style="list-style-type: none"><span style="color: #00007f"><tt>ftp <b>86400</b>&nbsp;IN A 127.0.0.8 &nbsp;</tt></span></li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">Debug DNS</span></b><br/>
+<br/>
+You can use log files after starting/restarting bind to see error messages<br/>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f"># tail –f /var/log/message</span></tt></li>
+</ul>
+<br/>
+Check config file for errors<br/>
+<br/>
+check config file syntax and <tt>/etc/named.conf</tt>&nbsp;file using following utilities. <tt>named-checkconf</tt>&nbsp;command is named (BIND) configuration file syntax checking tool.<br/>
+<ul><li style="list-style-type: none"><span style="color: #00007f"><tt># named-checkconf /etc/named.conf</tt></span></li>
+</ul>
+<br/>
+Check zone file syntax for errors<br/>
+<ul><li style="list-style-type: none"><span style="color: #00007f"><tt># named-checkzone localhost /var/named/&lt;filename&gt;</tt></span></li>
+</ul>
+<br/>
+OR<br/>
+<ul><li style="list-style-type: none"><span style="color: #00007f"><tt># named-checkzone &lt;hostname&gt; /var/named/&lt;filename&gt;</tt></span></li>
+</ul>
+<br/>
+REF: <a href="https://www.howtoforge.com/troubleshooting-common-dns-misconfiguration-errors">https://www.howtoforge.com/troubleshooting-common-dns-misconfiguration-errors</a><br/>
+<br/>
+<b><span style="font-size: 12pt">Trailling dot "."</span></b><br/>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">www.example.com.</span></tt>&nbsp;— Absolute domain name</li>
+<li style="list-style-type: none"><tt><span style="color: #00007f">www.example.com</span></tt>&nbsp;— Relative domain name, which, after applying the "." that's always implicitly in everyone's DNS searchlist, becomes <tt><span style="color: #00007f">www.example.com.</span></tt></li>
+<li style="list-style-type: none"><tt><span style="color: #00007f">www</span></tt>&nbsp;with "<tt><span style="color: #00007f">example.com</span></tt>" in DNS searchlist — user types "<tt><span style="color: #00007f">www</span></tt>" and gets <tt><span style="color: #00007f">www.example.com.</span></tt></li>
+</ul>
+<br/>
+<br/>
+<br/>
+<br/>
+END</body></html>

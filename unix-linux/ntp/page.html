@@ -1,0 +1,40 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>NTP</title>
+</head><body><br/>
+<br/>
+<br/>
+<b><span style="font-size: 12pt">[+] Problem 1</span></b><ul><tt><span style="color: #00007f"><li style="list-style-type: none">[root@server1 ~]# ntpstat</li>
+<li style="list-style-type: none">synchronised to NTP server (91.121.165.146) at stratum 3 </li>
+<li style="list-style-type: none">&nbsp; &nbsp;time correct to within 7982 ms</li>
+<li style="list-style-type: none">&nbsp; &nbsp;polling server every 64 s</li>
+</span></tt><li style="list-style-type: none"></li>
+<li style="list-style-type: none"><b>Sollution</b></li>
+</ul>
+<ul><li style="list-style-type: none">What is the output of "ntpq -np"? How large are the delay/offset/jitter values?</li>
+<li style="list-style-type: none">&nbsp;</li>
+<li style="list-style-type: none">NTP protocol always distributes UTC time, but Windows system clock runs in local time.</li>
+<li style="list-style-type: none">So if you are using a Windows-based NTP service, it is very important that the timezone setting is set correctly on the Windows server: otherwise the conversion from the local time in Windows system clock to UTC time for NTP will produce an incorrect result.</li>
+<li style="list-style-type: none">&nbsp;</li>
+<li style="list-style-type: none">Unix and Linux systems run their system clocks fundamentally in UTC time, so it is likely that your Linux VMs already have the correct timezone setting. But you should still check the timezone settings to be sure. In any Unix/Linux system, "date -u" should always return a correct UTC timestamp.</li>
+<li style="list-style-type: none">&nbsp;</li>
+<li style="list-style-type: none">When a VM starts up, it may inherit its system clock time from the host platform - and if the host platform's clock or timezone setting is wrong, the system clock may have a value that is too different from real time, causing ntpd to reject a NTP time server or to abort completely.</li>
+<li style="list-style-type: none">&nbsp;</li>
+<li style="list-style-type: none">On virtual machines, VMware recommends adding this setting in the beginning of /etc/ntp.conf:</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><tt><span style="color: #00007f">tinker panic 0</span></tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Ref:</li>
+<li style="list-style-type: none"><a href="http://kb.vmware.com/selfservice/microsites/search.do?language=en_US&cmd=displayKC&externalId=1006427">http://kb.vmware.com/selfservice/microsites/search.do?language=en_US&amp;cmd=displayKC&amp;externalId=1006427</a></li>
+<li style="list-style-type: none">&nbsp;</li>
+<li style="list-style-type: none">This is because the virtualization host platform may "steal" some processing time from the VM if the VM is idle, causing the VM's system clock to sometimes seem slow compared to real time.</li>
+<li style="list-style-type: none">&nbsp;</li>
+<li style="list-style-type: none">Other virtualization platforms may have similar recommendations: check the documentation of your virtualization platform.</li>
+<li style="list-style-type: none">MK</li>
+</ul>
+<br/>
+<br/>
+<br/>
+END</body></html>

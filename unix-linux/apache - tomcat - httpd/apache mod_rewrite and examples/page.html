@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Apache mod_rewrite and Examples</title>
+</head><body><br/>
+<b><span style="font-size: 12pt">What is mod_rewrite?</span></b><br/>
+<br/>
+HostGator uses Apache, the open source HTTP server software, to host your website. Apache can be customized via modules, and the mod_rewrite module is available for you to use yourself. mod_rewrite can redirect one URL to another URL, rewrite requested URLs, limit access to your site and much more. <br/>
+<br/>
+A rewrite rule can be invoked by placing it in your .htaccess file. Below are examples of how you can use these rules to customize your hosting experience.<br/>
+<br/>
+<b>Note</b>: Please remember we do not offer support to code this, nor do we promise to make your code work. Some of these codes work in combination with others, but some do not.<br/>
+<br/>
+<b><span style="font-size: 12pt">mod_rewrite Examples</span></b><br/>
+<br/>
+Here are examples of rules that allow you to do the following:<br/>
+<br/>
+<b>Set Default Homepage</b><br/>
+<br/>
+<tt>#Specify a default home page (index page)<br/>
+</tt><tt>DirectoryIndex home.html</tt><br/>
+<br/>
+<b>Specify IP Access</b><br/>
+<br/>
+<tt>#Allow only specified IPs to access your site<br/>
+deny from all<br/>
+allow from 64.95.219.140<br/>
+</tt><tt>allow from 210.23.45.67</tt><br/>
+<br/>
+<b>Redirect All Website Pages</b><br/>
+<br/>
+<tt># Redirect all pages from olddomain.com<br/>
+# to newdomain.com<br/>
+Options +FollowSymLinks<br/>
+RewriteEngine on<br/>
+RewriteCond %{HTTP_HOST} ^www.olddomain.com$ [OR]<br/>
+RewriteCond %{HTTP_HOST} ^olddomain.com$<br/>
+</tt><tt>RewriteRule ^(.*)$ http://www.newdomain.com/$1 [R=301,L]</tt><br/>
+<br/>
+<b>Prevent Sub-folder Access</b><br/>
+<br/>
+<tt>#Prevent subfolder loading. This goes<br/>
+# in htaccess for the primary domain<br/>
+RewriteCond %{HTTP_HOST} ^primary\.com$ [OR]<br/>
+RewriteCond %{HTTP_HOST} ^www\.primary\.com$<br/>
+</tt><tt>RewriteRule ^addon\.com\/?(.*)$ "http\:\/\/www\.addon\.com\/$1" [R=301,L]</tt><br/>
+<br/>
+<b>Prevent Sub-domain Access</b><br/>
+<br/>
+<tt>#Prevent subdomain name loading.<br/>
+#This goes in htaccess for the primary domain<br/>
+RewriteCond %{HTTP_HOST} ^subname\.primary\.com$ [OR]<br/>
+RewriteCond %{HTTP_HOST} ^www\.subname\.primary\.com$<br/>
+</tt><tt>RewriteRule ^(.*)$ "http\:\/\/www\.addon\.com\/$1" [R=301,L]</tt><br/>
+<br/>
+<b>Force Non-www Domain Access</b><br/>
+<br/>
+<tt># Never use www in the domain<br/>
+# Replace 'example.com' with your domain name<br/>
+RewriteEngine on<br/>
+RewriteCond %{HTTP_HOST} ^www\.(([a-z0-9_]+\.)?example\.com)$ [NC]<br/>
+</tt><tt>RewriteRule .? http://%1%{REQUEST_URI} [R=301,L]</tt><br/>
+<br/>
+<b>Force www Domain Access</b><br/>
+<br/>
+<tt># Always use www in the domain<br/>
+# Replace 'example.com' with your domain name<br/>
+RewriteEngine on<br/>
+RewriteCond %{HTTP_HOST} ^([a-z.]+)?example\.com$ [NC]<br/>
+RewriteCond %{HTTP_HOST} !^www\. [NC]<br/>
+</tt><tt>RewriteRule .? http://www.%1example.com%{REQUEST_URI} [R=301,L]</tt><br/>
+<br/>
+<b>Set Default Home Folder</b><br/>
+<ul><tt><li style="list-style-type: none"># Set a default home directory, (this subfolder always loads)</li>
+<li style="list-style-type: none"># Replace 'folder' with your subfolder name</li>
+<li style="list-style-type: none">&lt;IfModule mod_rewrite.c&gt;</li>
+<li style="list-style-type: none">RewriteEngine On</li>
+<li style="list-style-type: none">RewriteRule ^$ /folder/ [R=301,L]</li>
+</tt><li style="list-style-type: none"><tt>&lt;/IfModule&gt;</tt></li>
+</ul>
+<br/>
+<b>Redirect Folder Access</b><br/>
+<ul><tt><li style="list-style-type: none"># Rename a directory and force visitors to the new name</li>
+<li style="list-style-type: none"># Replace 'old' with your old folder name</li>
+<li style="list-style-type: none"># Replace 'new' with your new folder name</li>
+<li style="list-style-type: none">RewriteEngine on</li>
+</tt><li style="list-style-type: none"><tt>RewriteRule ^/?old([a-z/.]*)$ /new$1 [R=301,L]</tt></li>
+</ul>
+<br/>
+<b>Force HTTPS Access<br/>
+</b><ul><tt><li style="list-style-type: none"># Always use https for secure connections</li>
+<li style="list-style-type: none"># Replace 'www.example.com' with your domain name</li>
+<li style="list-style-type: none"># (as it appears on your SSL certificate)</li>
+<li style="list-style-type: none">RewriteEngine On</li>
+<li style="list-style-type: none">RewriteCond %{SERVER_PORT} 80</li>
+</tt><li style="list-style-type: none"><tt>RewriteRule ^(.*)$ https://www.example.com/$1 [R=301,L]</tt></li>
+</ul>
+<br/>
+<b>Block Multiple Referrers Traffic</b><br/>
+<ul><tt><li style="list-style-type: none"># Block traffic from multiple referrers</li>
+<li style="list-style-type: none">RewriteEngine on</li>
+<li style="list-style-type: none">Options +FollowSymlinks</li>
+<li style="list-style-type: none">RewriteCond %{HTTP_REFERER} badsite\.com [NC,OR]</li>
+<li style="list-style-type: none">RewriteCond %{HTTP_REFERER} badforum\.com [NC,OR]</li>
+<li style="list-style-type: none">RewriteCond %{HTTP_REFERER} badsearchengine\.com [NC]</li>
+</tt><li style="list-style-type: none"><tt>RewriteRule .* - [F]</tt></li>
+</ul>
+<br/>
+<b>Deny File Type Access</b><br/>
+<ul><tt><li style="list-style-type: none">#Do not allow these file types to be called</li>
+<li style="list-style-type: none">RewriteEngine on</li>
+</tt><li style="list-style-type: none"><tt>RewriteRule .*\.(jpg|jpeg|gif|png|bmp|exe|swf)$ - [F,NC]</tt></li>
+</ul>
+<br/>
+<b>Remove Index</b><br/>
+<ul><tt><li style="list-style-type: none">Options +FollowSymLinks -MultiViews -indexes</li>
+<li style="list-style-type: none">RewriteEngine On</li>
+<li style="list-style-type: none">RewriteBase /</li>
+<li style="list-style-type: none"># remove index</li>
+<li style="list-style-type: none">RewriteCond %{THE_REQUEST} /index(\.php)?[\s?/] [NC]</li>
+</tt><li style="list-style-type: none"><tt>RewriteRule ^(.*?)index(/|$) /$1 [L,R=301,NC,NE]</tt></li>
+</ul>
+<br/>
+<b>Remove .php</b><br/>
+<ul><tt><li style="list-style-type: none">Options +FollowSymLinks -MultiViews -indexes</li>
+<li style="list-style-type: none">RewriteEngine On</li>
+<li style="list-style-type: none">RewriteBase /</li>
+<li style="list-style-type: none"># remove .php; use THE_REQUEST to prevent infinite loops</li>
+<li style="list-style-type: none">RewriteCond %{THE_REQUEST} ^GET\ (.*)\.php\ HTTP</li>
+</tt><li style="list-style-type: none"><tt>RewriteRule (.*)\.php$ $1 [L,R=301]</tt></li>
+</ul>
+<b><br/>
+</b><b>Remove Index and /</b><br/>
+<ul><tt><li style="list-style-type: none">Options +FollowSymLinks -MultiViews -indexes</li>
+<li style="list-style-type: none">RewriteEngine On</li>
+<li style="list-style-type: none">RewriteBase /</li>
+<li style="list-style-type: none"># remove index</li>
+<li style="list-style-type: none">RewriteRule (.*)/index$ $1/ [R=302]</li>
+<li style="list-style-type: none"># remove slash if not directory</li>
+<li style="list-style-type: none">RewriteCond %{REQUEST_FILENAME} !-d</li>
+<li style="list-style-type: none">RewriteCond %{REQUEST_URI} /$</li>
+</tt><li style="list-style-type: none"><tt>RewriteRule (.*)/ $1 [R=301,L]</tt></li>
+</ul>
+<br/>
+<b>Add .php To Access a File Without Redirecting</b><br/>
+<ul><tt><li style="list-style-type: none">Options +FollowSymLinks -MultiViews -indexes</li>
+<li style="list-style-type: none">RewriteEngine On</li>
+<li style="list-style-type: none">RewriteBase /</li>
+<li style="list-style-type: none"># add .php to access file, but don't redirect</li>
+<li style="list-style-type: none">RewriteCond %{REQUEST_FILENAME}.php -f</li>
+<li style="list-style-type: none">RewriteCond %{REQUEST_URI} !/$</li>
+</tt><li style="list-style-type: none"><tt>RewriteRule (.*) $1.php [L]</tt></li>
+</ul>
+&nbsp;<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+END</body></html>

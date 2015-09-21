@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node>
+<version>6</version>
+<dict>
+  <key>expanded</key><false/>
+  <key>nodeid</key><string>c83d8f0f-c8c2-429a-a805-ef72b09db164</string>
+  <key>modified_time</key><integer>1439649540</integer>
+  <key>content_type</key><string>text/xhtml+xml</string>
+  <key>created_time</key><integer>1439649540</integer>
+  <key>info_sort_dir</key><integer>1</integer>
+  <key>icon</key><string>folder.png</string>
+  <key>title</key><string>Firewall</string>
+  <key>version</key><integer>6</integer>
+  <key>order</key><integer>6</integer>
+  <key>info_sort</key><string>order</string>
+</dict>
+</node>

@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Firewall</title>
+</head><body><br/>
+<br/>
+<span style="font-size: 12pt"><b>[+] Problem 1</b></span><br/>
+<ul><tt><li style="list-style-type: none">root@sd-61502:/etc/pve/firewall# pve-firewall status</li>
+<li style="list-style-type: none">ip6tables-save v1.4.14: Cannot initialize: Address family not supported by protocol</li>
+<li style="list-style-type: none"></li>
+</tt><li style="list-style-type: none"><tt>command '/sbin/ip6tables-save' failed: exit code 1</tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><b>Sollution </b></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">REF: <a href="http://forum.proxmox.com/threads/21015-ip6tables-save-error-in-syslog">http://forum.proxmox.com/threads/21015-ip6tables-save-error-in-syslog</a></li>
+<li style="list-style-type: none">Solved. It seems that installation has ipv6 disabled.</li>
+<li style="list-style-type: none">Edit<tt>&nbsp;/etc/modprobe.d/local.conf</tt>&nbsp;and change line:</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><tt>options ipv6 disabled=0</tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Worked for me.</li>
+</ul>
+<br/>
+<br/>
+<b><span style="font-size: 12pt">[+] Enable firewall for cluster, host, node</span></b><br/>
+<ul><li style="list-style-type: none">To enable firewall for cluster, add following lines to file <tt>/etc/pve/firewall/cluster.fw</tt></li>
+<li style="list-style-type: none"><ul><tt><li style="list-style-type: none">[OPTIONS]</li>
+</tt><li style="list-style-type: none"><tt>enable: 1</tt></li>
+</ul>
+</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">To enable firewall for host, add following lines to file <tt>/etc/pve/nodes/[host_name]/host.fw</tt></li>
+<li style="list-style-type: none"><ul><tt><li style="list-style-type: none">[OPTIONS]</li>
+</tt><li style="list-style-type: none"><tt>enable: 1</tt></li>
+</ul>
+</li>
+</ul>
+<ul><li style="list-style-type: none">To enable firewall for each VM, add following lines to file <tt>/etc/pve/firewall/[VM_ID].fw</tt></li>
+<li style="list-style-type: none"><ul><tt><li style="list-style-type: none">[OPTIONS]</li>
+</tt><li style="list-style-type: none"><tt>enable: 1</tt></li>
+<li style="list-style-type: none"></li>
+</ul>
+</li>
+</ul>
+<br/>
+<br/>
+<br/>
+END</body></html>

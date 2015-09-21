@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>tomcat - mod_jk</title>
+</head><body><br/>
+<br/>
+<a href="https://www.mulesoft.com/tcat/apache-tomcat-mod-jk-connector-configuration">https://www.mulesoft.com/tcat/apache-tomcat-mod-jk-connector-configuration</a><br/>
+<br/>
+<br/>
+As mod_jk allows communication between HTTPD and Apache, installing the module requires some legwork on both servers. &nbsp;In this section of the article, we'll walk you through the whole process. &nbsp;<br/>
+<br/>
+(Note: Although not covered by this article, mod_jk is also compatible with IIS and NES/iPlanet/Sun. &nbsp;Documentation for these components is available on the Tomcat Connectors project site.<br/>
+<br/>
+<b>Step 1 - Download the latest version of mod_jk</b><br/>
+<br/>
+New versions of mod_jk are released as source packages, and as binary packages for select platforms. &nbsp;Both are available for download from the Apache Tomcat Connector project download page.<br/>
+<br/>
+Currently, the following platforms receive binary releases: AIX, FreeBSD, iSeries, Linux, Mac OS X, Netware, Solaris, and Windows (32- and 64-bit releases). <br/>
+<br/>
+Download the most recent release. &nbsp;If you want to build mod_jk from source, follow the directions provided along with the release.<br/>
+<br/>
+<b>Step 2 - Install the mod_jk module</b><br/>
+<br/>
+Locate the <span style="color: #00007f"><tt>mod_jk </tt></span>module itself inside the release package. &nbsp;If you downloaded a Unix-type release, this file will be named <tt><span style="color: #00007f">'mod_jk.so'</span></tt>. &nbsp;On a Windows system, look for<tt><span style="color: #00007f">&nbsp;'mod_jk.dll'</span></tt>.<br/>
+<br/>
+Next, you must copy this file in the the HTTPD module directory. &nbsp;The location of this directory can vary from platform to platform, so if you do not know where it is located, consult the Apache HTTPD documentation. &nbsp;On Unix-based systems, the module directory is usually located within the apache directory in<tt><span style="color: #00007f">&nbsp;'/usr/lib/' or '/usr/local/'</span></tt>, while on Windows machines in can be found within the Apache directory in '<tt>C:\Program Files'.</tt><br/>
+<br/>
+<b>Step 3 - Configure httpd.conf</b><br/>
+<br/>
+Now that you've installed mod_jk, you need to configure it in your httpd.conf file so that you can use it. &nbsp;You can find httpd.conf in the 'conf' directory of your Apache HTTPD home folder.<br/>
+<br/>
+The configuration provided below, based on the Tomcat documentation, is the minimum configuration required for mod_jk to run correctly. &nbsp;Replace the placeholder paths with the correct paths and values for your system.<br/>
+<br/>
+<tt><span style="color: #00007f">&nbsp; # Load the mod_jk module. &nbsp;<br/>
+<br/>
+&nbsp; LoadModule &nbsp; &nbsp;jk_module &nbsp;path/to/mod_jk.so<br/>
+</span></tt><br/>
+&nbsp; # Declare the module for use with the &lt;IfModule directive&gt; element. &nbsp;(This only applies to versions of HTTPD below 2.x. &nbsp;For 2.x and above, REMOVE THIS LINE.)<br/>
+<br/>
+&nbsp;<tt><span style="color: #00007f">&nbsp;AddModule &nbsp; &nbsp; mod_jk.c</span></tt><br/>
+<br/>
+&nbsp; # Set path to workers.properties. We will create this file in the next step. &nbsp;The file will be placed in the same directory as httpd.conf.<br/>
+<br/>
+&nbsp;<tt><span style="color: #00007f">&nbsp;JkWorkersFile /path/to/httpd/conf/workers.properties</span></tt><br/>
+<br/>
+&nbsp; # Set path to jk shared memory. &nbsp;Generally, you'll want this to point to your local state or logs directory.<br/>
+<br/>
+&nbsp;<tt><span style="color: #00007f">&nbsp;JkShmFile &nbsp; &nbsp; /path/to/log/httpd/mod_jk.shm</span></tt><br/>
+<br/>
+&nbsp; # Where to put jk logs<br/>
+<br/>
+&nbsp; # Set path to jk logs. &nbsp;This path should point to the same logs directory as the HTTPD access_log.<br/>
+<br/>
+<tt><span style="color: #00007f">&nbsp;JkLogFile &nbsp; &nbsp; /path/to/log/httpd/mod_jk.log</span></tt><br/>
+<br/>
+&nbsp; # Set the jk log level. &nbsp;Valid values for this setting are 'debug', 'error', or 'info'.<br/>
+<br/>
+<tt><span style="color: #00007f">&nbsp; JkLogLevel &nbsp; &nbsp;level</span></tt><br/>
+<br/>
+&nbsp; # Set timestamp log format. &nbsp;Use provided variables to customize.<br/>
+<br/>
+&nbsp;<tt><span style="color: #00007f">&nbsp;JkLogStampFormat "[%a %b %d %H:%M:%S %Y] "<br/>
+</span></tt><br/>
+&nbsp; # Map a worker to a namespace. &nbsp;Workers represent Tomcat instances that are listening for requests. &nbsp;We'll configure these in the next section. &nbsp;For the sake of this example, Tomcat's "examples" context is used, and a default worker named 'worker1', which we will create in Step 4, is designated. &nbsp;Multiple JkMount attributes can be used simultaneously.<br/>
+<br/>
+<tt><span style="color: #00007f">&nbsp; JkMount &nbsp;/examples/* worker1</span></tt><br/>
+<br/>
+<b>Step 4 - Configure workers.properties</b><br/>
+<br/>
+The workers.properties file defines a list of Tomcat 'workers' to which Apache HTTPD can pass requests. &nbsp;<br/>
+<br/>
+The bare-bones configuration below defines the ajp13 worker named 'worker1' that we designated in Step 3 to handle all requests for the "examples" context:<br/>
+<tt><span style="color: #00007f"><br/>
+# Define a worker named 'worker1' (more workers can be added as comma separated values)<br/>
+<br/>
+&nbsp; worker.list=worker1<br/>
+<br/>
+&nbsp; # Set worker properties<br/>
+<br/>
+&nbsp; worker.worker1.type=ajp13<br/>
+<br/>
+&nbsp; worker.worker1.host=localhost<br/>
+<br/>
+</span></tt><tt><span style="color: #00007f">&nbsp; worker.worker1.port=8009</span></tt><br/>
+<br/>
+In the interest of simplicity, this tutorial only provides a basic configuration. &nbsp;<br/>
+<br/>
+However, the workers.properties file can become quite complex in practice, containing multiple types of workers, virtual workers, and parts of a clustering or load balancing configuration.<br/>
+<br/>
+Although we will not cover the workers.properties file in any more depth here, full documentation is available on the Tomcat Connectors project site, and in our step to step guide to Tomcat Clustering.<br/>
+<br/>
+<b>Step 5 - Test Configuration</b><br/>
+<br/>
+After completing the steps above, restart Apache HTTPD and navigate to the examples context. &nbsp;If your configuration is correct, the page will display as normal. <br/>
+<br/>
+If you experience any strange errors, Apache's Tomcat Connector FAQ is a good resource to help you track down the source.</body></html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Bash Command History Size</title>
+</head><body><br/>
+<div style="text-align: center"><b><span style="font-size: 12pt"><a href="https://www.digitalocean.com/community/tutorials/how-to-use-bash-history-commands-and-expansions-on-a-linux-vps">How To Use Bash History Commands and Expansions on a Linux VPS</a></span></b></div><br/>
+<br/>
+<br/>
+<b><span style="font-size: 12pt">Introduction</span></b><br/>
+<br/>
+While working in a server environment, you'll spend a lot of your time on the command line. Most likely, you'll be using the bash shell, which is the default of most distributions.<br/>
+<br/>
+During a terminal session, you'll likely be repeating common commands often, and typing variations on those commands even more frequently. While typing each command again can be good practice in the beginning, at some point, it crosses the line into being disruptive and an annoyance.<br/>
+<br/>
+Luckily, the bash shell has some fairly well-developed history functions. Learning how to affectively use and manipulate your bash history will allow you to spend less time typing and more time getting actual work done. Many developers are familiar with the DRY philosophy of Don't Repeat Yourself. Effective use of bash's history allows you to operate closer to this principle and will speed up your work flow.<br/>
+<br/>
+In this guide, we will be checking out these features on an Ubuntu 12.04 VPS instance, but almost all modern Linux distributions should operate in a similar way. Let's get started!<br/>
+<br/>
+<b><span style="font-size: 12pt">Setting History Defaults</span></b><br/>
+<br/>
+Before we begin actually using the history, let's adjust some bash settings to make it more useful.<br/>
+<br/>
+Bash allows you to adjust the number of previous commands that it stores in history. It actually has two separate options for this: the HISTFILESIZE parameter configures how many commands are kept in the history file, while the HISTSIZE controls the number stored in memory for the current session.<br/>
+<br/>
+This means you can set a reasonable cap for the size of history in memory for the current session, and have an even larger history saved to disk that you can examine at a later time. By default, bash sets very conservative values for these options, so we'll expand them to take advantage of a larger history. Some distributions already increase the default bash history settings with slightly more generous values.<br/>
+<br/>
+Open your ~/.bashrc file with an editor to change these settings:<br/>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">nano ~/.bashrc</span></tt></li>
+</ul>
+<br/>
+Search for both the HISTSIZE and HISTFILESIZE parameters. If they are set, feel free to modify the values. If these parameters aren't in your file, add them now. For our purposes, we can easily get away with saving 10000 lines to disk and loading the last 5000 lines into memory. This is a conservative estimate for most systems, but adjust it down if you see a performance impact:<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">HISTSIZE=5000</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">HISTFILESIZE=10000</span></tt></li>
+</ul>
+<ul><tt><span style="color: #00007f">HISTTIMEFORMAT="%d/%m/%y %T " &nbsp;</span><span style="color: #000000"># format like: </span></tt></ul>
+<span style="color: #000000">&nbsp;<tt>989 11/03/10 04:31:37 top</tt></span><tt>&nbsp; </tt><ul><li style="list-style-type: none"></li>
+</ul>
+<br/>
+By default, bash writes its history at the end of each session, overwriting the existing file with an updated version. This means that if you are logged in with multiple bash sessions, only the last one to exit will have its history saved.<br/>
+<br/>
+We can work around this by setting the histappend setting, which will append instead of overwrite the history. This may be set already, but if it is not, you can enable this by adding this line:<br/>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">shopt -s histappend</span></tt></li>
+</ul>
+<br/>
+If we want to have bash immediately add commands to our history instead of waiting for the end of each session (to enable commands in one terminal to be instantly be available in another), we can also set or append the history -a command to the PROMPT_COMMAND parameter, which contains commands that are executed before each new command prompt.<br/>
+<br/>
+To do this correctly, we need to do a bit of a hack. We need to append to the history file immediately with history -a, clear the current history in our session with history -c, and then read the history file that we've appended to, back into our session history with history -r.<br/>
+<br/>
+You can do this like so:<br/>
+<ul><li style="list-style-type: none"><span style="color: #00007f"><tt>export PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"</tt></span></li>
+</ul>
+<br/>
+When you are finished, save the file and exit.<br/>
+<br/>
+To implement your changes, either log out and back in again, or source the file by typing:<br/>
+<ul><li style="list-style-type: none"><span style="color: #00007f"><tt>source ~/.bashrc</tt></span></li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">Reviewing your Previous Bash History</span></b><br/>
+<br/>
+The way that we review bash history is to use the history command. This will print out our recent commands, one command per line. This should output, at most, the number of lines you selected for the HISTSIZE variable. It will probably be fewer at this point:<br/>
+<br/>
+history<br/>
+&nbsp; &nbsp;. . .<br/>
+&nbsp; &nbsp;<tt><span style="color: #00007f">man bash<br/>
+</span></tt><tt><span style="color: #00007f">&nbsp; &nbsp;man fc<br/>
+&nbsp; &nbsp;man bash<br/>
+&nbsp; &nbsp;fc -l -10<br/>
+&nbsp; &nbsp;history<br/>
+&nbsp; &nbsp;ls -a<br/>
+&nbsp; &nbsp;vim .bash_history <br/>
+&nbsp; &nbsp;history<br/>
+&nbsp; &nbsp;man history<br/>
+&nbsp; &nbsp;history 10<br/>
+</span></tt><tt><span style="color: #00007f">&nbsp; &nbsp;history</span></tt><br/>
+It also prints the history number for each command. Each command is associated with a number for easy reference. You will see why this is useful in a moment.<br/>
+<br/>
+We can truncate the output by specifying a number after the command. For instance, if we want to only see the last 5 commands typed, we can type:<br/>
+<br/>
+<span style="color: #00007f"><tt><b>history 5</b></tt></span><ul><li style="list-style-type: none">&nbsp; &nbsp;<span style="color: #00007f"><tt>50 &nbsp;history</tt></span></li>
+<span style="color: #00007f"><tt><li style="list-style-type: none">&nbsp; &nbsp;51 &nbsp;man history</li>
+<li style="list-style-type: none">&nbsp; &nbsp;52 &nbsp;history 10</li>
+<li style="list-style-type: none">&nbsp; &nbsp;53 &nbsp;history</li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>&nbsp; &nbsp;54 &nbsp;history 5</tt></span></li>
+</ul>
+To find all of the history commands that involve a certain string, an easy way of getting an overview is to simply pipe it to grep. For example, we can search for the lines that have cd by typing:<br/>
+<br/>
+<b><span style="color: #00007f"><tt>history | grep cd</tt></span></b><br/>
+&nbsp; &nbsp;<tt><span style="color: #00007f">33 &nbsp;cd Pictures/<br/>
+</span></tt><tt><span style="color: #00007f">&nbsp; &nbsp;37 &nbsp;cd ..<br/>
+&nbsp; &nbsp;39 &nbsp;cd Desktop/<br/>
+&nbsp; &nbsp;61 &nbsp;cd /usr/bin/<br/>
+&nbsp; &nbsp;68 &nbsp;cd<br/>
+&nbsp; &nbsp;83 &nbsp;cd /etc/<br/>
+&nbsp; &nbsp;86 &nbsp;cd resolvconf/<br/>
+&nbsp; &nbsp;90 &nbsp;cd resolv.conf.d/<br/>
+</span></tt><br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+END</body></html>

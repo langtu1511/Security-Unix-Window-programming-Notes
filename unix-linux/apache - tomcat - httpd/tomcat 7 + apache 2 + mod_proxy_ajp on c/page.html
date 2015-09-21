@@ -1,0 +1,186 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Tomcat 7 + Apache 2 + mod_proxy_ajp on CentOS / RHEL 6</title>
+</head><body><br/>
+<div style="text-align: center"><span style="font-size: 12pt"><b><a href="http://antoine.hordez.fr/2012/12/29/howto-tomcat7-apache2-mod_proxy_ajp-on-centos-rhel-6/">Tomcat 7 + Apache 2 + mod_proxy_ajp on CentOS / RHEL 6</a></b></span></div><br/>
+<br/>
+In this post you will learn how to configure access to Tomcat trough an Apache virtual host on port 80 with <tt>mod_proxy_ajp</tt>.<br/>
+The Tomcat webapp will be available on <tt>http://www.mybestapp.com/</tt><br/>
+The Apache static content (css, javascript, etc.) will be available on <tt>http://static.mybestapp.com/</tt><br/>
+<br/>
+<span style="font-size: 12pt"><b>Configure Tomcat 7 as a service</b></span><br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">cd /etc/init.d</li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>vi tomcat</tt></span></li>
+<li style="list-style-type: none">---</li>
+<li style="list-style-type: none"><ul><span style="color: #00007f"><tt><li style="list-style-type: none">#!/bin/bash</li>
+<li style="list-style-type: none"># description: Tomcat Start Stop Restart</li>
+<li style="list-style-type: none"># processname: tomcat</li>
+<li style="list-style-type: none"># chkconfig: 234 20 80</li>
+<li style="list-style-type: none">JAVA_HOME=/usr/java/jre1.7.0_10</li>
+<li style="list-style-type: none">export JAVA_HOME</li>
+<li style="list-style-type: none">PATH=$JAVA_HOME/bin:$PATH</li>
+<li style="list-style-type: none">export PATH</li>
+<li style="list-style-type: none">CATALINA_HOME=/opt/apache-tomcat-7.0.34</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">case $1 in</li>
+<li style="list-style-type: none">start)</li>
+<li style="list-style-type: none">sh $CATALINA_HOME/bin/startup.sh</li>
+<li style="list-style-type: none">;;</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">stop)</li>
+<li style="list-style-type: none">sh $CATALINA_HOME/bin/shutdown.sh</li>
+<li style="list-style-type: none">;;</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">restart)</li>
+<li style="list-style-type: none">sh $CATALINA_HOME/bin/shutdown.sh</li>
+<li style="list-style-type: none">sh $CATALINA_HOME/bin/startup.sh</li>
+<li style="list-style-type: none">;;</li>
+<li style="list-style-type: none">esac</li>
+<li style="list-style-type: none"></li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>exit 0</tt></span></li>
+</ul>
+</li>
+</ul>
+<br/>
+Add the init script and activate it on startup for runlevel 2, 3 and 4:<br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">chmod 755 tomcat</li>
+<li style="list-style-type: none">chkconfig --add tomcat</li>
+<li style="list-style-type: none">chkconfig --level 234 tomcat on</li>
+</tt></span><li style="list-style-type: none"><ul><li style="list-style-type: none"></li>
+</ul>
+</li>
+</ul>
+<span style="font-size: 12pt"><b>Configure Tomcat access manager (if needed)</b></span><br/>
+<ul><li style="list-style-type: none"><span style="color: #00007f"><tt>vi /opt/apache-tomcat-7.0.34/conf/tomcat-users.xml</tt></span></li>
+</ul>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">&lt;tomcat-users&gt;</li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none">&lt;role rolename="manager-script"/&gt;</li>
+<li style="list-style-type: none">&lt;role rolename="manager-gui"/&gt;</li>
+<li style="list-style-type: none">&lt;role rolename="admin-gui"/&gt;</li>
+<li style="list-style-type: none">&lt;user username="admin" password="mybestpassword" roles="manager-gui,admin-gui,manager-script"/&gt;</li>
+</ul>
+</li>
+<li style="list-style-type: none">&lt;/tomcat-users&gt;</li>
+</tt></span></ul>
+<br/>
+<span style="font-size: 12pt"><b>Start Tomcat</b></span><br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">service tomcat start</li>
+<li style="list-style-type: none"></li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 8080 -j ACCEPT</tt></span></li>
+</ul>
+<br/>
+<span style="font-size: 12pt"><b>Install and configure Apache</b></span><br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">yum install httpd</li>
+<li style="list-style-type: none">chkconfig httpd on</li>
+</tt></span><tt><li style="list-style-type: none"><span style="color: #00007f">service httpd start</span></li>
+</tt></ul>
+<br/>
+Activate name-based virtual hosting:<br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">vi /etc/httpd/conf/httpd.conf</li>
+<li style="list-style-type: none">#</li>
+<li style="list-style-type: none"># Use name-based virtual hosting.</li>
+<li style="list-style-type: none">#</li>
+<li style="list-style-type: none">NameVirtualHost *:80</li>
+<li style="list-style-type: none">#</li>
+<li style="list-style-type: none"># NOTE: NameVirtualHost cannot be used without a port specifier</li>
+<li style="list-style-type: none"># (e.g. :80) if mod_ssl is being used, due to the nature of the</li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt># SSL protocol.</tt></span></li>
+</ul>
+<br/>
+<span style="font-size: 12pt"><b>Configure mod_proxy_ajp</b></span><span style="font-size: 10pt">&nbsp;(Should already be enabled by default)</span><br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">vi /etc/httpd/conf/httpd.conf</li>
+<li style="list-style-type: none"></li>
+</tt></span><li style="list-style-type: none"><ul><span style="color: #00007f"><tt><li style="list-style-type: none">LoadModule proxy_ajp_module modules/mod_proxy_ajp.so</li>
+</tt></span></ul>
+</li>
+<li style="list-style-type: none"></li>
+</ul>
+<br/>
+<span style="font-size: 12pt"><b>Create a virtual host for tomcat throught mod_proxy_ajp</b></span><br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">cd /etc/httpd/conf.d/</li>
+<li style="list-style-type: none">rm welcome.conf</li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>vi tomcat.conf</tt></span></li>
+<li style="list-style-type: none">---</li>
+<li style="list-style-type: none"><ul><span style="color: #00007f"><tt><li style="list-style-type: none">&lt;VirtualHost *:80&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp;ServerName mybestappp.com</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp;ServerAlias www.mybestapp.com</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp;ProxyRequests Off</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp;ProxyPreserveHost On</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp;ErrorLog /var/log/httpd/tomcat.error.log</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp;CustomLog /var/log/httpd/tomcat.log combined</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp;&lt;Proxy *&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Order deny,allow</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Allow from all</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp;&lt;/Proxy&gt;</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp;ProxyPass / ajp://localhost:8009/</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp;ProxyPassReverse / ajp://localhost:8009/</li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>&lt;/VirtualHost&gt;</tt></span></li>
+</ul>
+</li>
+</ul>
+<br/>
+Restart Apache:<br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">service httpd restart</li>
+</tt></span></ul>
+<br/>
+Open port 80 in iptables:<br/>
+<ul><li style="list-style-type: none"><span style="color: #00007f"><tt>iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT</tt></span></li>
+</ul>
+<br/>
+Try <tt>http://www.mybestapp.com/</tt>&nbsp;in your browser : You can access tomcat through Apache on port 80.<ul><li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none"><img src="tomcat-manager.png" width="600" height="358" /></li>
+</ul>
+</li>
+</ul>
+<br/>
+<span style="font-size: 12pt"><b>Create a virtual host for static content in Apache</b></span><br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">cd /etc/httpd/conf.d</li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>vi static.conf</tt></span></li>
+</ul>
+<ul><li style="list-style-type: none"><ul><span style="color: #00007f"><tt><li style="list-style-type: none">&lt;VirtualHost *:80&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; ServerName static.mybestapp.com</li>
+<li style="list-style-type: none">&nbsp; &nbsp; DocumentRoot /var/www/html/static</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp;&lt;Directory /&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Options FollowSymLinks</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;AllowOverride None</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;deny from all</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp;&lt;/Directory&gt;</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp;&lt;Directory /var/www/html/static&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Options Indexes FollowSymLinks MultiViews</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;AllowOverride None</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Order allow,deny</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;allow from all</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp;&lt;/Directory&gt;</li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>&lt;/VirtualHost&gt;</tt></span></li>
+</ul>
+</li>
+</ul>
+<br/>
+Now create a directory with your static content:<br/>
+<ul><li style="list-style-type: none"><span style="color: #00007f"><tt>mkdir /var/www/html/static</tt></span></li>
+</ul>
+<br/>
+And put your static content inside, like style.css:<br/>
+<ul><li style="list-style-type: none"><span style="color: #00007f"><tt>vi style.css</tt></span></li>
+</ul>
+<br/>
+Restart Apache:<br/>
+<ul><li style="list-style-type: none"><span style="color: #00007f"><tt>service httpd restart</tt></span></li>
+</ul>
+<br/>
+Try<tt>&nbsp;http://static.mybestapp.com/style.css</tt>&nbsp;in your browser : That’s a good way to access your static content like pictures, css, javascript, etc. through an Apache virtual host.<br/>
+<br/>
+You can disable TCP <b><tt>8080</tt></b>&nbsp;in your iptables firewall.<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+END</body></html>

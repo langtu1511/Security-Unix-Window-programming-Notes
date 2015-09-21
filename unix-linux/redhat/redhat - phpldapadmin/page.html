@@ -1,0 +1,281 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>phpldapadmin</title>
+</head><body><br/>
+***** <a href="http://www.itmanx.com/kb/centos6/install-openldap-phpldapadmin">http://www.itmanx.com/kb/centos6/install-openldap-phpldapadmin</a><br/>
+<br/>
+<b><span style="font-size: 12pt">Prerequisites</span></b><br/>
+<ul><li style="list-style-type: none">It is assumed you have already installed CentOS with networking enabled and, although not mandatory but advised, configured a static IP.</li>
+</ul>
+<ul><li style="list-style-type: none"><b>Disable SELINUX</b></li>
+</ul>
+<ul><li style="list-style-type: none">I haven't tried installing with selinux enabled so I don't know if this is necessary but I think phpldapadmin won't work properly otherwise.</li>
+</ul>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">nano /etc/sysconfig/selinux</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">SELINUX=disabled</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none">After the next step, you are told to reboot but if you can't, you can run setenforce 0 to disable selinux until you can.</li>
+</ul>
+<br/>
+<ul><li style="list-style-type: none"><b>Configure Firewall</b></li>
+</ul>
+<ul><li style="list-style-type: none">Make sure you add any other rules not listed here which you are using.</li>
+</ul>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">nano /etc/sysconfig/iptables</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none">Change -s 192.168.0.0/16 to your own network</li>
+</ul>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">*filter</li>
+<li style="list-style-type: none">:INPUT ACCEPT [0:0]</li>
+<li style="list-style-type: none">:FORWARD ACCEPT [0:0]</li>
+<li style="list-style-type: none">:OUTPUT ACCEPT [0:0]</li>
+<li style="list-style-type: none">-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT</li>
+<li style="list-style-type: none">-A INPUT -p icmp -j ACCEPT</li>
+<li style="list-style-type: none">-A INPUT -i lo -j ACCEPT</li>
+<li style="list-style-type: none">-A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT</li>
+<li style="list-style-type: none">-A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT</li>
+<li style="list-style-type: none">-A INPUT -m state --state NEW -m tcp -p tcp --dport 389 -j ACCEPT -s 192.168.0.0/16</li>
+<li style="list-style-type: none">-A INPUT -m state --state NEW -m tcp -p tcp --dport 636 -j ACCEPT -s 192.168.0.0/16</li>
+<li style="list-style-type: none">-A INPUT -j REJECT --reject-with icmp-host-prohibited</li>
+<li style="list-style-type: none">-A FORWARD -j REJECT --reject-with icmp-host-prohibited</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">COMMIT</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none">In the next step, you are told to reboot but if you can't, you can run service iptables restart instead.</li>
+</ul>
+<ul><li style="list-style-type: none"><b>Reboot System</b></li>
+</ul>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">reboot</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none"><b>Confirm configuration</b></li>
+</ul>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">iptables -L</li>
+<li style="list-style-type: none">ACCEPT &nbsp; &nbsp; tcp &nbsp;-- &nbsp;anywhere &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; anywhere &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;state NEW tcp dpt:ssh</li>
+<li style="list-style-type: none">ACCEPT &nbsp; &nbsp; tcp &nbsp;-- &nbsp;anywhere &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; anywhere &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;state NEW tcp dpt:http</li>
+<li style="list-style-type: none">ACCEPT &nbsp; &nbsp; tcp &nbsp;-- &nbsp;192.168.0.0/16 &nbsp; &nbsp; &nbsp; anywhere &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;state NEW tcp dpt:ldap</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">ACCEPT &nbsp; &nbsp; tcp &nbsp;-- &nbsp;192.168.0.0/16 &nbsp; &nbsp; &nbsp; anywhere &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;state NEW tcp dpt:ldaps</span></tt></li>
+</ul>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">sestatus</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">SELinux status: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; disabled</span></tt></li>
+</ul>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">yum repolist</li>
+<li style="list-style-type: none">base &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; CentOS-6 - Base</li>
+<li style="list-style-type: none">extras &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; CentOS-6 - Extras</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">updates &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;CentOS-6 - Updates</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none">If you're not using a fresh install, you may have additional repos, I haven't tested with others so I don't know the implications. Please see If Not True Then False for instructions on how to remove repositories.</li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">Install and Configure OpenLDAP</span></b><ul><li style="list-style-type: none"></li>
+<li style="list-style-type: none"><b>Install OpenLDAP</b></li>
+</ul>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">yum install -y openldap-servers openldap-clients</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none">Wait for it to finish before proceeding</li>
+</ul>
+<ul><li style="list-style-type: none"><b>Enable logging</b></li>
+</ul>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">mkdir /var/log/slapd</li>
+<li style="list-style-type: none">chmod 755 /var/log/slapd/</li>
+<li style="list-style-type: none">chown ldap:ldap /var/log/slapd/</li>
+<li style="list-style-type: none">sed -i "/local4.*/d" /etc/rsyslog.conf</li>
+<li style="list-style-type: none">cat &gt;&gt; /etc/rsyslog.conf &lt;&lt; EOF</li>
+<li style="list-style-type: none">local4.* &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;/var/log/slapd/slapd.log</li>
+<li style="list-style-type: none">EOF</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">service rsyslog restart</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none"><b>Create Certificate</b></li>
+</ul>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">cd /etc/pki/tls/certs</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">make slapd.pem</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none">The following is just an example. You should enter your own responses.</li>
+</ul>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">Country Name (2 letter code) [XX]:GB</li>
+<li style="list-style-type: none">State or Province Name (full name) []:Isle of Man</li>
+<li style="list-style-type: none">Locality Name (eg, city) [Default City]:Colby</li>
+<li style="list-style-type: none">Organization Name (eg, company) [Default Company Ltd]:ITManx Ltd</li>
+<li style="list-style-type: none">Organizational Unit Name (eg, section) []:ICT</li>
+<li style="list-style-type: none">Common Name (eg, your name or your server's hostname) []:itmanx.com</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">Email Address []:support@itmanx.com</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none">You can run <tt><span style="color: #00007f">openssl x509 -in slapd.pem -noout -text</span></tt>&nbsp;to view the certificate.</li>
+</ul>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">chmod 640 slapd.pem</li>
+<li style="list-style-type: none">chown :ldap slapd.pem</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">ln -s /etc/pki/tls/certs/slapd.pem /etc/openldap/certs/slapd.pem</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none"><b>Generate LDAP Manager password</b></li>
+</ul>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">slappasswd</span></tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">This function will return a string in the format {SSHA}********************* which you will need in a following step, so copy it when it appears.</li>
+</ul>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">New password: ******</li>
+<li style="list-style-type: none">Re-enter new password: ******</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">{SSHA}qK4HQqJXV97FFJI4vYDxqR5NRlpC+5Tn</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none"><b>Copy example files</b></li>
+</ul>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">cp /usr/share/openldap-servers/slapd.conf.obsolete /etc/openldap/slapd.conf</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">cp /usr/share/openldap-servers/DB_CONFIG.example /var/lib/ldap/DB_CONFIG</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none"><b>Update slapd config file</b></li>
+</ul>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">nano /etc/openldap/slapd.conf</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none">Find and replace all dc=my-domain to your own domain.</li>
+</ul>
+<ul><li style="list-style-type: none">Find and replace the following three lines</li>
+<li style="list-style-type: none"></li>
+<tt><span style="color: #00007f"><li style="list-style-type: none">TLSCACertificateFile /etc/pki/tls/certs/ca-bundle.crt</li>
+<li style="list-style-type: none">TLSCertificateFile /etc/pki/tls/certs/slapd.pem</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">TLSCertificateKeyFile /etc/pki/tls/certs/slapd.pem</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none">Search for rootpw and add the {SSHA}********************* you copied earlier, ensuring all other rootpw are commented out</li>
+</ul>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none"># rootpw &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;secret</li>
+<li style="list-style-type: none"># rootpw &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;{crypt}ijFYNcSNctBYg</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">rootpw &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;{SSHA}xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none"><b>Enable SSL over LDAP</b></li>
+</ul>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">nano /etc/sysconfig/ldap</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">SLAPD_LDAPS=yes</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none"><b>Update ldap config file</b></li>
+</ul>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">nano /etc/openldap/ldap.conf</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none">The <tt>dc=my-domain,dc=com</tt>&nbsp;should be the same that you set in <tt>/etc/openldap/slapd.conf</tt></li>
+</ul>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">BASE dc=my-domain,dc=com</li>
+<li style="list-style-type: none">URI ldap://localhost</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">TLS_REQCERT never &nbsp; &nbsp; &nbsp; #this line probably won't exist so add it to the bottom</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none"><b>Create initial LDAP structure</b></li>
+</ul>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">nano /root/root.ldif</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none">The <tt>dc=my-domain,dc=com</tt>&nbsp;should be the same that you set in /etc/openldap/slapd.conf</li>
+</ul>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">dn: dc=my-domain,dc=com</li>
+<li style="list-style-type: none">dc: my-domain</li>
+<li style="list-style-type: none">objectClass: dcObject</li>
+<li style="list-style-type: none">objectClass: organizationalUnit</li>
+<li style="list-style-type: none">ou: my-domain.com</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">dn: ou=people,dc=my-domain,dc=com</li>
+<li style="list-style-type: none">ou: people</li>
+<li style="list-style-type: none">objectClass: organizationalUnit</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">dn: ou=groups,dc=my-domain,dc=com</li>
+<li style="list-style-type: none">ou: groups</li>
+<li style="list-style-type: none">objectClass: organizationalUnit</li>
+<li style="list-style-type: none">rm -rf /etc/openldap/slapd.d/*</li>
+<li style="list-style-type: none">slapadd -v -n 2 -l /root/root.ldif</li>
+<li style="list-style-type: none">chown -R ldap:ldap /var/lib/ldap</li>
+<li style="list-style-type: none">chown -R ldap:ldap /etc/openldap/slapd.d</li>
+</span></tt><b><li style="list-style-type: none"></li>
+</b><li style="list-style-type: none"><b>Test LDAP config</b></li>
+</ul>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">rm -rf /etc/openldap/slapd.d/*</li>
+<li style="list-style-type: none">slaptest -f /etc/openldap/slapd.conf -F /etc/openldap/slapd.d</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">chown -R ldap:ldap /etc/openldap/slapd.d</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none"><b>Setup SLAPD service</b></li>
+</ul>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">chkconfig --level 235 slapd on</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">service slapd start</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none"><b>Test LDAP</b></li>
+</ul>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">ldapsearch -x -ZZ -h localhost</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">ldapsearch -x -H ldaps://localhost</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none">Example of the returned results. The second test should produce same results but with search: 2</li>
+</ul>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none"># extended LDIF</li>
+<li style="list-style-type: none">#</li>
+<li style="list-style-type: none"># LDAPv3</li>
+<li style="list-style-type: none"># base &lt;dc=my-domain,dc=com&gt; (default) with scope subtree</li>
+<li style="list-style-type: none"># filter: (objectclass=*)</li>
+<li style="list-style-type: none"># requesting: ALL</li>
+<li style="list-style-type: none">#</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># my-domain.com</li>
+<li style="list-style-type: none">dn: dc=my-domain,dc=com</li>
+<li style="list-style-type: none">dc: my-domain</li>
+<li style="list-style-type: none">objectClass: dcObject</li>
+<li style="list-style-type: none">objectClass: organizationalUnit</li>
+<li style="list-style-type: none">ou: my-domain.com</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># people, my-domain.com</li>
+<li style="list-style-type: none">dn: ou=people,dc=my-domain,dc=com</li>
+<li style="list-style-type: none">ou: people</li>
+<li style="list-style-type: none">objectClass: organizationalUnit</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># groups, my-domain.com</li>
+<li style="list-style-type: none">dn: ou=groups,dc=my-domain,dc=com</li>
+<li style="list-style-type: none">ou: groups</li>
+<li style="list-style-type: none">objectClass: organizationalUnit</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># search result</li>
+<li style="list-style-type: none">search: 3</li>
+<li style="list-style-type: none">result: 0 Success</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># numResponses: 4</li>
+<li style="list-style-type: none"># numEntries: 3</li>
+<li style="list-style-type: none">Name Service Switch</li>
+<li style="list-style-type: none"></li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">[Further reading]</span></tt></li>
+</ul>
+<ul><tt><li style="list-style-type: none">nano /etc/nsswitch.conf<span style="color: #00007f"></span></li>
+<span style="color: #00007f"><li style="list-style-type: none">hosts: ldap files dns</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">Install and Configure phpLDAPadmin</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none"><b>Add EPEL repository</b></li>
+</ul>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">rpm -ivh http://mirrors.ukfast.co.uk/sites/dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none"><b>Install phpLDAPadmin</b></li>
+</ul>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">yum install -y phpldapadmin</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none"><b>Allow access from your network</b></li>
+</ul>
+<ul><li style="list-style-type: none"><tt>nano /etc/httpd/conf.d/phpldapadmin.conf</tt></li>
+</ul>
+<ul><li style="list-style-type: none"><b>Change 192.168.0 to your own network</b></li>
+</ul>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">Order Deny,Allow</li>
+<li style="list-style-type: none">Deny from all</li>
+<li style="list-style-type: none">Allow from 127.0.0.1</li>
+<li style="list-style-type: none">Allow from ::1</li>
+<li style="list-style-type: none">Allow from 192.168.0</li>
+</span></tt><li style="list-style-type: none"></li>
+<li style="list-style-type: none"><b>Disable automatic login mechanism</b></li>
+</ul>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">nano /etc/phpldapadmin/config.php</li>
+<li style="list-style-type: none">Comment out the following (line 398)</li>
+</span></tt><span style="color: #00007f"><li style="list-style-type: none"></li>
+</span><li style="list-style-type: none"><span style="color: #00007f"><tt>//$servers-&gt;setValue('login','attr','uid');</tt></span></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><b>Setup HTTPD service</b></li>
+</ul>
+<ul><tt><li style="list-style-type: none">chkconfig httpd on</li>
+<li style="list-style-type: none">service httpd start</li>
+</tt><li style="list-style-type: none"></li>
+<li style="list-style-type: none"><b>Log in to phpLDAPadmin</b></li>
+</ul>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">http://webserver/ldapadmin</li>
+<li style="list-style-type: none">un: cn=Manager,dc=my-domain,dc=com</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">pw: (Password you entered in slappasswd earlier)</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none"><b>Monitoring SLAPD</b></li>
+</ul>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">tail -f /var/log/slapd/slapd.log</span></tt></li>
+</ul>
+<br/>
+END</body></html>

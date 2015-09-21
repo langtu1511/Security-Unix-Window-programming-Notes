@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Redhat - network</title>
+</head><body><br/>
+<br/>
+<br/>
+<span style="font-size: 12pt"><b>[+] Configure bridge</b></span><br/>
+<ul><li style="list-style-type: none"><b><tt>cat /etc/sysconfig/network-scripts/ifcfg-br0</tt></b></li>
+<li style="list-style-type: none"><ul><tt><li style="list-style-type: none">DEVICE=br0</li>
+<li style="list-style-type: none">TYPE=Dridge</li>
+<li style="list-style-type: none">BOOTPROTO=static</li>
+<li style="list-style-type: none">ONBOOT=yes</li>
+<li style="list-style-type: none">IPADDR=192.168.0.1</li>
+<li style="list-style-type: none">NETMASK=255.255.255.0</li>
+<li style="list-style-type: none">GATEWAY=192.168.0.254</li>
+<li style="list-style-type: none">NM_CONTROLLED=no</li>
+</tt><li style="list-style-type: none"></li>
+</ul>
+</li>
+<tt><b><li style="list-style-type: none">cat /etc/sysconfig/network-scripts/ifcfg-eth0</li>
+</b></tt><li style="list-style-type: none"><ul><tt><li style="list-style-type: none">DEVICE=eth0</li>
+<li style="list-style-type: none">TYPE=Ethernet</li>
+<li style="list-style-type: none">ONBOOT=yes</li>
+<li style="list-style-type: none">BRIDGE=br0</li>
+</tt><li style="list-style-type: none"><tt>NM_CONTROLLED=no</tt></li>
+</ul>
+</li>
+</ul>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+END</body></html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>New Page</title>
+</head><body><br/>
+<br/>
+<b><div style="text-align: center"><span style="font-size: 16pt"><a href="https://raymii.org/s/tutorials/Proxmox_VE_One_Public_IP.html">Proxmox VE - One Public IP &nbsp;</a></span></div></b><br/>
+<br/>
+<br/>
+This guide will show you how to set up Proxmox with only one public IP. We will configure an extra interface bridge and make sure VM traffic is NATed. I have a few dedicated servers, some run Proxmox. Most of them however have only a few IP's. Therefore the VM's in proxmox cannot all have a public IP. For most of them that is not a problem. If needed I run a proxy or set up iptables to forward ports to the VM's.<br/>
+<br/>
+This guide is tested on a proxmox machine running proxmox version 3.2.<br/>
+<br/>
+What we will have at the end is a VM with an SSH port reachable on the public IP:<br/>
+<br/>
+<tt><span style="color: #00007f">Container/VM ------------ Proxmox Server -------------- Public Internet<br/>
+</span></tt><tt><span style="color: #00007f">10.21.21.5:22 --- 10.21.21.5:22 NAT to 1.2.3.4:2222 --- 1.2.3.4:2222</span></tt><br/>
+<br/>
+Proxmox by default creates one interface, vmbr0. That config looks like this:<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none"># /etc/network/interfaces</li>
+<li style="list-style-type: none">auto vmbr0</li>
+<li style="list-style-type: none">iface vmbr0 inet static</li>
+<li style="list-style-type: none">&nbsp; &nbsp; address 1.2.3.4</li>
+<li style="list-style-type: none">&nbsp; &nbsp; netmask 255.255.255.0</li>
+<li style="list-style-type: none">&nbsp; &nbsp; network 1.2.3.0</li>
+<li style="list-style-type: none">&nbsp; &nbsp; broadcast 1.2.3.255</li>
+<li style="list-style-type: none">&nbsp; &nbsp; gateway 1.2.3.1</li>
+<li style="list-style-type: none">&nbsp; &nbsp; bridge_ports eth0</li>
+<li style="list-style-type: none">&nbsp; &nbsp; bridge_stp off</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&nbsp; &nbsp; bridge_fd 0</span></tt></li>
+</ul>
+<br/>
+Replace <tt><span style="color: #00007f">1.2.3.X</span></tt>&nbsp;with your public ip, network, gateway and such. Do note that there might be more interfaces, like vmbr1 for ipv6.<br/>
+<br/>
+We create a new bridge which will enable NAT when the interface gets UP. Add the following to the file:<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none"># /etc/network/interfaces:</li>
+<li style="list-style-type: none">auto vmbr2</li>
+<li style="list-style-type: none">iface vmbr2 inet static</li>
+<li style="list-style-type: none">&nbsp; &nbsp; address 10.21.21.254</li>
+<li style="list-style-type: none">&nbsp; &nbsp; netmask 255.255.255.0</li>
+<li style="list-style-type: none">&nbsp; &nbsp; bridge_ports none</li>
+<li style="list-style-type: none">&nbsp; &nbsp; bridge_stp off</li>
+<li style="list-style-type: none">&nbsp; &nbsp; bridge_fd 0</li>
+<li style="list-style-type: none">&nbsp; &nbsp; post-up echo 1 &gt; /proc/sys/net/ipv4/ip_forward</li>
+<li style="list-style-type: none">&nbsp; &nbsp; post-up iptables -t nat -A POSTROUTING -s '10.21.21.0/24' -o vmbr0 -j MASQUERADE</li>
+<li style="list-style-type: none">&nbsp; &nbsp; post-down iptables -t nat -D POSTROUTING -s '10.21.21.0/24' -o vmbr0 -j MASQUERADE &nbsp; &nbsp;</li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none">post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 2222 -j DNAT --to 10.21.21.5:22</li>
+</ul>
+</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&nbsp; &nbsp; post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 2222 -j DNAT --to 10.21.21.5:22</span></tt></li>
+</ul>
+<br/>
+The first part:<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">address 10.21.21.254</li>
+<li style="list-style-type: none">netmask 255.255.255.0</li>
+<li style="list-style-type: none">bridge_ports none</li>
+<li style="list-style-type: none">bridge_stp off</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">bridge_fd 0</span></tt></li>
+</ul>
+<br/>
+defines the IP address and subnet mask of the new interface. It also tells the network stack that the bridge has no actual ports (like eth0) and that the Spanning Tree Protocol should be disabled.<br/>
+<ul><li style="list-style-type: none"><span style="color: #00007f">post-up echo 1 &gt; /proc/sys/net/ipv4/ip_forward</span></li>
+</ul>
+<br/>
+Enables IP forwarding when this interface gets up. This allows the machine to forward packets.<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">post-up iptables -t nat -A POSTROUTING -s '10.21.21.0/24' -o vmbr0 -j MASQUERADE</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">post-down iptables -t nat -D POSTROUTING -s '10.21.21.0/24' -o vmbr0 -j MASQUERADE</span></tt></li>
+</ul>
+<br/>
+These two lines enable the actual NAT-ing of packets from the source network '10.21.21.0/24' and vmbr0 as the output interface. If your WAN interface has a different name, change that here. The first line enables the natting when the interface gets up, the second line deletes the firewall rule when the interface goes down.<br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 2222 -j DNAT --to 10.21.21.5:22</li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 2222 -j DNAT --to 10.21.21.5:22</tt></span></li>
+</ul>
+<br/>
+These two rules enable and disable the actual port forwarding of tcp port 2222 on the WAN IP to tcp port 22 on internal IP address 10.21.21.5. Here as well the WAN interface (this time, the input interface) is vmbr0.<br/>
+<br/>
+If you for example want to expose tcp port 80 of a VM with IP 10.21.21.6 on the public IP's port 80, you should also add these lines:<br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">post-up iptables -t nat -A PREROUTING -i vmbr0 -p tcp --dport 80 -j DNAT --to 10.21.21.6:80</li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>post-down iptables -t nat -D PREROUTING -i vmbr0 -p tcp --dport 80 -j DNAT --to 10.21.21.6:80</tt></span></li>
+</ul>
+<br/>
+When you create a KVM VM, make sure it is attached to the bridge vmbr2. It should also have a static IP configured in the range you define. OpenVZ venet interfaces with an IP in this range automagiaclly work.<br/>
+<br/>
+Don't forget to restart the network afterwards:<br/>
+<ul><li style="list-style-type: none"><span style="color: #00007f"><tt>/etc/init.d/networking restart</tt></span></li>
+</ul>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+END</body></html>

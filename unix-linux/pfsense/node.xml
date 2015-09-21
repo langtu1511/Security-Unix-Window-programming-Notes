@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node>
+<version>6</version>
+<dict>
+  <key>expanded</key><false/>
+  <key>duplicate_of</key><string>8514569c-af06-4c8e-b965-4cb98edd4599</string>
+  <key>nodeid</key><string>50b20bd3-bb8b-4d22-8ee3-0c6264767ace</string>
+  <key>modified_time</key><integer>1425207126</integer>
+  <key>expanded2</key><true/>
+  <key>content_type</key><string>application/x-notebook-dir</string>
+  <key>created_time</key><integer>1425207126</integer>
+  <key>info_sort_dir</key><integer>1</integer>
+  <key>title</key><string>pfsense</string>
+  <key>version</key><integer>6</integer>
+  <key>order</key><integer>4</integer>
+  <key>info_sort</key><string>order</string>
+</dict>
+</node>

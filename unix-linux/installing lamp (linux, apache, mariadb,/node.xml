@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node>
+<version>6</version>
+<dict>
+  <key>duplicate_of</key><string>aa4de2e1-0c1f-4137-83fa-27aec2d7799a</string>
+  <key>title</key><string>Installing LAMP (Linux, Apache, MariaDB, PHP/PhpMyAdmin) in RHEL/CentOS 7.0</string>
+  <key>nodeid</key><string>95884254-594f-4c3e-b70e-8f11d99a3dee</string>
+  <key>modified_time</key><integer>1439649868</integer>
+  <key>version</key><integer>6</integer>
+  <key>content_type</key><string>text/xhtml+xml</string>
+  <key>created_time</key><integer>1426613601</integer>
+  <key>info_sort_dir</key><integer>1</integer>
+  <key>order</key><integer>18</integer>
+  <key>info_sort</key><string>order</string>
+</dict>
+</node>

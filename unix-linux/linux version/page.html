@@ -1,0 +1,22 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Linux version</title>
+</head><body><br/>
+<br/>
+<br/>
+<i><span style="font-size: 10pt"><span style="font-family: Menlo"><div style="text-align: left">cat /etc/issue <br/>
+cat /etc/*-release &nbsp;<br/>
+cat /etc/lsb-release <span style="font-family: inherit"># Debian based</span>&nbsp; <br/>
+</div></span></span></i><i><span style="font-size: 10pt"><span style="font-family: Menlo"><div style="text-align: left">cat /etc/redhat-release <span style="font-family: inherit"># Redhat based</span></div></span>&nbsp;</span></i>&nbsp;<br/>
+<br/>
+<br/>
+----<br/>
+<br/>
+cat /proc/version<br/>
+uname -a<br/>
+uname -mrs<br/>
+rpm -q kernel<br/>
+dmesg | grep Linux<br/>
+ls /boot | grep vmlinuz-</body></html>

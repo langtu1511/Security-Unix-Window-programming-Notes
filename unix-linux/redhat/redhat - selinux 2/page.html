@@ -1,0 +1,350 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Redhat - SELinux</title>
+</head><body><br/>
+<b>Subject</b>: is a user or process that accesses an object.<br/>
+<br/>
+<b>Object</b>: is a resource such as a file, directory, hardware device...<br/>
+<br/>
+<b>Access</b>: is an action performed by the subject on object.<br/>
+<br/>
+<b>Policy</b>: is a defined ruleset that is enforced system-wide and is used to analyze security attributes assigned to subjects and objects.<br/>
+<br/>
+<b>Context</b>: is a tage that SELinux uses to store security attributes for subjects and objects. The term context may be used interchangeably with the term label. In SELinux, every subject and object has a context assigned to it, which consists of a SELinux user, role, type (or domain) and optional sensitivity level.<br/>
+<br/>
+<b>Labeling</b>: is the mapping between files in a file system with their file contexts.<br/>
+<br/>
+<b>SELinux user:</b>&nbsp;there are several pre-defined SELinux user identities that exist in the SELinux policy. These user identities are authorized for a particular set of roles.<br/>
+<br/>
+<b>Role</b>: is an atricbute of the Role-Bases Access Controle (RBAC) security model that is part of SELinux. It defines which subject is allowed to access which domains or types. SElinux users are authorized for roles, and roles are authorized for domains and types.<br/>
+<br/>
+<b>Type and Domain</b>: <b>Type</b>&nbsp;is an attribute of Type Enforcement (TE). It is a group of objects basedon uniformity in their security requirements. <b>Domain</b>&nbsp;determines the type of access that a process has. Each process runes confined within a domain. <br/>
+<br/>
+<b>Type Enforcement</b>: type enforcement identifies and limits a subject's ability to access domains for processes and types for files. <br/>
+<br/>
+<b>Level</b>: is an atribute of Multi-Level Security and Multi-Category Security. <br/>
+<br/>
+<br/>
+<span style="font-size: 12pt"><b>[+] Common commands</b></span><br/>
+<ul><tt><li style="list-style-type: none"><span style="color: #00007f"><b># id -Z</b></span></li>
+<li style="list-style-type: none">unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><span style="color: #00007f"># ps -eZ</span></li>
+<li style="list-style-type: none">LABEL &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; PID TTY &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;TIME CMD</li>
+<li style="list-style-type: none">system_u:system_r:init_t:s0 &nbsp; &nbsp; &nbsp; &nbsp; 1 ? &nbsp; &nbsp; &nbsp; &nbsp;00:00:06 systemd</li>
+<li style="list-style-type: none">system_u:system_r:kernel_t:s0 &nbsp; &nbsp; &nbsp; 2 ? &nbsp; &nbsp; &nbsp; &nbsp;00:00:00 kthreadd</li>
+</tt><li style="list-style-type: none"></li>
+<tt><li style="list-style-type: none"><span style="color: #00007f"># semanage user -l</span></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Labeling &nbsp; MLS/ &nbsp; &nbsp; &nbsp; MLS/ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</li>
+<li style="list-style-type: none">SELinux User &nbsp; &nbsp;Prefix &nbsp; &nbsp; MCS Level &nbsp;MCS Range &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;SELinux Roles</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">guest_u &nbsp; &nbsp; &nbsp; &nbsp; user &nbsp; &nbsp; &nbsp; s0 &nbsp; &nbsp; &nbsp; &nbsp; s0 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; guest_r</li>
+<li style="list-style-type: none">root &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;user &nbsp; &nbsp; &nbsp; s0 &nbsp; &nbsp; &nbsp; &nbsp; s0-s0:c0.c1023 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; staff_r sysadm_r system_r unconfined_r</li>
+<li style="list-style-type: none">staff_u &nbsp; &nbsp; &nbsp; &nbsp; user &nbsp; &nbsp; &nbsp; s0 &nbsp; &nbsp; &nbsp; &nbsp; s0-s0:c0.c1023 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; staff_r sysadm_r system_r unconfined_r</li>
+<li style="list-style-type: none">sysadm_u &nbsp; &nbsp; &nbsp; &nbsp;user &nbsp; &nbsp; &nbsp; s0 &nbsp; &nbsp; &nbsp; &nbsp; s0-s0:c0.c1023 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sysadm_r</li>
+<li style="list-style-type: none">system_u &nbsp; &nbsp; &nbsp; &nbsp;user &nbsp; &nbsp; &nbsp; s0 &nbsp; &nbsp; &nbsp; &nbsp; s0-s0:c0.c1023 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; system_r unconfined_r</li>
+<li style="list-style-type: none">unconfined_u &nbsp; &nbsp;user &nbsp; &nbsp; &nbsp; s0 &nbsp; &nbsp; &nbsp; &nbsp; s0-s0:c0.c1023 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; system_r unconfined_r</li>
+<li style="list-style-type: none">user_u &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;user &nbsp; &nbsp; &nbsp; s0 &nbsp; &nbsp; &nbsp; &nbsp; s0 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; user_r</li>
+<li style="list-style-type: none">xguest_u &nbsp; &nbsp; &nbsp; &nbsp;user &nbsp; &nbsp; &nbsp; s0 &nbsp; &nbsp; &nbsp; &nbsp; s0 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; xguest_r</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><span style="color: #00007f"># semanage login -l</span></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Login Name &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; SELinux User &nbsp; &nbsp; &nbsp; &nbsp; MLS/MCS Range &nbsp; &nbsp; &nbsp; &nbsp;Service</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">__default__ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;unconfined_u &nbsp; &nbsp; &nbsp; &nbsp; s0-s0:c0.c1023 &nbsp; &nbsp; &nbsp; *</li>
+<li style="list-style-type: none">regularuser &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;user_u &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; s0 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; *</li>
+<li style="list-style-type: none">restricteduser &nbsp; &nbsp; &nbsp; user_u &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; s0 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; *</li>
+<li style="list-style-type: none">root &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; unconfined_u &nbsp; &nbsp; &nbsp; &nbsp; s0-s0:c0.c1023 &nbsp; &nbsp; &nbsp; *</li>
+<li style="list-style-type: none">system_u &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; system_u &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; s0-s0:c0.c1023 &nbsp; &nbsp; &nbsp; *</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><span style="color: #00007f"># semanage port -l</span></li>
+<li style="list-style-type: none">SELinux Port Type &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Proto &nbsp; &nbsp;Port Number</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">afs3_callback_port_t &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; tcp &nbsp; &nbsp; &nbsp;7001</li>
+<li style="list-style-type: none">afs3_callback_port_t &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; udp &nbsp; &nbsp; &nbsp;7001</li>
+</tt></ul>
+<tt><ul><li style="list-style-type: none"><span style="color: #00007f"># sestatus</span></li>
+<li style="list-style-type: none">SELinux status: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; enabled</li>
+<li style="list-style-type: none">SELinuxfs mount: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;/sys/fs/selinux</li>
+<li style="list-style-type: none">SELinux root directory: &nbsp; &nbsp; &nbsp; &nbsp; /etc/selinux</li>
+<li style="list-style-type: none">Loaded policy name: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; targeted</li>
+<li style="list-style-type: none">Current mode: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; enforcing</li>
+<li style="list-style-type: none">Mode from config file: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;enforcing</li>
+<li style="list-style-type: none">Policy MLS status: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;enabled</li>
+<li style="list-style-type: none">Policy deny_unknown status: &nbsp; &nbsp; allowed</li>
+<li style="list-style-type: none">Max kernel policy version: &nbsp; &nbsp; &nbsp;28</li>
+<li style="list-style-type: none"></li>
+</ul>
+<br/>
+<br/>
+</tt><br/>
+<b><span style="font-size: 12pt">[+] Managing SELinux</span></b><br/>
+<ul><b><li style="list-style-type: none">[+] Context Management</li>
+</b><li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none"><tt><b><span style="color: #00007f">chcon</span></b></tt>: &#09;&#09;changes Context of files. Changes do not survive file system relabeling.</li>
+<li style="list-style-type: none"><tt><b><span style="color: #00007f">matchpathcon</span></b></tt>: &#09;Compares a file context to that of the defaults, and reports it.</li>
+<li style="list-style-type: none"><tt><b><span style="color: #00007f">restorecon</span></b></tt>: &#09;Restores default contexts on files by referencing the files in the /etc/selinux/targeted/contexts/files directory.</li>
+<li style="list-style-type: none"><b><span style="color: #00007f"><tt>semanage</tt></span></b><tt>: &#09;</tt>Modifies context on files and manages policies. Changes survive file system relabeling.</li>
+</ul>
+</li>
+<tt><li style="list-style-type: none"></li>
+</tt><b><li style="list-style-type: none">[+] Mode management</li>
+</b><tt><li style="list-style-type: none"></li>
+</tt><li style="list-style-type: none"><ul><li style="list-style-type: none"><tt><b><span style="color: #00007f">getenforce</span></b>: &#09;</tt>Displays the current mode of operation.</li>
+<li style="list-style-type: none"><b><span style="color: #00007f"><tt>sestatus</tt></span></b><tt>: </tt>&#09;Shows SELinux status.</li>
+<li style="list-style-type: none"><b><span style="color: #00007f"><tt>setenforce</tt></span></b><tt>: &#09;</tt>Sets the operating mode of enforcing or permissive.</li>
+<tt><li style="list-style-type: none"></li>
+</tt></ul>
+</li>
+<b><li style="list-style-type: none">[+] Policy Management</li>
+</b><tt><li style="list-style-type: none"></li>
+</tt><li style="list-style-type: none"><ul><li style="list-style-type: none"><tt><b><span style="color: #00007f">seinfo</span></b>: &#09;</tt>Porvides information on policy components.</li>
+<li style="list-style-type: none"><b><span style="color: #00007f"><tt>sesearch</tt></span></b><tt>: &#09;</tt>searches rules in the policy.</li>
+</ul>
+</li>
+<tt><li style="list-style-type: none"></li>
+</tt><li style="list-style-type: none"><b>[+] Boolean Management</b></li>
+<li style="list-style-type: none"><ul><tt><li style="list-style-type: none"></li>
+<li style="list-style-type: none"><b><span style="color: #00007f">getsebool</span></b></li>
+<li style="list-style-type: none"><b><span style="color: #00007f">setsebool</span></b></li>
+<li style="list-style-type: none"><b><span style="color: #00007f">manageboolean</span></b></li>
+<li style="list-style-type: none"></li>
+</tt></ul>
+</li>
+<li style="list-style-type: none"><b>[+] Troubleshooing</b></li>
+<tt><li style="list-style-type: none"></li>
+</tt><li style="list-style-type: none"><ul><li style="list-style-type: none"><tt><b><span style="color: #00007f">sealert</span></b>: &#09;</tt>Graphical troublshooting tool</li>
+<tt><li style="list-style-type: none"></li>
+</tt></ul>
+</li>
+<li style="list-style-type: none"><b>[+] Graphical Management</b></li>
+<li style="list-style-type: none"><ul><tt><li style="list-style-type: none"></li>
+</tt><li style="list-style-type: none"><tt><b><span style="color: #00007f">system-config-selinux</span></b>: </tt>the graphical administration tool.</li>
+</ul>
+</li>
+</ul>
+<tt><br/>
+<br/>
+<br/>
+</tt><b><span style="font-size: 12pt">[+] SELinux Boolean</span></b><tt><br/>
+</tt><ul><tt><li style="list-style-type: none"><span style="color: #00007f"># ll /sys/fs/selinux/booleans/ </span></li>
+<li style="list-style-type: none">-rw-r--r--. 1 root root 0 Aug 20 21:21 abrt_anon_write</li>
+<li style="list-style-type: none">-rw-r--r--. 1 root root 0 Aug 20 21:21 abrt_handle_event</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><span style="color: #00007f"># getsebool -a </span></li>
+<li style="list-style-type: none">abrt_anon_write --&gt; off</li>
+<li style="list-style-type: none">abrt_handle_event --&gt; off</li>
+<li style="list-style-type: none">abrt_upload_watch_anon_write --&gt; on</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><span style="color: #00007f"># getsebool cluster_use_execmem</span></li>
+<li style="list-style-type: none">cluster_use_execmem --&gt; off</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">#semanage boolean -l</li>
+<li style="list-style-type: none"></li>
+</tt><li style="list-style-type: none"><b>Enable temporarily </b></li>
+<tt><li style="list-style-type: none"></li>
+<span style="color: #00007f"><li style="list-style-type: none">#setsebool abrt_anon_write 1</li>
+</span><li style="list-style-type: none"><span style="color: #00007f">#setsebool abrt_anon_write off</span></li>
+</tt></ul>
+<ul><li style="list-style-type: none"><b>Enable permanently </b></li>
+</ul>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none"># setsebool -P abrt_anon_write on</li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>#semanage boolean -m --1 abrt_anon_write</tt></span></li>
+<li style="list-style-type: none"></li>
+</ul>
+<span style="font-size: 12pt"><b>[+] Managing users</b></span><ul><li style="list-style-type: none"></li>
+<span style="color: #00007f"><tt><li style="list-style-type: none"># useradd -Z staff_u user5</li>
+<li style="list-style-type: none"># semanage -a -s user_u user4</li>
+</tt></span><li style="list-style-type: none"></li>
+<li style="list-style-type: none">Modify SELinux policy: user Linux user will be automatically mapped to staff_u</li>
+<li style="list-style-type: none"><span style="color: #00007f"><tt># semanage -m -S targetted -s staff)u -r so __default__</tt></span></li>
+<li style="list-style-type: none"></li>
+</ul>
+<span style="font-size: 12pt"><b>[+] Managing files context</b></span><ul><li style="list-style-type: none"></li>
+<li style="list-style-type: none"><span style="color: #00007f"><tt># chcon -vu user_u -t public_content_t /root/file1</tt></span></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Add the new context to the SELinux policy to ensure that it survives file system relabeling</li>
+<li style="list-style-type: none"><span style="color: #00007f"><tt># semanage fcontext -a -s user_u -t public_context_t /root/file1</tt></span></li>
+</ul>
+<ul><li style="list-style-type: none">Restore the original context</li>
+<li style="list-style-type: none"><span style="color: #00007f"><tt># restorecon -fF /root</tt></span></li>
+</ul>
+<br/>
+<span style="font-size: 12pt"><b>[+] Managing ports with SELinux</b></span><br/>
+<ul><tt><li style="list-style-type: none"><span style="color: #00007f"># semanage port -l | grep http_port</span></li>
+</tt><li style="list-style-type: none"><tt>http_port_t &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;tcp &nbsp; &nbsp; &nbsp;80, 81, 443, 488, 8008, 8009, 8443, 9000</tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Add port 8010 with type http_port_t and protocol tcp</li>
+<li style="list-style-type: none"><span style="color: #00007f"><tt># semanage port -a -t http_port_t -p tcp 8010</tt></span></li>
+</ul>
+<ul><li style="list-style-type: none">Delete port</li>
+<li style="list-style-type: none"><span style="color: #00007f"><tt># semanage port -d -t http_port_t -p tcp 8010</tt></span></li>
+<li style="list-style-type: none"></li>
+</ul>
+<span style="font-size: 12pt"><b>[+] Copy files<br/>
+</b></span><ul><li style="list-style-type: none"><tt>cp --preserve=context /rôt/file1 /etc</tt></li>
+</ul>
+<br/>
+<span style="font-size: 12pt"><b>[+] Tar command</b></span><br/>
+<ul><li style="list-style-type: none"><span style="color: #00007f"><tt># tar --selinux --acls --xattrs -cvf file.tar /var/www &nbsp;</tt></span></li>
+</ul>
+<ul><li style="list-style-type: none"><i><b>Where,</b></i></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><tt>--selinux </tt>&nbsp;&#09;Save the SELinux context to the archive called file.tar.</li>
+<li style="list-style-type: none"><tt>--acls</tt>&nbsp; &#09;&#09;ASave the ACLs to the archive called file.tar.</li>
+<li style="list-style-type: none">-<tt>-xattrs</tt>&nbsp; &#09;&#09;Save the user/root xattrs to the archive called file.tar Please that it archive all extended attributes, including SELinux and ACLs.</li>
+<li style="list-style-type: none"><tt>-c</tt>&nbsp; &#09;&#09;Create a new archive called file.tar.</li>
+<li style="list-style-type: none"><tt>-v</tt>&nbsp;&#09;&#09;Verbose output.</li>
+<li style="list-style-type: none"><tt>-f file.tar</tt>&nbsp; &#09;Archive file name.</li>
+<li style="list-style-type: none"><tt>/var/www</tt>&nbsp;&#09; Create archive called file.tar from directory /var/www</li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">[+] Relabeling Files</span></b><ul><li style="list-style-type: none"></li>
+<li style="list-style-type: none">Using Apache as an example, suppose you want to change the DocumentRoot to serve web pages from a location other than the default /var/www/html/ directory. Assume we create a directory (or maybe a mount point) at /html/ and create an index.html file there:</li>
+</ul>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none"># mkdir /html</li>
+<li style="list-style-type: none"># touch /html/index.html</li>
+<li style="list-style-type: none"># ls -Z /html/index.html</li>
+<li style="list-style-type: none">-rw-r--r-- &nbsp;root root user_u:object_r:default_t &nbsp; &nbsp; &nbsp; &nbsp;/html/index.html</li>
+<li style="list-style-type: none"># ls -Z | grep html</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">drwxr-xr-x &nbsp;root root user_u:object_r:default_t &nbsp; &nbsp; &nbsp; &nbsp;html </span></tt></li>
+</ul>
+<ul><li style="list-style-type: none">We see that both the directory <tt>/html/</tt>&nbsp;and file<tt>&nbsp;/html/index.html</tt>&nbsp;have the security context type: <tt>default_t</tt>. If we start our web browser and try to view the page, SELinux will properly deny access and log the error because the directory and file(s) have the wrong security context. We need to set the correct security context type for Apache of: <tt>httpd_sys_content_t.</tt></li>
+</ul>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none"># chcon -v --type=httpd_sys_content_t /html</li>
+<li style="list-style-type: none">context of /html changed to user_u:object_r:httpd_sys_content_t</li>
+<li style="list-style-type: none"># chcon -v --type=httpd_sys_content_t /html/index.html</li>
+<li style="list-style-type: none">context of /html/index.html changed to user_u:object_r:httpd_sys_content_t</li>
+<li style="list-style-type: none"># ls -Z /html/index.html</li>
+<li style="list-style-type: none">-rw-r--r-- &nbsp;root root user_u:object_r:httpd_sys_content_t &nbsp; &nbsp;/html/index.html</li>
+<li style="list-style-type: none"># ls -Z | grep html</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">drwxr-xr-x &nbsp;root root user_u:object_r:httpd_sys_content_t &nbsp; &nbsp;html </span></tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Equally we could have set both in one go using the -R recursive switch:</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><tt><span style="color: #00007f"># chcon -Rv --type=httpd_sys_content_t /html </span></tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Modifying security contexts in this manner will persist between system reboots but only until the modified portion of the filesystem is relabeled. This is a not uncommon operation and the proper solution, after testing, is to write a local custom rule (a so-called Policy Module) and merge it into the base local rules. This will be an additional rule on top of the 200+ rules mentioned above. To make the security context changes permanent, even through a complete filesystem relabel, we can use the SELinux Management Tool or the 'semanage' command from the command line:</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><tt><span style="color: #00007f"># semanage fcontext -a -t httpd_sys_content_t "/html(/.*)?" </span></tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">to add a file context of type <tt>httpd_sys_content_t</tt>&nbsp;for everything under <tt>/html</tt>.</li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">[+] Relabel Complete Filesystem</span></b><br/>
+<ul><li style="list-style-type: none">Sometimes it is necessary to relabel the complete filesystem although this should only be necessary when enabling SELinux after it has been disabled or when changing the SELinux policy from the default targeted policy to strict. To automatically relabel the complete filesystem upon reboot, do:</li>
+</ul>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none"># touch /.autorelabel</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f"># reboot </span></tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Sometimes a complete filesystem relabel will fail if the system has been upgraded to CentOS-5.2 with SELinux disabled, and SELinux is then enabled. If the above procedure doesn't correctly perform a complete filesystem relabel, try issuing the 'genhomedircon' command first:</li>
+</ul>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none"># genhomedircon</li>
+<li style="list-style-type: none"># touch /.autorelabel</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f"># reboot </span></tt></li>
+</ul>
+<br/>
+<br/>
+<span style="font-size: 12pt"><b>[+] Type_transition Rule &nbsp;</b></span><br/>
+<br/>
+The statement definition is:<br/>
+<br/>
+<span style="color: #00007f"><tt>type_transition source_type target_type : class default_type;</tt></span><br/>
+<br/>
+Policy versions 25 and above also support a 'name transition' rule, however, this is not allowed inside conditionals and currently only supports the file class:<br/>
+<br/>
+<span style="color: #00007f"><tt>type_transition source_type target_type : class default_type object_name;</tt></span><br/>
+<ul><li style="list-style-type: none"><span style="font-size: 10pt"><b>[+] Example Domain Transition</b></span></li>
+</ul>
+<ul><tt><li style="list-style-type: none"># Using the type_transition statement to show a domain</li>
+<li style="list-style-type: none"># transition (as the statement has the process object class</li>
+<li style="list-style-type: none"># in the class). </li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># The rule states that when a process of type initrc_t executes </li>
+<li style="list-style-type: none"># a file of type acct_exec_t, the process type should be changed</li>
+<li style="list-style-type: none"># to acct_t if allowed by the policy (i.e. Transition from the</li>
+<li style="list-style-type: none"># initrc_t domain to the acc_t domain).</li>
+<li style="list-style-type: none"></li>
+<span style="color: #00007f"><li style="list-style-type: none">type_transition initrc_t acct_exec_t:process acct_t;</li>
+</span><li style="list-style-type: none"></li>
+<li style="list-style-type: none"># Note that to be able to transition to the acc_t domain the </li>
+<li style="list-style-type: none"># following minimum permissions need to be granted in the policy</li>
+<li style="list-style-type: none"># using allow rules (as shown in the [#_allow_Rule allow Rule] section).</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># File needs to be executable in the initrc_t domain:</li>
+<span style="color: #00007f"><li style="list-style-type: none">allow initrc_t acct_exec_t:file execute;</li>
+</span><li style="list-style-type: none"></li>
+<li style="list-style-type: none"># The executable file needs an entry point into the acct_t</li>
+<li style="list-style-type: none"># domain:</li>
+<li style="list-style-type: none"><span style="color: #00007f">allow acct_t acct_exec_t:file entrypoint;</span></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># Process needs permission to transition into the acct_t domain:</li>
+</tt><li style="list-style-type: none"><tt><span style="color: #00007f">allow initrc_t acct_t:process transition;</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none"><span style="font-size: 10pt"><b>[+] Example Object Transition</b></span></li>
+</ul>
+<ul><tt><li style="list-style-type: none"># Using the type_transition statement to show an object </li>
+<li style="list-style-type: none"># transition (as it has other than process in the class).</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># The rule states that when a process of type acct_t creates a </li>
+<li style="list-style-type: none"># file in the directory of type var_log_t, by default it should </li>
+<li style="list-style-type: none"># have the type wtmp_t if allowed by the policy.</li>
+<li style="list-style-type: none"></li>
+<span style="color: #00007f"><li style="list-style-type: none">type_transition acct_t var_log_t:file wtmp_t;</li>
+</span><li style="list-style-type: none"></li>
+<li style="list-style-type: none"># Note that to be able to create the new file object with the</li>
+<li style="list-style-type: none"># wtmp_t type, the following minimum permissions need to be </li>
+<li style="list-style-type: none"># granted in the policy using allow rules. </li>
+<li style="list-style-type: none"># A minimum of: add_name, write and search on the var_log_t </li>
+<li style="list-style-type: none"># directory. The actual policy has:</li>
+<li style="list-style-type: none">#</li>
+<span style="color: #00007f"><li style="list-style-type: none">allow acct_t var_log_t:dir { read getattr lock search ioctl </li>
+</span><li style="list-style-type: none"><span style="color: #00007f">add_name remove_name write };</span></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># A minimum of: create and write on the wtmp_t file. The actual</li>
+<li style="list-style-type: none"># policy has:</li>
+<li style="list-style-type: none">#</li>
+<span style="color: #00007f"><li style="list-style-type: none">allow acct_t wtmp_t:file { create open getattr setattr read </li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">write append rename link unlink ioctl lock };</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none"><span style="font-size: 10pt"><b>[+] Example Name Transition</b>&nbsp; </span></li>
+</ul>
+<ul><tt><li style="list-style-type: none"># type_transition to allow using the last path component as </li>
+<li style="list-style-type: none"># part of the information in making labeling decisions for </li>
+<li style="list-style-type: none"># new objects. An example rule:</li>
+<li style="list-style-type: none">#</li>
+<li style="list-style-type: none"><span style="color: #00007f">type_transition unconfined_t etc_t : file system_conf_t eric;</span></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># This rule says if unconfined_t creates a file in a directory</li>
+<li style="list-style-type: none"># labeled etc_t and the last path component is "eric" (must be</li>
+<li style="list-style-type: none"># an exact strcmp) it should be labeled system_conf_t. </li>
+</tt><li style="list-style-type: none"><tt># Note: This rule in not supported in conditionals. </tt></li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">[+] Troubleshoot</span></b><br/>
+<ul><li style="list-style-type: none">Starting with CentOS 5 the SELinux Troubleshooting tool can be used to help analyze log files converting them into a more human-readable format. The tool consists of a GUI tool for displaying messages in human-readable format and possible solutions, a desktop notification icon alerting of new issues and a daemon process, setroubleshootd, that checks for new SELinux AVC alerts and feeds the notification icon. Email notifications may also be configured, as for those not running an X server. The SELinux Troubleshooting tool is provided by the setroubleshoot package. The tool may be launched from the X Window GUI manager System menu or from the command line:</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><tt><span style="color: #00007f"># sealert -b </span></tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Those not running an X server may generate human-readable reports from the command line:</li>
+</ul>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f"># sealert -a /var/log/audit/audit.log &gt; /path/to/mylogfile.txt </span></tt></li>
+</ul>
+<br/>
+<br/>
+<br/>
+<br/>
+<b><span style="font-size: 12pt">[+] REF:</span></b><br/>
+1. <a href="https://wiki.centos.org/HowTos/SELinux">https://wiki.centos.org/HowTos/SELinux</a><br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+END&#09;</body></html>

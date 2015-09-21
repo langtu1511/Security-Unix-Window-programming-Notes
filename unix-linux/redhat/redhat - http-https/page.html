@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Redhat - HTTP/HTTPS</title>
+</head><body><br/>
+***** <a href="https://wiki.centos.org/HowTos/Https">https://wiki.centos.org/HowTos/Https</a><br/>
+<br/>
+<b><span style="font-size: 12pt">Generate a self-signed certificate</span></b><br/>
+<ul><li style="list-style-type: none">Using OpenSSL we will generate a self-signed certificate. If you are using this on a production server you are probably likely to want a key from a Trusted Certificate Authority, but if you are just using this on a personal site or for testing purposes a self-signed certificate is fine. To create the key you will need to be root so you can either su to root or use sudo in front of the commands</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><tt><li style="list-style-type: none"># Generate private key </li>
+<li style="list-style-type: none"><span style="color: #00007f">openssl genrsa -out ca.key 2048 </span></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># Generate CSR </li>
+<li style="list-style-type: none"><span style="color: #00007f">openssl req -new -key ca.key -out ca.csr</span></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># Generate Self Signed Key</li>
+<li style="list-style-type: none"><span style="color: #00007f">openssl x509 -req -days 365 -in ca.csr -signkey ca.key -out ca.crt</span></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># Copy the files to the correct locations</li>
+<span style="color: #00007f"><li style="list-style-type: none">cp ca.crt /etc/pki/tls/certs</li>
+<li style="list-style-type: none">cp ca.key /etc/pki/tls/private/ca.key</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">cp ca.csr /etc/pki/tls/private/ca.csr</span></tt></li>
+</ul>
+</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><b>WARNING</b>: Make sure that you copy the files and do not move them if you use SELinux. Apache will complain about missing certificate files otherwise, as it cannot read them because the certificate files do not have the right SELinux context.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">If you have moved the files and not copied them, you can use the following command to correct the SELinux contexts on those files, as the correct context definitions for /etc/pki/* come with the bundled SELinux policy.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none"><tt><span style="color: #00007f">restorecon -RvF /etc/pki</span></tt></li>
+</ul>
+</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Then we need to update the Apache SSL configuration file</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none"><tt><span style="color: #00007f">vi +/SSLCertificateFile /etc/httpd/conf.d/ssl.conf</span></tt></li>
+</ul>
+</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Change the paths to match where the Key file is stored. If you've used the method above it will be</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><span style="color: #00007f"><li style="list-style-type: none"><tt>SSLCertificateFile /etc/pki/tls/certs/ca.crt</tt></li>
+</span></ul>
+</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Then set the correct path for the Certificate Key File a few lines below. If you've followed the instructions above it is:</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none"><tt><span style="color: #00007f">SSLCertificateKeyFile /etc/pki/tls/private/ca.key</span></tt></li>
+</ul>
+</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Quit and save the file and then restart Apache</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none"><tt><span style="color: #00007f">/etc/init.d/httpd restart</span></tt></li>
+</ul>
+</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">All being well you should now be able to connect over https to your server and see a default Centos page. As the certificate is self signed browsers will generally ask you whether you want to accept the certificate.</li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">Setting up the virtual hosts</span></b><br/>
+<ul><li style="list-style-type: none">Just as you set VirtualHosts for http on port 80 so you do for https on port 443. A typical VirtualHost for a site on port 80 looks like this</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><tt><span style="color: #00007f"><li style="list-style-type: none">&lt;VirtualHost *:80&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &lt;Directory /var/www/vhosts/yoursite.com/httpdocs&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; AllowOverride All</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &lt;/Directory&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; DocumentRoot /var/www/vhosts/yoursite.com/httpdocs</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; ServerName yoursite.com</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&lt;/VirtualHost&gt;</span></tt></li>
+</ul>
+</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">To add a sister site on port 443 you need to add the following at the top of your file</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none"><tt>NameVirtualHost *:443</tt></li>
+</ul>
+</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">and then a VirtualHost record something like this:</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><tt><span style="color: #00007f"><li style="list-style-type: none">&lt;VirtualHost *:443&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; SSLEngine on</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; SSLCertificateFile /etc/pki/tls/certs/ca.crt</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; SSLCertificateKeyFile /etc/pki/tls/private/ca.key</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &lt;Directory /var/www/vhosts/yoursite.com/httpsdocs&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; AllowOverride All</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &lt;/Directory&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; DocumentRoot /var/www/vhosts/yoursite.com/httpsdocs</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; ServerName yoursite.com</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&lt;/VirtualHost&gt;</span></tt></li>
+</ul>
+</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Restart Apache again using</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none"><tt><span style="color: #00007f">/etc/init.d/httpd restart</span></tt></li>
+</ul>
+</li>
+<li style="list-style-type: none"></li>
+</ul>
+END</body></html>

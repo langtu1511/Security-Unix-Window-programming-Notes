@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Access control list - ACL</title>
+</head><body><br/>
+<b>REF LINKs:</b><ul><li style="list-style-type: none"><a href="http://users.suse.com/~agruen/acl/linux-acls/online/">http://users.suse.com/~agruen/acl/linux-acls/online/</a></li>
+</ul>
+<br/>
+<span style="font-size: 12pt"><b>Access Check Algorithm</b></span><br/>
+<br/>
+A process requests access to a file system object. Two steps are performed. Step one selects the ACL entry that most closely matches the requesting process. The ACL entries are looked at in the following order: owner, named users, (owning or named) groups, others. Only a single entry determines access. Step two checks if the matching entry contains sufficient permissions.<br/>
+<br/>
+A process can be a member in more than one group, so more than one group entry can match. If any of these matching group entries contain the requested permissions, one that contains the requested permissions is picked (the result is the same no matter which entry is picked). If none of the matching group entries contains the requested permissions, access will be denied no matter which entry is picked.<br/>
+<br/>
+The access check algorithm can be described in pseudo-code as follows.<br/>
+<br/>
+<b>If</b><ul><li style="list-style-type: none">the user ID of the process is the owner, the owner entry determines access</li>
+</ul>
+<b>else if</b><ul><li style="list-style-type: none">the user ID of the process matches the qualifier in one of the named user entries, this entry determines access</li>
+</ul>
+<b>else if</b><ul><li style="list-style-type: none">one of the group IDs of the process matches the owning group and the owning group entry contains the requested permissions, this entry determines access</li>
+</ul>
+<b>else if</b><ul><li style="list-style-type: none">one of the group IDs of the process matches the qualifier of one of the named group entries and this entry contains the requested permissions, this entry determines access</li>
+</ul>
+<b>else if</b><ul><li style="list-style-type: none">one of the group IDs of the process matches the owning group or any of the named group entries, but neither the owning group entry nor any of the matching named group entries contains the requested permissions, this determines that access is denied</li>
+</ul>
+<b>else</b><ul><li style="list-style-type: none">the other entry determines access.</li>
+</ul>
+<b>If</b><ul><li style="list-style-type: none">the matching entry resulting from this selection is the owner or other entry and it contains the requested permissions, access is granted</li>
+</ul>
+<b>else if</b><ul><li style="list-style-type: none">the matching entry is a named user, owning group, or named group entry and this entry contains the requested permissions and the mask entry also contains the requested permissions (or there is no mask entry), access is granted</li>
+</ul>
+<b>else</b><ul><li style="list-style-type: none">access is denied.</li>
+</ul>
+<br/>
+<br/>
+<img src="image.png" /><br/>
+<br/>
+<img src="image 2.png" /><br/>
+<br/>
+<img src="image 3.png" /><br/>
+<br/>
+<img src="image 4.png" /><br/>
+<br/>
+<img src="image 5.png" /><br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+END</body></html>

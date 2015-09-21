@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node>
+<version>6</version>
+<dict>
+  <key>title</key><string>Redhat - Disk management</string>
+  <key>nodeid</key><string>b5c3e70a-7404-43ee-bae5-c09c5dd125b3</string>
+  <key>modified_time</key><integer>1442682771</integer>
+  <key>version</key><integer>6</integer>
+  <key>content_type</key><string>text/xhtml+xml</string>
+  <key>created_time</key><integer>1442682771</integer>
+  <key>info_sort_dir</key><integer>1</integer>
+  <key>order</key><integer>17</integer>
+  <key>info_sort</key><string>order</string>
+</dict>
+</node>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node>
+<version>6</version>
+<dict>
+  <key>expanded</key><true/>
+  <key>nodeid</key><string>a3094aaa-f1be-489b-9902-65e114087db4</string>
+  <key>modified_time</key><integer>1441836622</integer>
+  <key>content_type</key><string>text/xhtml+xml</string>
+  <key>created_time</key><integer>1438446224</integer>
+  <key>info_sort_dir</key><integer>1</integer>
+  <key>icon</key><string>folder.png</string>
+  <key>title</key><string>Redhat</string>
+  <key>version</key><integer>6</integer>
+  <key>order</key><integer>2</integer>
+  <key>info_sort</key><string>order</string>
+</dict>
+</node>

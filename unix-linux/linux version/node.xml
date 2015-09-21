@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node>
+<version>6</version>
+<dict>
+  <key>expanded</key><true/>
+  <key>duplicate_of</key><string>bbecef6b-005b-4632-8896-d0a5a781fe2e</string>
+  <key>nodeid</key><string>36249c3e-472e-4055-99f3-0e6ab0df719a</string>
+  <key>modified_time</key><integer>1440411815</integer>
+  <key>expanded2</key><true/>
+  <key>content_type</key><string>text/xhtml+xml</string>
+  <key>created_time</key><integer>1425575681</integer>
+  <key>info_sort_dir</key><integer>1</integer>
+  <key>title</key><string>Linux version</string>
+  <key>version</key><integer>6</integer>
+  <key>order</key><integer>15</integer>
+  <key>info_sort</key><string>order</string>
+</dict>
+</node>

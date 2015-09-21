@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Create the intermediate pair</title>
+</head><body><br/>
+<br/>
+<b><span style="font-size: 16pt"><div style="text-align: center">Create the intermediate pair</div></span></b><br/>
+<br/>
+<br/>
+An intermediate certificate authority (CA) is an entity that can sign certificates on behalf of the root CA. The intermediate certificate is signed by the root CA, which forms a chain of trust.<br/>
+<br/>
+The purpose of using an intermediate CA is primarily for security. The root key can be kept offline and used as little as possible. If the intermediate key is compromised, the root CA can revoke the intermediate certificate and create a new intermediate cryptographic pair.<br/>
+<br/>
+<b><span style="font-size: 12pt">Prepare the directory</span></b><br/>
+<br/>
+The root CA files are kept in /root/ca. Choose a different directory (/root/ca/intermediate) to store the intermediate CA files.<br/>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f"># mkdir /root/ca/intermediate</span></tt></li>
+</ul>
+<br/>
+Create the same directory structure used for the root CA files. It’s convenient to also create a csr directory to hold certificate signing requests.<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none"># cd /root/ca/intermediate</li>
+<li style="list-style-type: none"># mkdir certs crl csr newcerts private</li>
+<li style="list-style-type: none"># chmod 700 private</li>
+<li style="list-style-type: none"># touch index.txt</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f"># echo 1000 &gt; serial</span></tt></li>
+</ul>
+<br/>
+Add a crlnumber file to the intermediate CA directory tree. crlnumber is used to keep track of certificate revocation lists.<br/>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f"># echo 1000 &gt; /root/ca/intermediate/crlnumber</span></tt></li>
+</ul>
+<br/>
+Copy the intermediate CA configuration file from the Appendix to /root/ca/intermediate/openssl.cnf. Five options have been changed compared to the root CA configuration file:<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">[ CA_default ]</li>
+<li style="list-style-type: none">dir &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; = /root/ca/intermediate</li>
+<li style="list-style-type: none">private_key &nbsp; &nbsp; = $dir/private/intermediate.key.pem</li>
+<li style="list-style-type: none">certificate &nbsp; &nbsp; = $dir/certs/intermediate.cert.pem</li>
+<li style="list-style-type: none">crl &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; = $dir/crl/intermediate.crl.pem</li>
+<li style="list-style-type: none">policy &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;= policy_loose</li>
+</span></tt><li style="list-style-type: none"></li>
+</ul>
+<b><span style="font-size: 12pt">Create the intermediate key</span></b><br/>
+<br/>
+Create the intermediate key (intermediate.key.pem). Encrypt the intermediate key with AES 256-bit encryption and a strong password.<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none"># cd /root/ca</li>
+<li style="list-style-type: none"># openssl genrsa -aes256 \</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; -out intermediate/private/intermediate.key.pem 4096</li>
+</span></tt><li style="list-style-type: none"></li>
+</ul>
+Enter pass phrase for intermediate.key.pem: secretpassword<br/>
+Verifying - Enter pass phrase for intermediate.key.pem: secretpassword<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none"># chmod 400 intermediate/private/intermediate.key.pem</li>
+</span></tt><li style="list-style-type: none"></li>
+</ul>
+<b><span style="font-size: 12pt">Create the intermediate certificate</span></b><br/>
+<br/>
+Use the intermediate key to create a certificate signing request (CSR). The details should generally match the root CA, except the Common Name which must be different.<br/>
+<ul><li style="list-style-type: none"><b>Warning</b></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none">Make sure you specify the intermediate CA configuration file (intermediate/openssl.cnf).</li>
+</ul>
+</li>
+</ul>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none"># cd /root/ca</li>
+<li style="list-style-type: none"># openssl req -config intermediate/openssl.cnf -new -sha256 \</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; -key intermediate/private/intermediate.key.pem \</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&nbsp; &nbsp; &nbsp; -out intermediate/csr/intermediate.csr.pem</span></tt></li>
+</ul>
+<ul><tt><li style="list-style-type: none">Enter pass phrase for intermediate.key.pem: secretpassword</li>
+<li style="list-style-type: none">You are about to be asked to enter information that will be incorporated</li>
+<li style="list-style-type: none">into your certificate request.</li>
+<li style="list-style-type: none">-----</li>
+<li style="list-style-type: none">Country Name (2 letter code) [XX]:GB</li>
+<li style="list-style-type: none">State or Province Name []:England</li>
+<li style="list-style-type: none">Locality Name []:</li>
+<li style="list-style-type: none">Organization Name []:Alice Ltd</li>
+<li style="list-style-type: none">Organizational Unit Name []:Alice Ltd Certificate Authority</li>
+<li style="list-style-type: none">Common Name []:Alice Ltd Intermediate CA</li>
+</tt><li style="list-style-type: none"><tt>Email Address []:</tt></li>
+</ul>
+<br/>
+To create an intermediate certificate, use the root CA with the v3_intermediate_ca extension to sign the intermediate CSR. The intermediate certificate should be valid for a shorter period than the root certificate. Ten years would be reasonable.<br/>
+<ul><li style="list-style-type: none"><b>Warning</b></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none">This time, specify the root CA configuration file (<tt><span style="color: #00007f">/root/ca/openssl.cnf</span></tt>).</li>
+</ul>
+</li>
+</ul>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none"># cd /root/ca</li>
+<li style="list-style-type: none"># openssl ca -config openssl.cnf -extensions v3_intermediate_ca \</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; -days 3650 -notext -md sha256 \</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; -in intermediate/csr/intermediate.csr.pem \</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; -out intermediate/certs/intermediate.cert.pem</li>
+<li style="list-style-type: none"></li>
+</span><li style="list-style-type: none">Enter pass phrase for ca.key.pem: secretpassword</li>
+<li style="list-style-type: none">Sign the certificate? [y/n]: y<span style="color: #00007f"></span></li>
+<span style="color: #00007f"><li style="list-style-type: none"></li>
+<li style="list-style-type: none"># chmod 444 intermediate/certs/intermediate.cert.pem</li>
+</span></tt></ul>
+<br/>
+The <tt>index.txt</tt>&nbsp;file is where the OpenSSL ca tool stores the certificate database. Do not delete or edit this file by hand. It should now contain a line referring to the intermediate certificate.<br/>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">V 250408122707Z 1000 unknown ... /CN=Alice Ltd Intermediate CA</span></tt></li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">Verify the intermediate certificate</span></b><br/>
+<br/>
+As we did for the root certificate, check that the details of the intermediate certificate are correct.<br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none"># openssl x509 -noout -text \</li>
+</tt><li style="list-style-type: none"><tt>&nbsp; &nbsp; &nbsp; -in intermediate/certs/intermediate.cert.pem</tt></li>
+<li style="list-style-type: none"></li>
+</span></ul>
+Verify the intermediate certificate against the root certificate. An OK indicates that the chain of trust is intact.<span style="color: #00007f"></span><ul><span style="color: #00007f"><li style="list-style-type: none"></li>
+<tt><li style="list-style-type: none"># openssl verify -CAfile certs/ca.cert.pem \</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; intermediate/certs/intermediate.cert.pem</li>
+<li style="list-style-type: none"></li>
+</tt></span><tt><li style="list-style-type: none">intermediate.cert.pem: OK<span style="color: #00007f"></span></li>
+</tt><li style="list-style-type: none"></li>
+</ul>
+<b><span style="font-size: 12pt">Create the certificate chain file</span></b><br/>
+<br/>
+When an application (eg, web browser) tries to verify a certificate signed by the intermediate CA, it must also verify the intermediate certificate against the root certificate. To complete the chain of trust, a CA certificate chain file must be presented to the application.<br/>
+<br/>
+Create this file by concatenating the intermediate and root certificates together. We will use this file later to verify certificates signed by the intermediate CA.<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none"># cat intermediate/certs/intermediate.cert.pem \</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; certs/ca.cert.pem &gt; intermediate/certs/ca-chain.cert.pem</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f"># chmod 444 intermediate/certs/ca-chain.cert.pem</span></tt></li>
+</ul>
+<br/>
+<ul><li style="list-style-type: none"><b>Note</b></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Our certificate chain file must include the root certificate because no client application knows about it yet. A better option, particularly if you’re administrating an intranet, is to install your root certificate on every client that needs to connect. In that case, the chain file need only contain your intermediate certificate.</li>
+</ul>
+<br/>
+<br/>
+<br/>
+<br/>
+END</body></html>

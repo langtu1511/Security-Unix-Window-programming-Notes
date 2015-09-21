@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>CMD</title>
+</head><body><br/>
+<a href="http://www.windows-commandline.com/find-windows-os-version-from-command/">http://www.windows-commandline.com/find-windows-os-version-from-command/</a><br/>
+<br/>
+<br/>
+<br/>
+<b><span style="font-size: 12pt">Get current windows version</span></b><ul><tt><span style="color: #00007f"><li style="list-style-type: none">C:\&gt;ver</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">Microsoft Windows XP [Version 5.1.2600] &nbsp;</span></tt></li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt"><a href="http://www.cyberciti.biz/tips/windows-change-access-permissions-from-the-command-line.html">Display file permissions</a></span><br/>
+</b><ul><li style="list-style-type: none">Linux and Unixish system comes with chmod and other commands to setup/change access permission from command line/shell.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">However, when it comes to windows chmod is not available. Windows comes with a special command line utility called CACLS.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">You can use it as follows:</li>
+<li style="list-style-type: none"><tt><span style="color: #00007f">CACLS files /e /p {USERNAME}:{PERMISSION}</span></tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Where,</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><tt><span style="color: #00007f">/p :</span></tt>&nbsp;&#09;&#09;Set new permission</li>
+<li style="list-style-type: none"><tt><span style="color: #00007f">/e :</span></tt><span style="color: #00007f">&nbsp;&#09;&#09;</span>Edit permission and kept old permission as it is i.e. edit ACL instead of replacing it.</li>
+<li style="list-style-type: none"><tt><span style="color: #00007f">{USERNAME} :</span></tt>&nbsp;&#09;Name of user</li>
+<li style="list-style-type: none"><tt><span style="color: #00007f">{PERMISSION} :</span></tt>&nbsp;&#09;Permission can be:</li>
+<li style="list-style-type: none"><tt><span style="color: #00007f">R - </span></tt>Read</li>
+<li style="list-style-type: none"><tt><span style="color: #00007f">W -</span>&nbsp;</tt>Write</li>
+<li style="list-style-type: none"><tt><span style="color: #00007f">C - </span></tt>Change (write)</li>
+<li style="list-style-type: none"><tt><span style="color: #00007f">F -</span>&nbsp;</tt>Full control</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">For example grant Rocky Full (F) control with following command (type at Windows command prompt):</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><tt><span style="color: #00007f">C:&gt; CACLS files /e /p rocky:f</span></tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Read complete help by typing following command:</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><tt><span style="color: #00007f">C:&gt; cacls /?</span></tt></li>
+<li style="list-style-type: none">&nbsp;</li>
+</ul>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+END</body></html>

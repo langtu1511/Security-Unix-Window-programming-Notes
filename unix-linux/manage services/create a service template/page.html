@@ -1,0 +1,317 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Create a service template</title>
+</head><body><br/>
+<br/>
+<img src="image.png" /><br/>
+<br/>
+<b>[+] Elastich service</b><br/>
+<br/>
+<b><i>[lively@templates elasticsearch]$ cat /etc/init.d/elasticsearch</i></b><ul><tt><span style="font-size: 8pt"><span style="color: #00007f"><li style="list-style-type: none">#!/bin/sh</li>
+<li style="list-style-type: none">###########</li>
+<li style="list-style-type: none">#</li>
+<li style="list-style-type: none"># EDITOR: duy.vu@inspheris.fr</li>
+<li style="list-style-type: none">#</li>
+<li style="list-style-type: none">##################</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">#</li>
+<li style="list-style-type: none"># elasticsearch &lt;summary&gt;</li>
+<li style="list-style-type: none">#</li>
+<li style="list-style-type: none"># chkconfig: &nbsp; 2345 80 20</li>
+<li style="list-style-type: none"># description: Starts and stops a single elasticsearch instance on this system</li>
+<li style="list-style-type: none">#</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">#</li>
+<li style="list-style-type: none"># Source function library.</li>
+<li style="list-style-type: none">#</li>
+<li style="list-style-type: none">if [ -f /etc/rc.d/init.d/functions ]; then</li>
+<li style="list-style-type: none">&nbsp; &nbsp; . /etc/rc.d/init.d/functions</li>
+<li style="list-style-type: none">fi</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">#Export environment variables</li>
+<li style="list-style-type: none">[ -e /soft/lively/elasticsearch/config/env_variables ] &amp;&amp; . /soft/lively/elasticsearch/config/env_variables</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">export ES_HEAP_SIZE</li>
+<li style="list-style-type: none">export ES_HEAP_NEWSIZE</li>
+<li style="list-style-type: none">export ES_DIRECT_SIZE</li>
+<li style="list-style-type: none">export ES_JAVA_OPTS</li>
+<li style="list-style-type: none">export JAVA_HOME</li>
+<li style="list-style-type: none">export ES_HOME</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">exec="${ES_HOME}/bin/elasticsearch"</li>
+<li style="list-style-type: none">prog="elasticsearch"</li>
+<li style="list-style-type: none">pidfile=${ES_HOME}/${prog}.pid</li>
+<li style="list-style-type: none">lockfile=${ES_HOME}/$prog</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">if [ ! -d "$ES_HOME" ]; then</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; echo "please specify ES_HOME in config/env_variables file"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; exit 1</li>
+<li style="list-style-type: none">fi</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># backwards compatibility for old config sysconfig files, pre 0.90.1</li>
+<li style="list-style-type: none">if [ -n $USER ] &amp;&amp; [ -z $ES_USER ] ; then</li>
+<li style="list-style-type: none">&nbsp; &nbsp;ES_USER=$USER</li>
+<li style="list-style-type: none">fi</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">checkJava() {</li>
+<li style="list-style-type: none">&nbsp; &nbsp; if [ -x "$JAVA_HOME/bin/java" ]; then</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; JAVA="$JAVA_HOME/bin/java"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; else</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; JAVA=`which java`</li>
+<li style="list-style-type: none">&nbsp; &nbsp; fi</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">&nbsp; &nbsp; if [ ! -x "$JAVA" ]; then</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; echo "Could not find any executable java binary. Please install java in your PATH or set JAVA_HOME"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; exit 1</li>
+<li style="list-style-type: none">&nbsp; &nbsp; fi</li>
+<li style="list-style-type: none">}</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">start() {</li>
+<li style="list-style-type: none">&nbsp; &nbsp; checkJava</li>
+<li style="list-style-type: none">&nbsp; &nbsp; [ -x $exec ] || exit 5</li>
+<li style="list-style-type: none">&nbsp; &nbsp; [ -f $CONF_FILE ] || exit 6</li>
+<li style="list-style-type: none">&nbsp; &nbsp; if [ -n "$MAX_LOCKED_MEMORY" -a -z "$ES_HEAP_SIZE" ]; then</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; echo "MAX_LOCKED_MEMORY is set - ES_HEAP_SIZE must also be set"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; return 7</li>
+<li style="list-style-type: none">&nbsp; &nbsp; fi</li>
+<li style="list-style-type: none">&nbsp; &nbsp; if [ -n "$MAX_OPEN_FILES" ]; then</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; ulimit -n $MAX_OPEN_FILES</li>
+<li style="list-style-type: none">&nbsp; &nbsp; fi</li>
+<li style="list-style-type: none">&nbsp; &nbsp; if [ -n "$MAX_LOCKED_MEMORY" ]; then</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; ulimit -l $MAX_LOCKED_MEMORY</li>
+<li style="list-style-type: none">&nbsp; &nbsp; fi</li>
+<li style="list-style-type: none">&nbsp; &nbsp; if [ -n "$MAX_MAP_COUNT" -a -f /proc/sys/vm/max_map_count ]; then</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; sysctl -q -w vm.max_map_count=$MAX_MAP_COUNT</li>
+<li style="list-style-type: none">&nbsp; &nbsp; fi</li>
+<li style="list-style-type: none">&nbsp; &nbsp; if [ -n "$WORK_DIR" ]; then</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; mkdir -p "$WORK_DIR"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; chown "$ES_USER":"$ES_GROUP" "$WORK_DIR"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; fi</li>
+<li style="list-style-type: none">&nbsp; &nbsp; echo -n $"Starting $prog: "</li>
+<li style="list-style-type: none">&nbsp; &nbsp; # if not running, start it up here, usually something like "daemon $exec"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; daemon --user $ES_USER --pidfile $pidfile $exec -p $pidfile -d</li>
+<li style="list-style-type: none">&nbsp; &nbsp; retval=$?</li>
+<li style="list-style-type: none">&nbsp; &nbsp; echo</li>
+<li style="list-style-type: none">&nbsp; &nbsp; [ $retval -eq 0 ] &amp;&amp; touch $lockfile</li>
+<li style="list-style-type: none">&nbsp; &nbsp; return $retval</li>
+<li style="list-style-type: none">}</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">stop() {</li>
+<li style="list-style-type: none">&nbsp; &nbsp; echo -n $"Stopping $prog: "</li>
+<li style="list-style-type: none">&nbsp; &nbsp; # stop it here, often "killproc $prog"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; killproc -p $pidfile -d 20 $prog</li>
+<li style="list-style-type: none">&nbsp; &nbsp; retval=$?</li>
+<li style="list-style-type: none">&nbsp; &nbsp; echo</li>
+<li style="list-style-type: none">&nbsp; &nbsp; [ $retval -eq 0 ] &amp;&amp; rm -f $lockfile</li>
+<li style="list-style-type: none">&nbsp; &nbsp; return $retval</li>
+<li style="list-style-type: none">}</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">restart() {</li>
+<li style="list-style-type: none">&nbsp; &nbsp; stop</li>
+<li style="list-style-type: none">&nbsp; &nbsp; start</li>
+<li style="list-style-type: none">}</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">reload() {</li>
+<li style="list-style-type: none">&nbsp; &nbsp; restart</li>
+<li style="list-style-type: none">}</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">force_reload() {</li>
+<li style="list-style-type: none">&nbsp; &nbsp; restart</li>
+<li style="list-style-type: none">}</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">rh_status() {</li>
+<li style="list-style-type: none">&nbsp; &nbsp; # run checks to determine if the service is running or use generic status</li>
+<li style="list-style-type: none">&nbsp; &nbsp; status -p $pidfile $prog</li>
+<li style="list-style-type: none">}</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">rh_status_q() {</li>
+<li style="list-style-type: none">&nbsp; &nbsp; rh_status &gt;/dev/null 2&gt;&amp;1</li>
+<li style="list-style-type: none">}</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">case "$1" in</li>
+<li style="list-style-type: none">&nbsp; &nbsp; start)</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; rh_status_q &amp;&amp; exit 0</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; $1</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; ;;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; stop)</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; rh_status_q || exit 0</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; $1</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; ;;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; restart)</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; $1</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; ;;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; reload)</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; rh_status_q || exit 7</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; $1</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; ;;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; force-reload)</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; force_reload</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; ;;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; status)</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; rh_status</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; ;;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; condrestart|try-restart)</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; rh_status_q || exit 0</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; restart</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; ;;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; *)</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; echo $"Usage: $0 {start|stop|status|restart|condrestart|try-restart|reload|force-reload}"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; exit 2</li>
+<li style="list-style-type: none">esac</li>
+</span></span><li style="list-style-type: none"><span style="font-size: 8pt"><span style="color: #00007f">exit $?</span></span></li>
+</tt><li style="list-style-type: none"></li>
+</ul>
+<br/>
+<b><i>[lively@templates config]$ cat /soft/lively/elasticsearch/config/env_variables</i></b><br/>
+<ul><tt><span style="font-size: 8pt"><span style="color: #00007f"><li style="list-style-type: none"># Directory where the Elasticsearch binary distribution resides</li>
+<li style="list-style-type: none">ES_HOME=/soft/lively/elasticsearch</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># Elasticsearch JAVA_HOME directory; use system defaults</li>
+<li style="list-style-type: none">JAVA_HOME=/soft/lively/jdk</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># Heap Size (defaults to 256m min, 1g max)</li>
+<li style="list-style-type: none">ES_HEAP_SIZE=1g</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># Heap new generation</li>
+<li style="list-style-type: none">#ES_HEAP_NEWSIZE=</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># max direct memory</li>
+<li style="list-style-type: none">#ES_DIRECT_SIZE=</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># Additional Java OPTS</li>
+<li style="list-style-type: none">#ES_JAVA_OPTS=</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># Maximum number of open files</li>
+<li style="list-style-type: none">MAX_OPEN_FILES=65535</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># Maximum amount of locked memory</li>
+<li style="list-style-type: none">#MAX_LOCKED_MEMORY=</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># Maximum number of VMA (Virtual Memory Areas) a process can own</li>
+<li style="list-style-type: none">MAX_MAP_COUNT=262144</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># Elasticsearch log directory</li>
+<li style="list-style-type: none">#LOG_DIR=</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># Elasticsearch data directory</li>
+<li style="list-style-type: none">#DATA_DIR=</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># Elasticsearch work directory</li>
+<li style="list-style-type: none">#WORK_DIR=</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># Elasticsearch conf directory</li>
+<li style="list-style-type: none">#CONF_DIR=/etc/elasticsearch</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># Elasticsearch configuration file (elasticsearch.yml)</li>
+<li style="list-style-type: none">#CONF_FILE=</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># User to run as, change this to a specific elasticsearch user if possible</li>
+<li style="list-style-type: none"># Also make sure, this user can write into the log directories in case you change them</li>
+<li style="list-style-type: none"># This setting only works for the init script, but has to be configured separately for systemd startup</li>
+<li style="list-style-type: none">ES_USER=lively</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># Configure restart on package upgrade (true, every other setting will lead to not restarting)</li>
+</span><li style="list-style-type: none"><span style="color: #00007f">#RESTART_ON_UPGRADE=true</span></li>
+<li style="list-style-type: none"></li>
+</span></tt><li style="list-style-type: none"></li>
+</ul>
+<b>[+] Tomcat service</b><br/>
+<ul><tt><span style="font-size: 8pt"><span style="color: #00007f"><li style="list-style-type: none">#!/bin/bash</li>
+<li style="list-style-type: none">#############</li>
+<li style="list-style-type: none">#</li>
+<li style="list-style-type: none"># EDITOR: duy.vu@inspheris.fr</li>
+<li style="list-style-type: none">#</li>
+<li style="list-style-type: none">###############</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># chkconfig: 2345 98 02</li>
+<li style="list-style-type: none"># description: Inspheris rpm</li>
+<li style="list-style-type: none"># processname: java</li>
+<li style="list-style-type: none">#</li>
+<li style="list-style-type: none"># Start/stop the queuing daemons.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">export JAVA_HOME=/soft/lively/jdk</li>
+<li style="list-style-type: none">export JAVA_OPTS="$JAVA_OPTS -Xms1024m -Xmx1024m -XX:MaxPermSize=1024m -Dfile.encoding=UTF-8 "</li>
+<li style="list-style-type: none">export PATH=$JAVA_HOME/bin:$PATH</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">PROC_NAME=tomcat</li>
+<li style="list-style-type: none">PROC_HOME=/soft/lively/tomcat7</li>
+<li style="list-style-type: none">PROC_USER=lively</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">TIMELIMIT=60</li>
+<li style="list-style-type: none">SLEEPTIME=1</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># Function to wait until the processes are killed</li>
+<li style="list-style-type: none">waitForProcessToDie()</li>
+<li style="list-style-type: none">{</li>
+<li style="list-style-type: none">&#09;PROCESSES=`ps auxwww | grep 'java' | grep $PROC_HOME | grep -v 'grep'`</li>
+<li style="list-style-type: none">&#09;while [ ! -z "$PROCESSES" ] &amp;&amp; [ $SECONDS -lt $TIMELIMIT ] &amp;&amp; [ $TIMELIMIT -ne 0 ]; do</li>
+<li style="list-style-type: none">&#09;&#09;echo -n "."</li>
+<li style="list-style-type: none">&#09;&#09;sleep $SLEEPTIME</li>
+<li style="list-style-type: none">&#09;&#09;PROCESSES=`ps auxwww | grep 'java' | grep $PROC_HOME | grep -v 'grep'`</li>
+<li style="list-style-type: none">&#09;done</li>
+<li style="list-style-type: none">&#09;echo ""</li>
+<li style="list-style-type: none">&#09;if [ ! -z "$PROCESSES" ]; then</li>
+<li style="list-style-type: none">&#09;&#09;PROCESS_ID=`echo $PROCESSES | awk '{ print $2 }'`</li>
+<li style="list-style-type: none">&#09;&#09;echo "Killing process: $PROCESS_ID"</li>
+<li style="list-style-type: none">&#09;&#09;kill -9 $PROCESS_ID</li>
+<li style="list-style-type: none">&#09;fi</li>
+<li style="list-style-type: none">}</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">start () {</li>
+<li style="list-style-type: none">&#09;cd $PROC_HOME/bin</li>
+<li style="list-style-type: none">&nbsp; &nbsp; su $PROC_USER -c &nbsp;"./startup.sh"</li>
+<li style="list-style-type: none">}</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">stop() {</li>
+<li style="list-style-type: none">&#09;cd $PROC_HOME/bin</li>
+<li style="list-style-type: none">&nbsp; &nbsp; su $PROC_USER -c "./shutdown.sh"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; waitForProcessToDie</li>
+<li style="list-style-type: none">}</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">status() {</li>
+<li style="list-style-type: none">&#09;PROCESSES=`ps auxwww | grep 'java' | grep $PROC_HOME | grep -v 'grep'`</li>
+<li style="list-style-type: none">&#09;PROCESS_ID=`echo $PROCESSES | awk '{ print $2 }'`</li>
+<li style="list-style-type: none">&#09;if [ ! -z "$PROCESSES" ]; then</li>
+<li style="list-style-type: none">&#09;&#09;echo "tomcat process: ${PROCESS_ID} running"</li>
+<li style="list-style-type: none">&#09;else</li>
+<li style="list-style-type: none">&#09;&#09;echo "tomcat process is stopped"</li>
+<li style="list-style-type: none">&#09;fi</li>
+<li style="list-style-type: none">}</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">case $1 in</li>
+<li style="list-style-type: none">&#09;start)</li>
+<li style="list-style-type: none">&#09;&#09;start</li>
+<li style="list-style-type: none">&#09;&#09;;;</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">&#09;stop)</li>
+<li style="list-style-type: none">&#09; &nbsp; stop</li>
+<li style="list-style-type: none">&#09;&#09;;;</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">&#09;restart)</li>
+<li style="list-style-type: none">&#09;&#09;stop</li>
+<li style="list-style-type: none">&#09;&#09;start&#09;&#09;&#09;&#09;&#09;</li>
+<li style="list-style-type: none">&#09;&#09;;;</li>
+<li style="list-style-type: none">&#09;status)</li>
+<li style="list-style-type: none">&#09;&#09;status</li>
+<li style="list-style-type: none">&#09;&#09;;;</li>
+<li style="list-style-type: none">esac</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"></li>
+</span></span></tt><li style="list-style-type: none"></li>
+</ul>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+END</body></html>

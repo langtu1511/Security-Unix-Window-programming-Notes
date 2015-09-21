@@ -1,0 +1,32 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Jenkins - Directories</title>
+</head><body><br/>
+<br/>
+<br/>
+<tt><span style="color: #00007f">.jenkins</span></tt>&nbsp;The default Jenkins home directory (may be .hudson in older installations).<br/>
+<tt><span style="color: #00007f"><br/>
+</span></tt><tt><span style="color: #00007f">fingerprints</span></tt>&nbsp;This directory is used by Jenkins to keep track of artifactfingerprints. We look at how to track artifacts later on in the book.<br/>
+<br/>
+<tt><span style="color: #00007f">jobs</span></tt>&nbsp;This directory contains configuration details about the build jobs that Jenkins manages, as well as the artifacts and data resulting from these builds. We look at this directory in detail below.<br/>
+<tt><span style="color: #00007f"><br/>
+</span></tt><tt><span style="color: #00007f">plugins</span></tt>&nbsp;This directory contains any plugins that you have installed. Pluginsallow you to extend Jenkins by adding extra feature. Note that, with the exception of the Jenkins core plugins (subversion, cvs,ssh-slaves, maven, and scid-ad), plugins are not stored with the jenkins executable, or in the expanded web application directory. This means that you can update your Jenkins executable and not have to reinstall all your plugins.<br/>
+<tt><span style="color: #00007f"><br/>
+</span></tt><tt><span style="color: #00007f">updates</span></tt>&nbsp;This is an internal directory used by Jenkins to store information about available plugin updates<br/>
+<tt><span style="color: #00007f"><br/>
+</span></tt><tt><span style="color: #00007f">userContent</span></tt>&nbsp;You can use this directory to place your own custom content onto your Jenkins server. You can access files in this directory at http://myserver/hudson/userContent (if you are running Jenkins on an application server) or http://myserver/userContent (if you are running in stand-alone mode).<br/>
+<span style="color: #00007f"><br/>
+</span><span style="color: #00007f">users</span>&nbsp;If you are using the native Jenkins user database, user accounts will be stored in this directory.<br/>
+<tt><span style="color: #00007f"><br/>
+</span></tt><tt><span style="color: #00007f">war</span></tt>&nbsp;This directory contains the expanded web application. When you start Jenkins as a stand-alone application, it will extract the web application into this directory<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+END</body></html>

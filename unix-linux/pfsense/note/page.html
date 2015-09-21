@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>NOTE</title>
+</head><body><br/>
+<br/>
+<span style="font-size: 12pt"><b>[+] OpenVPN</b></span><br/>
+<ul><li style="list-style-type: none"><a href="https://www.highlnk.com/2013/12/configuring-openvpn-on-pfsense/">https://www.highlnk.com/2013/12/configuring-openvpn-on-pfsense/</a></li>
+</ul>
+<br/>
+<span style="font-size: 12pt"><b>[+] Execute command at boot time</b></span><br/>
+<ul><li style="list-style-type: none"><a href="https://doc.pfsense.org/index.php/Executing_commands_at_boot_time">https://doc.pfsense.org/index.php/Executing_commands_at_boot_time</a></li>
+</ul>
+<ul><li style="list-style-type: none"><b>shellcmd option</b></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">The hidden config.xml option &lt;shellcmd&gt; will run the command specified towards the end of the boot process.</li>
+<li style="list-style-type: none">To add a shellcmd to a configuration, either use the shellcmd package or edit the config by hand. To edit the config, back it up via Diagnostics &gt; Backup/restore, and open the resulting XML file in a text editor (other than the stock Windows Notepad). Above the &lt;/system&gt; line, add a line such as the following:</li>
+<li style="list-style-type: none"></li>
+<span style="color: #00007f"><tt><li style="list-style-type: none">&lt;shellcmd&gt;mycommand -a -b -c 123&lt;/shellcmd&gt;</li>
+<li style="list-style-type: none">&lt;shellcmd&gt;/sbin/route add 62.210.77.1 -interface em0&lt;/shellcmd&gt;</li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>&lt;shellcmd&gt;/sbin/route add default 62.210.77.1&lt;/shellcmd&gt;</tt></span></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Where "mycommand -a -b -c 123" is the command to run. Multiple &lt;shellcmd&gt; lines may be added to execute multiple commands. Save the changes and restore the modified configuration.</li>
+</ul>
+<br/>
+<span style="font-size: 12pt"><b>[+] FreeBDS restart service</b></span><ul><li style="list-style-type: none"></li>
+<li style="list-style-type: none"><a href="http://www.cyberciti.biz/tips/freebsd-how-to-start-restart-stop-network-service.html">http://www.cyberciti.biz/tips/freebsd-how-to-start-restart-stop-network-service.html</a></li>
+</ul>
+<br/>
+<br/>
+<span style="font-size: 12pt"><b>[+] Important command</b></span><br/>
+<ul><li style="list-style-type: none"><a href="https://blog.linuxnet.ch/pfsense-important-cli-commands/">https://blog.linuxnet.ch/pfsense-important-cli-commands/</a></li>
+</ul>
+<br/>
+END</body></html>

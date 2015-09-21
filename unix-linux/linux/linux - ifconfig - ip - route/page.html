@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>ifconfig &amp; ip</title>
+</head><body><br/>
+<b><div style="text-align: center"><span style="font-size: 16pt"><a href="https://www.tty1.net/blog/2010/ifconfig-ip-comparison_en.html">ifconfig vs ip</a><br/>
+</span></div></b><br/>
+<br/>
+<b><span style="font-size: 12pt">Show network devices and configuration</span></b><br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">ifconfig</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">ip addr show</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">ip link show</span></tt></li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">Enable a network interface</span></b><br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">ifconfig eth0 up</li>
+<li style="list-style-type: none"></li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">ip link set eth0 up</span></tt></li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">A network interface is disabled in a similar way:</span></b><br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">ifconfig eth0 down</li>
+<li style="list-style-type: none"></li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">ip link set eth0 down</span></tt></li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">Set IP address</span></b><br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">ifconfig eth0 192.168.0.77</li>
+<li style="list-style-type: none"></li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>ip address add 192.168.0.77 dev eth0</tt></span></li>
+</ul>
+<br/>
+<br/>
+This was the simple version of the command. Often, also the network mask or the broadcast address need to be specified. The following examples show the ifconfig and ip variants.<br/>
+<br/>
+Needless to say that the netmask can also be given in CIDR notation, e.g. as 192.168.0.77/24.<br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">ifconfig eth0 192.168.0.77 netmask 255.255.255.0 broadcast 192.168.0.255</li>
+<li style="list-style-type: none"></li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>ip addr add 192.168.0.77/24 broadcast 192.168.0.255 dev eth0</tt></span></li>
+</ul>
+<br/>
+<br/>
+<b><span style="font-size: 12pt">Delete an IP address</span></b><br/>
+<br/>
+With ip it is also possible to delete an address:<br/>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">ip addr del 192.168.0.77/24 dev eth0</span></tt></li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">Add alias interface</span></b><br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">ifconfig eth0:1 10.0.0.1/8</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">ip addr add 10.0.0.1/8 dev eth0 label eth0:1</li>
+</tt></span><li style="list-style-type: none"></li>
+</ul>
+<b><span style="font-size: 12pt">ARP protocol</span></b><br/>
+<br/>
+Add an entry in your ARP table.<br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">arp -i eth0 -s 192.168.0.1 00:11:22:33:44:55</li>
+<li style="list-style-type: none"></li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>ip neigh add 192.168.0.1 lladdr 00:11:22:33:44:55 nud permanent dev eth0</tt></span></li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">Switch ARP resolution off on one device</span></b><br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">ifconfig -arp eth0</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">ip link set dev eth0 arp off</li>
+</span></tt><li style="list-style-type: none"></li>
+</ul>
+<hr/><br/>
+<span style="font-size: 14pt"><b>View / Display Routing Table</b></span><br/>
+<br/>
+Type the following command:<ul><li style="list-style-type: none"><tt><span style="color: #00007f">ip route show</span></tt></li>
+</ul>
+OR&#09;<ul><li style="list-style-type: none"><tt><span style="color: #00007f">ip route list</span></tt></li>
+</ul>
+<span style="font-size: 14pt"><b>Set a default route</b></span><br/>
+<br/>
+All network packets that cannot be sent according to the previous entries of the routing table are sent through the following default gateway<br/>
+<ul><li style="list-style-type: none"><span style="color: #00007f"><tt>ip route add default via 192.168.1.254</tt></span></li>
+</ul>
+<b><span style="font-size: 14pt"><br/>
+</span></b><b><span style="font-size: 14pt">Delete route from table</span></b><br/>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">ip route delete 192.168.1.0/24 dev eth0</span></tt></li>
+</ul>
+<br/>
+<hr/><br/>
+<b><span style="font-size: 14pt">Add / setup a new route</span></b><br/>
+<br/>
+The syntax is as follows:<br/>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">route add default gw {IP-ADDRESS} {INTERFACE-NAME}</span></tt></li>
+</ul>
+<br/>
+Where,<br/>
+<br/>
+<b>IP-ADDRESS</b>: Specify router IP address<br/>
+<b>INTERFACE-NAME</b>: Specify interface name such as eth0<br/>
+<br/>
+For example if your router IP address is 192.168.1.254 type the following command as the root user:<br/>
+<br/>
+&nbsp;&#09;<tt><span style="color: #00007f">route add default gw 192.168.1.254 eth0</span></tt><br/>
+<br/>
+OR use hostname such as dsl-router:<br/>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">route add default gw dsl-router eth0</span></tt></li>
+</ul>
+<br/>
+<br/>
+</body></html>

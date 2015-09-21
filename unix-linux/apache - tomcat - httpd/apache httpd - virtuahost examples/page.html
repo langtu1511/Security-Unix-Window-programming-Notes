@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>apache httpd - Virtuahost examples</title>
+</head><body><br/>
+<br/>
+<b><span style="font-size: 12pt">[+] Mode rewrite</span></b><br/>
+<br/>
+<a href="http://webdesign.about.com/od/mod_rewrite/qt/site_redirects.htm">http://webdesign.about.com/od/mod_rewrite/qt/site_redirects.htm</a><br/>
+<br/>
+<br/>
+<br/>
+<b><span style="font-size: 12pt">[+] Virtual host</span></b><br/>
+<tt></tt><ul><tt><li style="list-style-type: none">Listen 80</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># This is the "main" server running on 172.20.30.40</li>
+<li style="list-style-type: none">ServerName server.domain.com</li>
+<li style="list-style-type: none">DocumentRoot /www/mainserver</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># This is the other address</li>
+<li style="list-style-type: none">NameVirtualHost 172.20.30.50</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">&lt;VirtualHost 172.20.30.50&gt;</li>
+<li style="list-style-type: none">DocumentRoot /www/example1</li>
+<li style="list-style-type: none">ServerName www.example.com</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># Other directives here ...</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">&lt;/VirtualHost&gt;</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">&lt;VirtualHost 172.20.30.50&gt;</li>
+<li style="list-style-type: none">DocumentRoot /www/example2</li>
+<li style="list-style-type: none">ServerName www.example.org</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># Other directives here ...</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">&lt;/VirtualHost&gt;</li>
+</tt></ul>
+<b><br/>
+</b><b>The server can be made to respond to internal and external requests with the same content, with just one VirtualHost section.</b><tt></tt><tt><ul><li style="list-style-type: none"></li>
+<li style="list-style-type: none">NameVirtualHost 192.168.1.1</li>
+<li style="list-style-type: none">NameVirtualHost 172.20.30.40</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">&lt;VirtualHost 192.168.1.1 172.20.30.40&gt;</li>
+<li style="list-style-type: none">DocumentRoot /www/server1</li>
+<li style="list-style-type: none">ServerName server.example.com</li>
+<li style="list-style-type: none">ServerAlias server</li>
+<li style="list-style-type: none">&lt;/VirtualHost&gt;</li>
+</ul>
+<br/>
+<br/>
+</tt>Just as you set VirtualHosts for http on port 80 so you do for https on port 443. A typical VirtualHost for a site on port 80 looks like this<ul><span style="color: #00007f"><tt><li style="list-style-type: none">&lt;VirtualHost *:80&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &lt;Directory /var/www/vhosts/yoursite.com/httpdocs&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; AllowOverride All</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &lt;/Directory&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; DocumentRoot /var/www/vhosts/yoursite.com/httpdocs</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; ServerName yoursite.com</li>
+</tt></span><tt><li style="list-style-type: none"><span style="color: #00007f">&lt;/VirtualHost&gt;</span></li>
+</tt></ul>
+<tt><br/>
+To add a sister site on port 443 you need to add the following at the top of your file<br/>
+<ul><li style="list-style-type: none"><span style="color: #00007f">NameVirtualHost *:443</span></li>
+</ul>
+<br/>
+and then a VirtualHost record something like this:<br/>
+<br/>
+<ul><span style="color: #00007f"><li style="list-style-type: none">&lt;VirtualHost *:443&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; SSLEngine on</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; SSLCertificateFile /etc/pki/tls/certs/ca.crt</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; SSLCertificateKeyFile /etc/pki/tls/private/ca.key</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &lt;Directory /var/www/vhosts/yoursite.com/httpsdocs&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &#09;AllowOverride All</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &lt;/Directory&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; </li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none"><ul><li style="list-style-type: none">DocumentRoot /var/www/vhosts/yoursite.com/httpsdocs</li>
+</ul>
+</li>
+</ul>
+</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; ServerName yoursite.com</li>
+<li style="list-style-type: none">&lt;/VirtualHost&gt;</li>
+</span></ul>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+</tt><br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+END</body></html>

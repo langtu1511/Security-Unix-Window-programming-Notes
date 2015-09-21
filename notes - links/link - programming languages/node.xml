@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node>
+<version>6</version>
+<dict>
+  <key>duplicate_of</key><string>ab82b124-828d-4b1f-b19a-61f515f57743</string>
+  <key>title</key><string>LINK - Programming languages</string>
+  <key>nodeid</key><string>f7cf5657-c1cb-43ad-86ee-6b46e5276346</string>
+  <key>modified_time</key><integer>1428359282</integer>
+  <key>version</key><integer>6</integer>
+  <key>content_type</key><string>text/xhtml+xml</string>
+  <key>created_time</key><integer>1422206546</integer>
+  <key>info_sort_dir</key><integer>1</integer>
+  <key>order</key><integer>1</integer>
+  <key>info_sort</key><string>order</string>
+</dict>
+</node>

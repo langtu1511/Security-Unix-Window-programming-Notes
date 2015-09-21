@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Shell script - back up ElasticSearch </title>
+</head><body><tt>#!/bin/bash<br/>
+<br/>
+echo "<br/>
+##################################<br/>
+# BACKUP ELASTICSEARCH PROGRAM<br/>
+# COMPANY: inspheris.fr<br/>
+# EDITOR: duy.vu@inspheris.fr<br/>
+# CONTACT: cto@inspheris.fr<br/>
+##################################<br/>
+"<br/>
+echo "NOTE: The backup directory should be outside of user HOME directory. Because elasticsearch user may not have permission to access to home directory"<br/>
+<br/>
+ES_USER='elasticsearch' &nbsp; &nbsp; &nbsp; &nbsp; #ELASTICSEARCH user<br/>
+ES_GROUP='elasticsearch' &nbsp; &nbsp; &nbsp; &nbsp;#ELASTICSEARCH group<br/>
+ES_INDICES="content" &nbsp;&#09;&#09;&#09;#Example: "index1, index2, index3"<br/>
+<br/>
+BACKUP_LOCATION='/BACKUP'<br/>
+SNAPSHOT_NAME=$(date "+%Y%m%d") # SNAPSHOT_NAME is based on the time (YYYYMMDD)<br/>
+BACKUP_DIR=${BACKUP_LOCATION}/$(date "+ES_%Y%m%d_%Mh%S") &nbsp;#The place where ES backup data will be saved. The name is base on date and time<br/>
+LOG_FILE=${BACKUP_LOCATION}/${HOSTNAME}_ES_backup_${SNAPSHOT_NAME}.log<br/>
+&#09;<br/>
+function main() {<br/>
+&#09;echo "INFO: Script is run with user: ${USER}"<br/>
+&#09;echo "INFO: Log file is: ${LOG_FILE}"<br/>
+&#09;echo "INFO: Backup directory: ${BACKUP_DIR}"<br/>
+<br/>
+&#09;echo "INFO: create ${BACKUP_DIR}"<br/>
+&#09;mkdir $BACKUP_DIR<br/>
+<br/>
+&#09;if [ $? -ne 0 ]; then<br/>
+&#09;&#09;echo "ERROR: Cannot create backup directory. Exit..."<br/>
+&#09;&#09;exit 1<br/>
+&#09;fi<br/>
+<br/>
+&#09;echo "INFO: Change ownership to Elasticsearch user"<br/>
+&#09;sudo chown -R ${ES_USER}:${ES_GROUP} $BACKUP_DIR<br/>
+<br/>
+&#09;if [ $? -ne 0 ]; then<br/>
+&#09;&#09;echo "ERROR: Cannot change ownership. Exit..."<br/>
+&#09;&#09;exit 1<br/>
+&#09;fi<br/>
+<br/>
+&#09;echo "INFO: Create repository backup in Elasticsearch"<br/>
+&#09;result=$(curl -s -XPUT "http://localhost:9200/_snapshot/backup" -d "{\"type\":\"fs\",\"settings\":{\"location\":\"${BACKUP_DIR}/\"}}")<br/>
+<br/>
+&#09;echo $result<br/>
+<br/>
+&#09;if [[ "${result}" == *"failed"* || &nbsp;"${result}" == *"Failed"* &nbsp;]] ; then<br/>
+&#09;&#09;echo "ERROR: Cannot create repository backup in Elasticsearch."<br/>
+&#09;&#09;echo "INFO: Deleting directory $BACKUP_DIR"<br/>
+&#09;&#09;rm -rf ${BACKUP_DIR}<br/>
+&#09;&#09;echo "INFO: Exit..."<br/>
+&#09;&#09;exit 1<br/>
+&#09;fi<br/>
+<br/>
+&#09;echo -e "\nINFO: Get current all repositories information"<br/>
+&#09;curl -s -XGET "http://localhost:9200/_snapshot/_all"<br/>
+<br/>
+&#09;echo -e "\nINFO: Get current repository information"<br/>
+&#09;curl -s -XGET "http://localhost:9200/_snapshot/backup"<br/>
+<br/>
+&#09;echo -e "\nINFO: Backup elasticsearch"<br/>
+&#09;curl -s -XPUT "http://localhost:9200/_snapshot/backup/${SNAPSHOT_NAME}?wait_for_completion=true" -d &nbsp;"{\"indices\":\"${ES_INDICES}\", \"ignore_unavailable\":\"true\", \"include_global_state\":false}"<br/>
+<br/>
+&#09;echo -e "\nINFO: Delete repository"<br/>
+&#09;curl -s -XDELETE "http://localhost:9200/_snapshot/backup"<br/>
+<br/>
+<br/>
+&#09;<br/>
+&#09;echo -e "\nINFO: compress backup directory"<br/>
+&#09;cd $BACKUP_LOCATION<br/>
+&#09;tar -zcf ${BACKUP_DIR}.tgz ${BACKUP_DIR}/*<br/>
+&#09;<br/>
+&#09;echo -e "\nINFO: The backup files are"<br/>
+&#09;du -hs ${BACKUP_DIR}*<br/>
+&#09;<br/>
+&#09;echo "INFO: DONE"<br/>
+}<br/>
+<br/>
+main 2&gt;&amp;1 | tee -a ${LOG_FILE}<br/>
+<br/>
+<br/>
+<br/>
+END</tt></body></html>

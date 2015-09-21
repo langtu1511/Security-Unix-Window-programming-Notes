@@ -1,0 +1,204 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>route</title>
+</head><body><tt><br/>
+C:\Windows\system32&gt;route delete 0.0.0.0 mask 0.0.0.0 192.168.43.1<br/>
+<br/>
+<img src="route_add.png" /><br/>
+<br/>
+<br/>
+<hr/>C:\Windows\system32&gt;route print<br/>
+===========================================================================<br/>
+Interface List<br/>
+&nbsp;14...00 17 9a 81 06 9f ......D-Link AirPlus G DWL-G122 Wireless USB Adapter(rev<br/>
+.C)<br/>
+&nbsp; 7...10 08 b1 47 32 28 ......Bluetooth Device (Personal Area Network)<br/>
+&nbsp; 5...10 08 b1 47 32 21 ......Microsoft Wi-Fi Direct Virtual Adapter<br/>
+&nbsp; 4...38 63 bb cb c9 40 ......Realtek PCIe FE Family Controller<br/>
+&nbsp; 3...10 08 b1 47 32 27 ......Ralink RT3290 802.11bgn Wi-Fi Adapter<br/>
+&nbsp; 9...00 50 56 c0 00 01 ......VMware Virtual Ethernet Adapter for VMnet1<br/>
+&nbsp;11...00 50 56 c0 00 08 ......VMware Virtual Ethernet Adapter for VMnet8<br/>
+&nbsp; 1...........................Software Loopback Interface 1<br/>
+&nbsp;32...00 00 00 00 00 00 00 e0 Microsoft ISATAP Adapter<br/>
+&nbsp; 6...00 00 00 00 00 00 00 e0 Teredo Tunneling Pseudo-Interface<br/>
+&nbsp;10...00 00 00 00 00 00 00 e0 Microsoft ISATAP Adapter #2<br/>
+&nbsp;12...00 00 00 00 00 00 00 e0 Microsoft ISATAP Adapter #3<br/>
+&nbsp;33...00 00 00 00 00 00 00 e0 Microsoft ISATAP Adapter #4<br/>
+===========================================================================<br/>
+<br/>
+IPv4 Route Table<br/>
+===========================================================================<br/>
+Active Routes:<br/>
+Network Destination &nbsp; &nbsp; &nbsp; &nbsp;Netmask &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Gateway &nbsp; &nbsp; &nbsp; Interface &nbsp;Metric<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 0.0.0.0 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0.0.0.0 &nbsp; &nbsp;192.168.1.254 &nbsp; &nbsp; 192.168.1.21 &nbsp; &nbsp; 25<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 0.0.0.0 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0.0.0.0 &nbsp; &nbsp; 192.168.43.1 &nbsp; 192.168.43.141 &nbsp; &nbsp; 25<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; 10.10.0.0 &nbsp; &nbsp;255.255.255.0 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp; &nbsp; 10.10.0.1 &nbsp; &nbsp;276<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; 10.10.0.1 &nbsp;255.255.255.255 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp; &nbsp; 10.10.0.1 &nbsp; &nbsp;276<br/>
+&nbsp; &nbsp; &nbsp; 10.10.0.255 &nbsp;255.255.255.255 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp; &nbsp; 10.10.0.1 &nbsp; &nbsp;276<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; 10.10.1.0 &nbsp; &nbsp;255.255.255.0 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp; &nbsp; 10.10.1.1 &nbsp; &nbsp;276<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; 10.10.1.1 &nbsp;255.255.255.255 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp; &nbsp; 10.10.1.1 &nbsp; &nbsp;276<br/>
+&nbsp; &nbsp; &nbsp; 10.10.1.255 &nbsp;255.255.255.255 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp; &nbsp; 10.10.1.1 &nbsp; &nbsp;276<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; 127.0.0.0 &nbsp; &nbsp; &nbsp; &nbsp;255.0.0.0 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp; &nbsp; 127.0.0.1 &nbsp; &nbsp;306<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; 127.0.0.1 &nbsp;255.255.255.255 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp; &nbsp; 127.0.0.1 &nbsp; &nbsp;306<br/>
+&nbsp; 127.255.255.255 &nbsp;255.255.255.255 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp; &nbsp; 127.0.0.1 &nbsp; &nbsp;306<br/>
+&nbsp; &nbsp; &nbsp; 192.168.1.0 &nbsp; &nbsp;255.255.255.0 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp;192.168.1.21 &nbsp; &nbsp;281<br/>
+&nbsp; &nbsp; &nbsp;192.168.1.21 &nbsp;255.255.255.255 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp;192.168.1.21 &nbsp; &nbsp;281<br/>
+&nbsp; &nbsp; 192.168.1.255 &nbsp;255.255.255.255 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp;192.168.1.21 &nbsp; &nbsp;281<br/>
+&nbsp; &nbsp; &nbsp;192.168.43.0 &nbsp; &nbsp;255.255.255.0 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp;192.168.43.141 &nbsp; &nbsp;281<br/>
+&nbsp; &nbsp;192.168.43.141 &nbsp;255.255.255.255 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp;192.168.43.141 &nbsp; &nbsp;281<br/>
+&nbsp; &nbsp;192.168.43.255 &nbsp;255.255.255.255 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp;192.168.43.141 &nbsp; &nbsp;281<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; 224.0.0.0 &nbsp; &nbsp; &nbsp; &nbsp;240.0.0.0 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp; &nbsp; 127.0.0.1 &nbsp; &nbsp;306<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; 224.0.0.0 &nbsp; &nbsp; &nbsp; &nbsp;240.0.0.0 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp;192.168.43.141 &nbsp; &nbsp;281<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; 224.0.0.0 &nbsp; &nbsp; &nbsp; &nbsp;240.0.0.0 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp; &nbsp; 10.10.1.1 &nbsp; &nbsp;276<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; 224.0.0.0 &nbsp; &nbsp; &nbsp; &nbsp;240.0.0.0 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp; &nbsp; 10.10.0.1 &nbsp; &nbsp;276<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; 224.0.0.0 &nbsp; &nbsp; &nbsp; &nbsp;240.0.0.0 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp;192.168.1.21 &nbsp; &nbsp;281<br/>
+&nbsp; 255.255.255.255 &nbsp;255.255.255.255 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp; &nbsp; 127.0.0.1 &nbsp; &nbsp;306<br/>
+&nbsp; 255.255.255.255 &nbsp;255.255.255.255 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp;192.168.43.141 &nbsp; &nbsp;281<br/>
+&nbsp; 255.255.255.255 &nbsp;255.255.255.255 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp; &nbsp; 10.10.1.1 &nbsp; &nbsp;276<br/>
+&nbsp; 255.255.255.255 &nbsp;255.255.255.255 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp; &nbsp; 10.10.0.1 &nbsp; &nbsp;276<br/>
+&nbsp; 255.255.255.255 &nbsp;255.255.255.255 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp;192.168.1.21 &nbsp; &nbsp;281<br/>
+===========================================================================<br/>
+Persistent Routes:<br/>
+&nbsp; None<br/>
+<br/>
+IPv6 Route Table<br/>
+===========================================================================<br/>
+Active Routes:<br/>
+&nbsp;If Metric Network Destination &nbsp; &nbsp; &nbsp;Gateway<br/>
+&nbsp; 6 &nbsp; &nbsp;306 ::/0 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; On-link<br/>
+&nbsp; 1 &nbsp; &nbsp;306 ::1/128 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;On-link<br/>
+&nbsp; 6 &nbsp; &nbsp;306 2001::/32 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;On-link<br/>
+&nbsp; 6 &nbsp; &nbsp;306 2001:0:9d38:90d7:2878:28cb:b11e:4ce4/128<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; On-link<br/>
+&nbsp; 3 &nbsp; &nbsp;281 fe80::/64 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;On-link<br/>
+&nbsp;11 &nbsp; &nbsp;276 fe80::/64 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;On-link<br/>
+&nbsp; 9 &nbsp; &nbsp;276 fe80::/64 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;On-link<br/>
+&nbsp;14 &nbsp; &nbsp;281 fe80::/64 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;On-link<br/>
+&nbsp; 6 &nbsp; &nbsp;306 fe80::/64 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;On-link<br/>
+&nbsp; 6 &nbsp; &nbsp;306 fe80::2878:28cb:b11e:4ce4/128<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; On-link<br/>
+&nbsp; 3 &nbsp; &nbsp;281 fe80::34e6:e4da:18e5:cf99/128<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; On-link<br/>
+&nbsp;14 &nbsp; &nbsp;281 fe80::4da4:81c7:eae0:5bef/128<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; On-link<br/>
+&nbsp;11 &nbsp; &nbsp;276 fe80::5082:bf4d:8196:1b32/128<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; On-link<br/>
+&nbsp; 9 &nbsp; &nbsp;276 fe80::dd2d:fb4d:817e:dcbc/128<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; On-link<br/>
+&nbsp; 1 &nbsp; &nbsp;306 ff00::/8 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; On-link<br/>
+&nbsp; 6 &nbsp; &nbsp;306 ff00::/8 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; On-link<br/>
+&nbsp; 3 &nbsp; &nbsp;281 ff00::/8 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; On-link<br/>
+&nbsp;11 &nbsp; &nbsp;276 ff00::/8 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; On-link<br/>
+&nbsp; 9 &nbsp; &nbsp;276 ff00::/8 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; On-link<br/>
+&nbsp;14 &nbsp; &nbsp;281 ff00::/8 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; On-link<br/>
+===========================================================================<br/>
+Persistent Routes:<br/>
+&nbsp; None<br/>
+<br/>
+C:\Windows\system32&gt;<br/>
+C:\Windows\system32&gt;<br/>
+<span style="font-size: 12pt"><span style="color: #00007f"><b>C:\Windows\system32&gt;route delete 0.0.0.0 mask 0.0.0.0 192.168.43.1</b></span></span><br/>
+&nbsp;OK!<br/>
+<br/>
+C:\Windows\system32&gt;route print<br/>
+===========================================================================<br/>
+Interface List<br/>
+&nbsp;14...00 17 9a 81 06 9f ......D-Link AirPlus G DWL-G122 Wireless USB Adapter(rev<br/>
+.C)<br/>
+&nbsp; 7...10 08 b1 47 32 28 ......Bluetooth Device (Personal Area Network)<br/>
+&nbsp; 5...10 08 b1 47 32 21 ......Microsoft Wi-Fi Direct Virtual Adapter<br/>
+&nbsp; 4...38 63 bb cb c9 40 ......Realtek PCIe FE Family Controller<br/>
+&nbsp; 3...10 08 b1 47 32 27 ......Ralink RT3290 802.11bgn Wi-Fi Adapter<br/>
+&nbsp; 9...00 50 56 c0 00 01 ......VMware Virtual Ethernet Adapter for VMnet1<br/>
+&nbsp;11...00 50 56 c0 00 08 ......VMware Virtual Ethernet Adapter for VMnet8<br/>
+&nbsp; 1...........................Software Loopback Interface 1<br/>
+&nbsp;32...00 00 00 00 00 00 00 e0 Microsoft ISATAP Adapter<br/>
+&nbsp; 6...00 00 00 00 00 00 00 e0 Teredo Tunneling Pseudo-Interface<br/>
+&nbsp;10...00 00 00 00 00 00 00 e0 Microsoft ISATAP Adapter #2<br/>
+&nbsp;12...00 00 00 00 00 00 00 e0 Microsoft ISATAP Adapter #3<br/>
+&nbsp;33...00 00 00 00 00 00 00 e0 Microsoft ISATAP Adapter #4<br/>
+===========================================================================<br/>
+<br/>
+IPv4 Route Table<br/>
+===========================================================================<br/>
+Active Routes:<br/>
+Network Destination &nbsp; &nbsp; &nbsp; &nbsp;Netmask &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Gateway &nbsp; &nbsp; &nbsp; Interface &nbsp;Metric<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 0.0.0.0 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0.0.0.0 &nbsp; &nbsp;192.168.1.254 &nbsp; &nbsp; 192.168.1.21 &nbsp; &nbsp; 30<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; 10.10.0.0 &nbsp; &nbsp;255.255.255.0 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp; &nbsp; 10.10.0.1 &nbsp; &nbsp;276<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; 10.10.0.1 &nbsp;255.255.255.255 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp; &nbsp; 10.10.0.1 &nbsp; &nbsp;276<br/>
+&nbsp; &nbsp; &nbsp; 10.10.0.255 &nbsp;255.255.255.255 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp; &nbsp; 10.10.0.1 &nbsp; &nbsp;276<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; 10.10.1.0 &nbsp; &nbsp;255.255.255.0 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp; &nbsp; 10.10.1.1 &nbsp; &nbsp;276<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; 10.10.1.1 &nbsp;255.255.255.255 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp; &nbsp; 10.10.1.1 &nbsp; &nbsp;276<br/>
+&nbsp; &nbsp; &nbsp; 10.10.1.255 &nbsp;255.255.255.255 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp; &nbsp; 10.10.1.1 &nbsp; &nbsp;276<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; 127.0.0.0 &nbsp; &nbsp; &nbsp; &nbsp;255.0.0.0 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp; &nbsp; 127.0.0.1 &nbsp; &nbsp;306<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; 127.0.0.1 &nbsp;255.255.255.255 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp; &nbsp; 127.0.0.1 &nbsp; &nbsp;306<br/>
+&nbsp; 127.255.255.255 &nbsp;255.255.255.255 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp; &nbsp; 127.0.0.1 &nbsp; &nbsp;306<br/>
+&nbsp; &nbsp; &nbsp; 192.168.1.0 &nbsp; &nbsp;255.255.255.0 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp;192.168.1.21 &nbsp; &nbsp;286<br/>
+&nbsp; &nbsp; &nbsp;192.168.1.21 &nbsp;255.255.255.255 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp;192.168.1.21 &nbsp; &nbsp;286<br/>
+&nbsp; &nbsp; 192.168.1.255 &nbsp;255.255.255.255 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp;192.168.1.21 &nbsp; &nbsp;286<br/>
+&nbsp; &nbsp; &nbsp;192.168.43.0 &nbsp; &nbsp;255.255.255.0 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp;192.168.43.141 &nbsp; &nbsp;281<br/>
+&nbsp; &nbsp;192.168.43.141 &nbsp;255.255.255.255 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp;192.168.43.141 &nbsp; &nbsp;281<br/>
+&nbsp; &nbsp;192.168.43.255 &nbsp;255.255.255.255 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp;192.168.43.141 &nbsp; &nbsp;281<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; 224.0.0.0 &nbsp; &nbsp; &nbsp; &nbsp;240.0.0.0 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp; &nbsp; 127.0.0.1 &nbsp; &nbsp;306<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; 224.0.0.0 &nbsp; &nbsp; &nbsp; &nbsp;240.0.0.0 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp;192.168.43.141 &nbsp; &nbsp;281<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; 224.0.0.0 &nbsp; &nbsp; &nbsp; &nbsp;240.0.0.0 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp; &nbsp; 10.10.1.1 &nbsp; &nbsp;276<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; 224.0.0.0 &nbsp; &nbsp; &nbsp; &nbsp;240.0.0.0 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp; &nbsp; 10.10.0.1 &nbsp; &nbsp;276<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; 224.0.0.0 &nbsp; &nbsp; &nbsp; &nbsp;240.0.0.0 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp;192.168.1.21 &nbsp; &nbsp;286<br/>
+&nbsp; 255.255.255.255 &nbsp;255.255.255.255 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp; &nbsp; 127.0.0.1 &nbsp; &nbsp;306<br/>
+&nbsp; 255.255.255.255 &nbsp;255.255.255.255 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp;192.168.43.141 &nbsp; &nbsp;281<br/>
+&nbsp; 255.255.255.255 &nbsp;255.255.255.255 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp; &nbsp; 10.10.1.1 &nbsp; &nbsp;276<br/>
+&nbsp; 255.255.255.255 &nbsp;255.255.255.255 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp; &nbsp; 10.10.0.1 &nbsp; &nbsp;276<br/>
+&nbsp; 255.255.255.255 &nbsp;255.255.255.255 &nbsp; &nbsp; &nbsp; &nbsp; On-link &nbsp; &nbsp; &nbsp;192.168.1.21 &nbsp; &nbsp;286<br/>
+===========================================================================<br/>
+Persistent Routes:<br/>
+&nbsp; None<br/>
+<br/>
+IPv6 Route Table<br/>
+===========================================================================<br/>
+Active Routes:<br/>
+&nbsp;If Metric Network Destination &nbsp; &nbsp; &nbsp;Gateway<br/>
+&nbsp; 6 &nbsp; &nbsp;306 ::/0 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; On-link<br/>
+&nbsp; 1 &nbsp; &nbsp;306 ::1/128 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;On-link<br/>
+&nbsp; 6 &nbsp; &nbsp;306 2001::/32 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;On-link<br/>
+&nbsp; 6 &nbsp; &nbsp;306 2001:0:5ef5:79fd:470:340e:3f57:feea/128<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; On-link<br/>
+&nbsp; 3 &nbsp; &nbsp;281 fe80::/64 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;On-link<br/>
+&nbsp;11 &nbsp; &nbsp;276 fe80::/64 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;On-link<br/>
+&nbsp; 9 &nbsp; &nbsp;276 fe80::/64 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;On-link<br/>
+&nbsp;14 &nbsp; &nbsp;286 fe80::/64 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;On-link<br/>
+&nbsp; 6 &nbsp; &nbsp;306 fe80::/64 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;On-link<br/>
+&nbsp; 6 &nbsp; &nbsp;306 fe80::470:340e:3f57:feea/128<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; On-link<br/>
+&nbsp; 3 &nbsp; &nbsp;281 fe80::34e6:e4da:18e5:cf99/128<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; On-link<br/>
+&nbsp;14 &nbsp; &nbsp;286 fe80::4da4:81c7:eae0:5bef/128<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; On-link<br/>
+&nbsp;11 &nbsp; &nbsp;276 fe80::5082:bf4d:8196:1b32/128<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; On-link<br/>
+&nbsp; 9 &nbsp; &nbsp;276 fe80::dd2d:fb4d:817e:dcbc/128<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; On-link<br/>
+&nbsp; 1 &nbsp; &nbsp;306 ff00::/8 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; On-link<br/>
+&nbsp; 6 &nbsp; &nbsp;306 ff00::/8 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; On-link<br/>
+&nbsp; 3 &nbsp; &nbsp;281 ff00::/8 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; On-link<br/>
+&nbsp;11 &nbsp; &nbsp;276 ff00::/8 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; On-link<br/>
+&nbsp; 9 &nbsp; &nbsp;276 ff00::/8 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; On-link<br/>
+&nbsp;14 &nbsp; &nbsp;286 ff00::/8 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; On-link<br/>
+===========================================================================<br/>
+Persistent Routes:<br/>
+&nbsp; None<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+END</tt></body></html>

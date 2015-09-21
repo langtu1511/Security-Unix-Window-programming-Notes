@@ -1,0 +1,189 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Sudo</title>
+</head><body><br/>
+<br/>
+<div style="text-align: center"><b><span style="font-size: 16pt">SUDO</span></b></div><br/>
+<br/>
+<tt><span style="color: #00007f">%admin ALL=(ALL)NOPASSWD:/usr/bin/apt-get &nbsp;</span></tt><br/>
+<br/>
+<ul><b><li style="list-style-type: none">To break it down</li>
+</b><li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><li><tt>%admin </tt>- All users of the admin group</li>
+<li><tt>ALL=</tt>&nbsp;- from any Host/IP</li>
+<li><tt>(ALL) </tt>- can run as any user</li>
+<li><tt>NOPASSWD</tt>&nbsp;- with no password required</li>
+<li><tt>:/usr/bin/apt-get </tt>- the list of comma, separated, applications.</li>
+</ul>
+</li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">Fine Graining Permissions</span></b><br/>
+<br/>
+Now, as quick and efficient this may be in most cases, it's not the best thing to do from a security point of view for a number of reasons:<br/>
+<ul><li style="list-style-type: none">1. Any connected computer can run the command, so long as they are logged in as one of the administrators. From a paranoid perspective, ideally we would rather only computers within our local host/network/subnet.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">2. They can run the given command as any user. Which apt-get isn't intended for. (Although the argument is weak in this case, in some scenarios and with certain applications, you could be quite literally giving a key for a user to invade another user's private account if not careful).</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">3. Sometimes, we want the user only to be able to perform "certain" tasks of the application, and not all features.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">4. In some circumstances, we only want one user to run a command, rather than all the users in the admin group.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Considering this list, you can make the following changes to it.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"></li>
+</ul>
+<tt><span style="color: #00007f">%admin <b>jaunty</b>=(ALL)NOPASSWD:/usr/bin/apt-get &nbsp;</span></tt><ul><li style="list-style-type: none"></li>
+<li style="list-style-type: none">So, as long as your hostname remains as 'jaunty', then you can run the sudo command from only your computer.</li>
+</ul>
+<br/>
+<tt><span style="color: #00007f">%admin <b>192.168.1.0/255.255.255.0</b>=(ALL)NOPASSWD:/usr/bin/apt-get &nbsp;</span></tt><br/>
+<ul><li style="list-style-type: none">192.168.1.0 is the IP of your local network.</li>
+<li style="list-style-type: none">255.255.255.0 is the subnet of your local network.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">So, in this instance, you are restricting the use of sudo only to users with an IP address of 192.168.1.1 through to 192.168.1.254</li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">Restricting User Switching</span></b><ul><li style="list-style-type: none"></li>
+<li style="list-style-type: none">To run commands as another user (other than root), you would run the following:</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><tt><span style="color: #00007f">sudo -u username command</span></tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">To prevent this from happening, you can restrict it by using:</li>
+<li style="list-style-type: none">Code:</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><tt><span style="color: #00007f">%admin jaunty=(root)NOPASSWD:/usr/bin/apt-get</span></tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">So now members of the admin group can only run the given commands without a password as root. Doesn't matter how hard they try otherwise. </li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Note: if a previous permission is set so the user can run the command as any user.</li>
+<li style="list-style-type: none">More specifically this line that is the default in Ubuntu:</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><tt><span style="color: #00007f">%admin ALL=(ALL) ALL</span></tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Then they will have to provide their own password to continue.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">A more secure method:</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><tt><span style="color: #00007f">%admin ALL=(root) ALL</span></tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Where they will be instead denied if they try to run an application as another user.</li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">Restricting Application Usage</span></b><ul><li style="list-style-type: none"></li>
+<li style="list-style-type: none">As well, as limiting the applications a user can run using sudo, you can limit the arguments of those applications that the user can use also, for apps that do more than one job.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">To limit apt-get usage to just 'update' and 'upgrade', we can have something like this:</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><tt><span style="color: #00007f">%admin jaunty=(root)NOPASSWD:/usr/bin/apt-get update,/usr/bin/apt-get upgrade</span></tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">And now everything other apt-get argument (install, remove, dist-upgrade) is denied!</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Alternately, we can also use the glob match '*'.</li>
+</ul>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">%admin jaunty=(root)NOPASSWD:/usr/bin/apt-get up*</span></tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">The '*' match is very powerful, and can apply to anything in the command listing part of the configuration line, ie:</li>
+</ul>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">%admin jaunty=(root)NOPASSWD:/*/sbin/*</span></tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">This could match anything from all the files in '/usr/sbin/' to '/usr/local/sbin/' and even places such as '/home/user/sbin/' fall into the match. As such, it is advised that you use it wisely.</li>
+<li style="list-style-type: none"></li>
+</ul>
+<b><span style="font-size: 12pt">Restricting use of sudo to Single Users</span></b><ul><li style="list-style-type: none"></li>
+<li style="list-style-type: none">As well as specifying groups, we can hand out sudo permissions on a 'per-user' basis too. For example, to only allow the user 'iain' (me) to run 'apt-get update' and 'apt-get upgrade', we use the following:</li>
+<li style="list-style-type: none">Code:</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><tt><span style="color: #00007f">iain jaunty=(root)NOPASSWD:/usr/bin/apt-get update,/usr/bin/apt-get upgrade</span></tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Note: The difference between a user and a group. Groups have the '%' symbol prefixed against their name. So, to change this so only users in the group 'iain' can run 'apt-get', we simply add the '%' symbol:</li>
+</ul>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">%iain jaunty=(root)NOPASSWD:/usr/bin/apt-get update,/usr/bin/apt-get upgrade</span></tt></li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">Restrict Applications</span></b><ul><li style="list-style-type: none"></li>
+<li style="list-style-type: none">There is a hidden 5th that I forgot to mention. In some cases, you want to restrict the application once it has been given root powers.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">ie: vim, less and some other similar applications can allow you to 'shell out' of the application and run commands using the ! operator, as an example:</li>
+</ul>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">:!aptitude</span></tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">The risk? If given the permissions to running vim as root, you can carry out any administrative task on the system. Which isn't very good if you just want certain users to run vim as root, but not any other command.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">For this, we have the NOEXEC option, with will prevent the command from shelling out.</li>
+</ul>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">%admin ALL=(root)NOEXEC:/usr/bin/vim</span></tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Although, bare in mind that for the majority of applications, this isn't the best option for usability, since programs such as 'apt-get' do indeed fork a shell to run applications such as dpkg and wget.</li>
+<li style="list-style-type: none"></li>
+</ul>
+<b><span style="font-size: 12pt">Aliases!</span></b><span style="font-size: 12pt">&nbsp; </span><ul><li style="list-style-type: none"><b><i>Host Alias Specification</i></b></li>
+<li style="list-style-type: none"><ul><tt><span style="color: #00007f"><li style="list-style-type: none">Host_Alias HOST = jaunty &nbsp;</li>
+</span></tt><span style="color: #00007f"><li style="list-style-type: none"><tt>Host_Alias LAN = 192.168.1.0/255.255.255.0 &nbsp;</tt></li>
+</span></ul>
+</li>
+</ul>
+<ul><li style="list-style-type: none"><b><i>User Alias Specification</i></b></li>
+<li style="list-style-type: none"><ul><span style="color: #00007f"><li style="list-style-type: none"><tt>User_Alias FUSE_USERS = andy,ellz,matt,jamie &nbsp;</tt></li>
+<li style="list-style-type: none">FUSE_USERS ALL=(root):/usr/bin/the-application</li>
+</span></ul>
+</li>
+</ul>
+<ul><li style="list-style-type: none"><b><i>RunAs Alias Specification</i></b></li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none">The runas alias, are aliases for the users you can sudo as, via the 'sudo -u' command. Again, I won't go into this, but it works like so:<tt></tt></li>
+<tt><li style="list-style-type: none"></li>
+<span style="color: #00007f"><li style="list-style-type: none">Runas_Alias USERS = root,andy,ellz,matt,jamie</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">%admin &nbsp;ALL=(USERS) ALL</span></tt></li>
+</ul>
+</li>
+</ul>
+<ul><li style="list-style-type: none"><b><i>Command Alias Specification</i></b></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><tt><span style="color: #00007f"><li style="list-style-type: none">Cmnd_Alias CRYPT &nbsp; = /usr/bin/truecrypt</li>
+<li style="list-style-type: none">Cmnd_Alias USBDEV &nbsp;= /usr/bin/unetbootin,/usr/bin/gnome-format</li>
+<li style="list-style-type: none">Cmnd_Alias APT &nbsp; &nbsp; = /usr/bin/apt-get update,/usr/bin/apt-get upgrade</li>
+<li style="list-style-type: none">Cmnd_Alias UPDATES = /usr/bin/update-manager</li>
+<li style="list-style-type: none">Cmnd_Alias FUSE &nbsp; &nbsp;= /usr/bin/Gmount-iso</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">Cmnd_Alias MYPROGS = CRYPT,USBDEV,APT,UPDATES,FUSE</span></tt></li>
+</ul>
+</li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">The Result</span></b><br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">Defaults &nbsp; &nbsp;env_reset,tty_tickets</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># Host alias specification</li>
+<li style="list-style-type: none">Host_Alias HOST = jaunty</li>
+<li style="list-style-type: none">Host_Alias LAN &nbsp;= 192.168.1.0/255.255.255.0</li>
+<li style="list-style-type: none">Host_Alias HOME = HOST,LAN</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># User alias specification</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># Cmnd alias specification</li>
+<li style="list-style-type: none">Cmnd_Alias CRYPT &nbsp; = /usr/bin/truecrypt</li>
+<li style="list-style-type: none">Cmnd_Alias USBDEV &nbsp;= /usr/bin/unetbootin,/usr/bin/gnome-format</li>
+<li style="list-style-type: none">Cmnd_Alias APT &nbsp; &nbsp; = /usr/bin/apt-get update,/usr/bin/apt-get upgrade</li>
+<li style="list-style-type: none">Cmnd_Alias UPDATES = /usr/bin/update-manager</li>
+<li style="list-style-type: none">Cmnd_Alias FUSE &nbsp; &nbsp;= /usr/bin/Gmount-iso</li>
+<li style="list-style-type: none">Cmnd_Alias MYPROGS = CRYPT,USBDEV,APT,UPDATES,FUSE</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># User privilege specification</li>
+<li style="list-style-type: none">root &nbsp; &nbsp;ALL=(ALL) ALL</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># Members of the admin group may gain root privileges</li>
+<li style="list-style-type: none">%admin HOME=(root) ALL</li>
+<li style="list-style-type: none">%admin HOME=(root) NOEXEC:/usr/bin/vim</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">iain &nbsp; HOME=(root) NOPASSWD:MYPROGS</span></tt></li>
+</ul>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+END</body></html>

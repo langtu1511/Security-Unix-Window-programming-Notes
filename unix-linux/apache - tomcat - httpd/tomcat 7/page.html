@@ -1,0 +1,1011 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>tomcat 7</title>
+</head><body><b><div style="text-align: center"><span style="font-size: 14pt"><a href="http://www.ntu.edu.sg/home/ehchua/programming/howto/Tomcat_More.html">Apache Tomcat 7</a></span></div></b><br/>
+<br/>
+This article is meant for advanced programmers who is interested to know more about Tomcat; or using Tomcat for production. For novices, read "How to Install and Get Started with Tomcat".<br/>
+<br/>
+The authoritative source of information on Tomcat is the Tomcat's documentation, available under Tomcat's "webapps\docs" directory. <br/>
+<br/>
+You may also refer to the Java Servlet, JSP and JSF specifications, as Tomcat is the Reference Implementation for these technologies.<br/>
+<br/>
+I shall assume that Tomcat is installed in d:\myproject\tomcat, and shall denote this directory as &lt;TOMCAT_HOME&gt; or &lt;CATALINA_HOME&gt; - "Catalina" is the codename for Tomcat 5 and above.<br/>
+<br/>
+<b><span style="font-size: 14pt">1. &nbsp;Tomcat Architecture and Configuration</span></b><br/>
+<b><span style="font-size: 12pt">1.1 &nbsp;Tomcat's Installed Directory Structure</span></b><br/>
+<br/>
+Tomcat installation provides these directories:<br/>
+<br/>
+<b>- bin</b>: for Tomcat's binaries and startup scripts.<br/>
+<br/>
+<b>- conf</b>: global configuration applicable to all the webapps. The default installation provides:<br/>
+<ul><li style="list-style-type: none"><b><i>One Policy File</i></b>: catalina.policy for specifying security policy.</li>
+<li style="list-style-type: none"><b><i>Two Properties Files</i></b><i>:</i>&nbsp;catalina.properties and logging.properties,</li>
+<li style="list-style-type: none"><b><i>Four Configuration XML Files</i></b>: server.xml (Tomcat main configuration file), web.xml (global web application deployment descriptors), context.xml (global Tomcat-specific configuration options) and tomcat-users.xml (a database of user, password and role for authentication and access control).</li>
+</ul>
+<br/>
+The conf also contain a sub-directory for each engine, e.g., Catalina, which in turn contains a sub-sub-directory for each of its hosts, e.g., localhost. You can place the host-specific context information (similar to context.xml, but named as webapp.xml for each webapp under the host).<br/>
+<br/>
+<b>- lib</b>: Keeps the JAR-file that are available to all webapps. The default installation include servlet-api.jar (Servlet), jasper.jar (JSP) and jasper-el.jar (EL). You may also keep the JAR files of external package here, such as MySQL JDBC driver (mysql-connector-java-5.1.{xx}-bin.jar) and JSTL (jstl.jar and standard.jar).<br/>
+<br/>
+<b>- logs</b>: contains the engine logfile Catalina.{yyyy-mm-dd}.log, host logfile localhost.{yyyy-mm-dd}.log, and other application logfiles such as manger and host-manager. The access log (created by the AccessLogValve) is also kept here.<br/>
+<br/>
+<b>- webapps</b>: the default appBase - web applications base directory of the host localhost.<br/>
+<br/>
+<b>- work</b>: contains the translated servlet source files and classes of JSP/JSF. Organized in hierarchy of engine name (Catalina), host name (localhost), webapp name, followed by the Java classes package structure.<br/>
+temp: temporary files.<br/>
+<br/>
+<b><span style="font-size: 12pt">1.2 &nbsp;Tomcat Architecture</span></b><br/>
+<br/>
+Tomcat is an HTTP server. Tomcat is also a servlet container that can execute Java Servlet, and converting JavaServer Pages (JSP) and JavaServerFaces (JSF) to Java Servlet. Tomcat employs a hierarchical and modular architecture as illustrated:<br/>
+<br/>
+<img src="tomcatarchitecture.png" /><br/>
+<br/>
+<span style="font-size: 12pt"><b>1.3 &nbsp;Main Configuration File "<tt>server.xml</tt>"</b><br/>
+</span><br/>
+Tomcat's main configuration file is the "<tt>server.xml</tt>", kept under the <tt>&lt;CATALINA_HOME&gt;\conf </tt>directory. The default "<tt>server.xml</tt>" is reproduced as follows (after removing the comments and minor touch-ups):<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">&lt;?xml version='1.0' encoding='utf-8'?&gt;</li>
+<li style="list-style-type: none">&lt;Server port="8005" shutdown="SHUTDOWN"&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;Listener className="org.apache.catalina.core.JasperListener" /&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on" /&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener" /&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" /&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener" /&gt;</li>
+<li style="list-style-type: none">&nbsp;</li>
+<li style="list-style-type: none">&nbsp; &lt;GlobalNamingResources&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;Resource name="UserDatabase" auth="Container"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; type="org.apache.catalina.UserDatabase"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; description="User database that can be updated and saved"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; factory="org.apache.catalina.users.MemoryUserDatabaseFactory"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; pathname="conf/tomcat-users.xml" /&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;/GlobalNamingResources&gt;</li>
+<li style="list-style-type: none">&nbsp;</li>
+<li style="list-style-type: none">&nbsp; &lt;Service name="Catalina"&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;Connector port="8080" protocol="HTTP/1.1"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;connectionTimeout="20000"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;redirectPort="8443" /&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;Connector port="8009" protocol="AJP/1.3" redirectPort="8443" /&gt;</li>
+<li style="list-style-type: none">&nbsp;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;Engine name="Catalina" defaultHost="localhost"&gt;</li>
+<li style="list-style-type: none">&nbsp;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &lt;Realm className="org.apache.catalina.realm.LockOutRealm"&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &lt;Realm className="org.apache.catalina.realm.UserDatabaseRealm"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;resourceName="UserDatabase"/&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &lt;/Realm&gt;</li>
+<li style="list-style-type: none">&nbsp;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &lt;Host name="localhost" &nbsp;appBase="webapps"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; unpackWARs="true" autoDeploy="true"&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &lt;Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;prefix="localhost_access_log." suffix=".txt"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;pattern="%h %l %u %t &amp;quot;%r&amp;quot; %s %b" /&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &lt;/Host&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;/Engine&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;/Service&gt;</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&lt;/Server&gt;</span></tt></li>
+</ul>
+<br/>
+<b>Server</b><br/>
+<br/>
+Server (Line 2) is top component, representing an instance of Tomcat.It can contains one or more Services, each with its own Engines and Connectors.<ul><li style="list-style-type: none"><tt><span style="color: #00007f">&lt;Server port="8005" shutdown="SHUTDOWN"&gt; ...... &lt;/Server&gt;</span></tt></li>
+</ul>
+<br/>
+<b>Listeners</b><br/>
+<br/>
+The Server contains several Listeners (Lines 3-7). A Listener listens and responses to specific events.<br/>
+<ul><li>The JasperListener enables the Jasper JSP engine, and is responsible for re-compiling the JSP pages that have been updated.</li>
+<li style="list-style-type: none"><tt><span style="color: #00007f">&lt;Listener className="org.apache.catalina.core.JasperListener" /&gt;</span></tt></li>
+</ul>
+<ul><li>The GlobalResourcesLifecycleListener enables the global resources, and makes possible the use of JNDI for accessing resources such as databases.</li>
+<li style="list-style-type: none"><tt><span style="color: #00007f">&lt;Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" /&gt;</span></tt></li>
+</ul>
+<br/>
+<b>Global Naming Resources</b><br/>
+<br/>
+The <tt>&lt;GlobalNamingResources&gt;</tt>&nbsp;element (Line 9-15) defines the JNDI (Java Naming and Directory Interface) resources, that allows Java software clients to discover and look up data and objects via a name.<br/>
+<br/>
+The default configuration defines a JNDI name called UserDatabase via the <tt>&lt;Resource&gt;</tt>&nbsp;element (Line 10-14), which is a memory-based database for user authentication loaded from "<tt>conf/tomcat-users.xml</tt>".<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">&lt;GlobalNamingResources&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;Resource name="UserDatabase" auth="Container"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; type="org.apache.catalina.UserDatabase"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; description="User database that can be updated and saved"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; factory="org.apache.catalina.users.MemoryUserDatabaseFactory"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; pathname="conf/tomcat-users.xml" /&gt;</li>
+<li style="list-style-type: none">&lt;/GlobalNamingResources&gt;</li>
+</span></tt><li style="list-style-type: none"></li>
+</ul>
+You can define other global resource JNDI such as MySQL database to implement connection pooling.<br/>
+<br/>
+<b>Services</b><br/>
+<br/>
+A Service associates one or more Connectors to a Engine. The default configuration defines a Service called "Catalina", and associates two Connectors: HTTP and AJP to the Engine.<br/>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">&lt;Service name="Catalina"&gt; ...... &lt;/Service&gt;</span></tt></li>
+</ul>
+<br/>
+<b>Connectors</b><br/>
+<br/>
+A Connector is associated with a TCP port to handle communications between the Service and the clients. The default configuration defines two Connectors:<br/>
+<ul><li>HTTP/1.1: Handle HTTP communication and enable Tomcat to be an HTTP server. Clients can issue HTTP requests to the server via this Connector, and receive the HTTP response messages.</li>
+<tt><span style="color: #00007f"><li style="list-style-type: none"></li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&lt;Connector port="8080" protocol="HTTP/1.1" connectionTimeout="20000" redirectPort="8443" /&gt;</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none">The default chooses TCP port 8080 to run the Tomcat HTTP server, which is different from the default port number of 80 for HTTP production server. You can choose any number between 1024 to 65535, which is not used by any application, to run your Tomcat server.</li>
+<li style="list-style-type: none">The connectionTimeout attribute define the number of milliseconds this connector will wait, after accepting a connection, for the request URI line (request message) to be presented. The default is 20 seconds.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">The redirect attribute re-directs the SSL requests to TCP port 8443.</li>
+</ul>
+<ul><li>AJP/1.3: Apache JServ Protocol connector to handle communication between Tomcat server and Apache HTTP server.</li>
+<tt><span style="color: #00007f"><li style="list-style-type: none"></li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&lt;Connector port="8009" protocol="AJP/1.3" redirectPort="8443" /&gt;</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none">You could run Tomcat and Apache HTTP servers together, and let the Apache HTTP server handles static requests and PHP; while Tomcat server handles the Java Servlet/JSP. Read "How To Configure Tomcat to work with Apache".</li>
+</ul>
+<br/>
+<b>Containers</b><br/>
+<br/>
+Tomcat refers to Engine, Host, Context, and Cluster, as container. The highest-level is Engine; while the lowest-level is Context. Certain components, such as Realm and Valve, can be placed in a container.<br/>
+<br/>
+<b>Engine</b><br/>
+A Engine is the highest-level of a container. It can contains one or more Hosts. You could configure a Tomcat server to run on several hostnames, known as virtual host.<br/>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">&lt;Engine name="Catalina" defaultHost="localhost"&gt;</span></tt></li>
+</ul>
+<br/>
+The Catalina Engine receives HTTP requests from the HTTP connector, and direct them to the correct host based on the hostname/IP address in the request header.<br/>
+<br/>
+<b>Realm</b><br/>
+<br/>
+A Realm is a database of user, password, and role for authentication (i.e., access control). You can define Realm for any container, such as Engine, Host, and Context, and Cluster.<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">&lt;Realm className="org.apache.catalina.realm.LockOutRealm"&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;Realm className="org.apache.catalina.realm.UserDatabaseRealm" resourceName="UserDatabase"/&gt;</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&lt;/Realm&gt;</span></tt></li>
+</ul>
+<br/>
+The default configuration defines a Realm (UserDatabaseRealm) for the Catalina Engine, to perform user authentication for accessing this engine. It uses the JNDI name UserDatabase defined in the GlobalNamingResources.<br/>
+<br/>
+Besides the <tt><b>UserDatabaseRealm</b></tt>, there are: <b><tt>JDBCRealm</tt></b>&nbsp;(for authenticating users to connect to a relational database via the JDBC driver); <b><tt>DataSourceRealm</tt></b>&nbsp;(to connect to a DataSource via JNDI; JNDIRealm (to connect to an LDAP directory); and <b><tt>MemoryRealm</tt></b>&nbsp;(to load an XML file in memory).<br/>
+<br/>
+<b>Hosts</b><br/>
+<br/>
+A Host defines a virtual host under the Engine, which can in turn support many Contexts (webapps).<br/>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">&lt;Host name="localhost" appBase="webapps" unpackWARs="true" autoDeploy="true"&gt;</span></tt></li>
+</ul>
+<br/>
+The default configuration define one host called localhost. The appBase attribute defines the base directory of all the webapps, in this case, <tt>&lt;CATALINA_HOME&gt;\webapps</tt>. By default, each webapp's URL is the same as its directory name. For example, the default <br/>
+<br/>
+Tomcat installation provides four webapps: docs, examples, host-manager and manager under the webapps directory. The only exception is ROOT, which is identified by an empty string. That is, its URL is http://localhost:8080/.<br/>
+<br/>
+The unpackWARs specifies whether WAR-file dropped into the webapps directory shall be unzipped. For <b><tt>unpackWARs="false"</tt></b>, Tomcat will run the application from the WAR-file directly, without unpacking, which could mean slower execution.<br/>
+<br/>
+The autoDeploy attribute specifies whether to deploy application dropped into the webapps directory automatically.<br/>
+<br/>
+<b>Cluster</b><br/>
+<br/>
+Tomcat supports server clustering. It can replicate sessions and context attributes across the clustered server. It can also deploy a WAR-file on all the cluster.<br/>
+<br/>
+<b>Valve</b><br/>
+<br/>
+A Valve can intercept HTTP requests before forwarding them to the applications, for pre-processing the requests. A Valve can be defined for any container, such as Engine, Host, and Context, and Cluster.<br/>
+<br/>
+In the default configuration, the AccessLogValve intercepts an HTTP request and creates a log entry in the log file, as follows:<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">&lt;Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp;prefix="localhost_access_log." suffix=".txt"</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&nbsp; &nbsp; &nbsp; &nbsp;pattern="%h %l %u %t &amp;quot;%r&amp;quot; %s %b" /&gt;</span></tt></li>
+</ul>
+<br/>
+Other valves include:<ul><li>RemoteAddrValve: which blocks requests from certain IP addresses,</li>
+<li>RemoteHostValve: which blocks request based on hostnames,</li>
+<li>RequestDumperValve: which logs details of the requests,</li>
+<li>SingleSignOn Valve: when placed under a &lt;host&gt;, allows single sign-on to access all the webapp under the host.</li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">1.4 &nbsp;Other Configuration Files: </span><span style="font-size: 14pt"><tt>web.xml, context.xml, tomcat-users.xml</tt></span></b><br/>
+<br/>
+They are so many things that you can configured in Tomcat. I describe some of the configurations that I found useful in this section.<br/>
+<br/>
+<b>Enabling Directory Listing</b><br/>
+<br/>
+When the request URL refers to a directory instead of a file, e.g., http://host:port/hello/, you can configure Tomcat to serve the directory listing, or a welcome file, or issue error "404 Page Not Found". Enabling directory listing is handy for test server but NOT desire for production server (as it reveal the directory structure and expose the entire directory hierarchy).<br/>
+<br/>
+<b>Enabling Directory Listing for ALL Webapps</b><br/>
+<br/>
+To enable directory listing for all the web applications, you could modify the &lt;CATALINA_HOME&gt;\conf\web.xml, by changing "listings" from "false" to "true" for the "default" servlet, as follows:<br/>
+<ul><tt><li style="list-style-type: none">&lt;!-- The default servlet for all web applications, that serves static &nbsp; &nbsp; --&gt;</li>
+<li style="list-style-type: none">&lt;!-- resources. &nbsp;It processes all requests that are not mapped to other &nbsp; --&gt;</li>
+<li style="list-style-type: none">&lt;!-- servlets with servlet mappings. &nbsp; &nbsp; &nbsp;<span style="color: #00007f">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; --&gt;</span></li>
+<span style="color: #00007f"><li style="list-style-type: none">&lt;servlet&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;servlet-name&gt;default&lt;/servlet-name&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;servlet-class&gt;org.apache.catalina.servlets.DefaultServlet&lt;/servlet-class&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;init-param&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;param-name&gt;debug&lt;/param-name&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;param-value&gt;0&lt;/param-value&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;/init-param&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;init-param&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;param-name&gt;listings&lt;/param-name&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;param-value&gt;true&lt;/param-value&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;/init-param&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;</li>
+<li style="list-style-type: none">&lt;/servlet&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; </li>
+</span><li style="list-style-type: none">&lt;!-- The mapping for the default servlet --&gt;</li>
+<span style="color: #00007f"><li style="list-style-type: none">&lt;servlet-mapping&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;servlet-name&gt;default&lt;/servlet-name&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;url-pattern&gt;/&lt;/url-pattern&gt;</li>
+<li style="list-style-type: none">&lt;/servlet-mapping&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp;</li>
+</span><li style="list-style-type: none">&lt;!-- ==================== Default Welcome File List ===================== --&gt;</li>
+<li style="list-style-type: none">&lt;!-- When a request URI refers to a directory, the default servlet looks &nbsp;--&gt;</li>
+<li style="list-style-type: none">&lt;!-- for a "welcome file" within that directory and, if present, &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;--&gt;</li>
+<li style="list-style-type: none">&lt;!-- to the corresponding resource URI for display. &nbsp;If no welcome file &nbsp; --&gt;</li>
+<li style="list-style-type: none">&lt;!-- is present, the default servlet either serves a directory listing, &nbsp; --&gt;</li>
+<li style="list-style-type: none">&lt;!-- or returns a 404 status, depending on how it is configured. &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;--&gt;</li>
+<span style="color: #00007f"><li style="list-style-type: none">&lt;welcome-file-list&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;welcome-file&gt;index.html&lt;/welcome-file&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;welcome-file&gt;index.htm&lt;/welcome-file&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;welcome-file&gt;index.jsp&lt;/welcome-file&gt;</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&lt;/welcome-file-list&gt;</span></tt></li>
+</ul>
+<br/>
+The above configuration maps URL "\" (root directory of the web context) (in &lt;url-pattern&gt;) to Java class DefaultServlet (in <tt>&lt;servlet-class&gt;</tt>) via the common servlet name of default (in &lt;servlet-name&gt;). We enable directory listing by changing the servlet's initialization parameter listings to true.<br/>
+<br/>
+If a user requests for a directory, and the directory listing is enabled and it contains one of the files in the &lt;welcome-file&gt; list, the welcome file will be served; otherwise, the directory listing will be served. On the other hand, if a directory request is received and the directory listing is not enabled, the server returns an error "404 Page Not Found".<br/>
+<br/>
+<b>Enabling Directory Listing for a particular Webapp</b><br/>
+<br/>
+If you wish to allow directory listing of a particular web application only, you could disable the directory listing in <tt>"&lt;CATALINA_HOME&gt;\conf\web.xml"</tt>&nbsp;globally, and define the following <tt>&lt;servlet&gt;</tt>&nbsp;and <tt>&lt;servlet-mapping&gt; </tt>in your application-specific <b><tt>WEB-INF\web.xm</tt></b>l, as follows. You need to use another <tt>&lt;servlet-name&gt; </tt>in place of DefaultServlet.<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">&lt;servlet&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;servlet-name&gt;DirectoryListing&lt;/servlet-name&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;servlet-class&gt;org.apache.catalina.servlets.DefaultServlet&lt;/servlet-class&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;init-param&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;param-name&gt;debug&lt;/param-name&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;param-value&gt;0&lt;/param-value&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;/init-param&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;init-param&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;param-name&gt;listings&lt;/param-name&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;param-value&gt;true&lt;/param-value&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;/init-param&gt;</li>
+<li style="list-style-type: none">&lt;/servlet&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp;</li>
+<li style="list-style-type: none">&lt;servlet-mapping&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;servlet-name&gt;DirectoryListing&lt;/servlet-name&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;url-pattern&gt;/&lt;/url-pattern&gt;</li>
+<li style="list-style-type: none">&lt;/servlet-mapping&gt;</li>
+</span></tt><li style="list-style-type: none"></li>
+</ul>
+<b>Automatic Servlet Reload</b><br/>
+<br/>
+To enable automatic servlet reload (whenever a servlet is re-compiled), you need to specify &lt;Context reloadable="true"&gt;...&lt;/Context&gt;, in "&lt;CATALINA_HOME&gt;\conf\context.xml" for all web applications, or the &lt;Context&gt; element in "&lt;CATALINA_HOME&gt;\conf\server.xml" for a particular web application.<br/>
+<br/>
+The following messages appear on the Tomcat's console if you re-compile a servlet:<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">XXX X, XXXX XX:XX:XX XX org.apache.catalina.core.StandardContext reload</li>
+<li style="list-style-type: none">INFO: Reloading Context with path [/hello] has started</li>
+<li style="list-style-type: none">XXX X, XXXX XX:XX:XX XX org.apache.catalina.core.StandardContext reload</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">INFO: Reloading Context with path [/hello] is completed</span></tt></li>
+</ul>
+<br/>
+Enabling automatic servlet reload is handy during application development, but it requires significant runtime overhead to listen to the changes, and is not recommended for production systems. Instead, you could use the "manager" to trigger reloads on demand.<br/>
+<br/>
+<b>Setting the Context Root Directory and Request URL of a Webapp</b><br/>
+<br/>
+A server could run many web applications. A webapp is also called a web context. The context root (or document base directory) refers to the base directory of a webapp. They are a few ways to configure a context root and its request URL of a webapp:<br/>
+<ul><li style="list-style-type: none">1. (RECOMMENDED) Create a directory under <tt>&lt;CATALINA_HOME&gt;\webapps </tt>for your webapp. A context will be created with request URL set to the name of the directory. For example, if you create a directory called "hello" under Tomcat's "webapps". This application can be accessed by web users via URL http://host:port/hello.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">To change the request URL of the webapp, create a "context.xml" configuration file, as follows, and place it under "<tt>ContextRoot\META-INF</tt>":</li>
+<li style="list-style-type: none"><ul><tt><span style="color: #00007f"><li style="list-style-type: none"></li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&lt;Context path="/yourURLPath" /&gt;</span></tt></li>
+</ul>
+</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">2. Alternatively, you can write a &lt;Context&gt; element in &lt;CATALINA_HOME&gt;\conf\server.xml, under the &lt;Host&gt; element. You can specify both the URL and the base directory. For example,</li>
+<li style="list-style-type: none">&nbsp; &nbsp; <tt><span style="color: #00007f">&nbsp; &nbsp; ......</span></tt></li>
+<tt><span style="color: #00007f"><li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; ......</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &lt;Context path="/ws" docBase="d:/workshop" reloadable="true"&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &lt;/Context&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &lt;/Host&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;/Engine&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;/Service&gt;</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&lt;/Server&gt;</span></tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">In the above example, we define a web context with URL <tt>"/ws"</tt>, with context root (docBase or document base directory) at <tt>"d:\workshop"</tt>. This application can be accessed via URL <tt>http://host:port/ws.</tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Take note that:</li>
+<li style="list-style-type: none"><ul><li>The configuration creates a mapping from the "URL Path" issued by the web users to the "document base directory" in the server's file system, where you store your webapp resources.</li>
+<li>Place the &lt;Context&gt; element before the ending tag of the &lt;Host&gt; element.</li>
+<li>Use Unix-style forward slash '/' as the directory separator in the configuration file, instead of Window-style back slash '\'.</li>
+<li>The attribute reloadable="true" asks Tomcat to monitor your servlets for changes, and automatically reload the servlets if changes is detected. This is handy for a development system, but inefficient in a production system.</li>
+</ul>
+</li>
+</ul>
+<ul><li style="list-style-type: none">3. Write a configuration file with a &lt;Context&gt; element and place it under Tomcat's "conf\Catalina\localhost". For example, suppose we wish to create a webapp with URL "hello" in base directory "d:\myproject\myHello", create the following file "hello.xml":</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><tt><span style="color: #00007f"><li style="list-style-type: none">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&lt;Context docBase="D:\myproject\myHello" path="/hello" /&gt;</span></tt></li>
+</ul>
+</li>
+<li style="list-style-type: none"></li>
+</ul>
+<b>Changing the Default "webapps" Directory</b><br/>
+<br/>
+The default directory for deploying web applications is &lt;CATALINA_HOME&gt;\webapps. You could change the default by modifying the configuration file "conf\server.xml" &lt;Host&gt; element's "appBase" attribute as follows:<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">&lt;Host name="localhost" appBase="webapps"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; unpackWARs="true" autoDeploy="true"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; xmlValidation="false" xmlNamespaceAware="false"&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp;......</li>
+<li style="list-style-type: none">&lt;/host&gt;</li>
+</span></tt><li style="list-style-type: none"></li>
+</ul>
+<b><span style="font-size: 14pt">2. &nbsp;Deploying Webapps</span></b><br/>
+<br/>
+A web context is a single web application (webapp). It is the lowest-level container, that you can define components such as Realm and <br/>
+Valve. By default, all webapps are kept under the &lt;CATALINA_HOME&gt;\webapps directory (as configured in the &lt;host&gt; element appBase attribute.<br/>
+<br/>
+A Java webapp may contain many types of files, such as HTML, CSS, Scripts, images, JSP, servlet, utility classes, external library jar-files. A Java webapp must follow a strict directory structure as depicted in the Servlet/JSP specifications. This enables deployment in a <br/>
+Java-capable web server (such as Apache Tomcat and Glassfish). The resources must be kept in the correct directories and sub-directories.<br/>
+<br/>
+The URL of a webapp, by default, is the same as the base directory name (or context root) of the webapp.<br/>
+<br/>
+<b><span style="font-size: 12pt">2.1 &nbsp;Webapp's Directory Structure</span></b><br/>
+<br/>
+The directory structure of a webapp is as follows:<br/>
+<ul><li>"<b><tt>ContextRoot</tt></b>": contains the resources that are visible and accessible by the web clients, such as HTML, CSS, Scripts and images. These resources will be delivered to the clients as it is. You could create sub-directories such as images, css and scripts, to further categories the various resources.</li>
+</ul>
+<ul><li><b><tt>"ContextRoot\WEB-INF"</tt></b>: This directory, although under the context root, is NOT visible to the web users. In other words, it is NOT accessible by the clients directly (for security reason). This is where you keep your application-specific configuration files such as "web.xml". It's sub-directories contain program classes, source files, and libraries.</li>
+</ul>
+<ul><li>"<b><tt>ContextRoot\WEB-INF\src</tt></b>": Keeps the Java program source files. It is optional but a good practice to separate the source files and classes to facilitate deployment.</li>
+</ul>
+<ul><li>"<b><tt>ContextRoot\WEB-INF\classes</tt></b>": Keeps the Java classes (compiled from the source codes). Classes defined in packages must be kept according to the Java package directory structure.</li>
+</ul>
+<ul><li>"<b><tt>ContextRoot\WEB-INF\lib</tt></b>": Keeps the libraries (jar-files), which are provided by other packages, specific and available to this webapp only.</li>
+</ul>
+<ul><li>"<b><tt>ContextRoot\META-INF\</tt></b>": This is also a hidden directory, to keep resources and configurations (e.g., "context.xml") related to the server. In contrast, "WEB-INF" is for resources related to this web application, independent of the server.</li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">2.2 &nbsp;Webapp-Specific Configuration Files</span></b><br/>
+<br/>
+These are the configuration files specific to a webapp: (a) WEB-INF\web.xml; (b) META-INF\context.xml.<br/>
+<br/>
+You can configure a webapp in many ways: <br/>
+<ul><li style="list-style-type: none">(a) Write a &lt;context&gt; element in server.xml under &lt;Host&gt; element, </li>
+<li style="list-style-type: none">(b) contextRoot\META-INF\context.xml, and </li>
+<li style="list-style-type: none">(c) conf\Catalina\localhost\webapp.xml, and </li>
+<li style="list-style-type: none">(d) conf\context.xml. See "Setting the Context Root Directory and Request URL of a Webapp".</li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">2.3 &nbsp;Web Application Deployment Descriptors - "web.xml"</span></b><br/>
+<br/>
+The "web.xml" contains the deployment descriptors. There are two sets of web.xml:<br/>
+<ul><li style="list-style-type: none">1. <b><tt>&lt;CATALINA_HOME&gt;\conf\web.xml</tt></b>: applicable to ALL webapps.</li>
+<li style="list-style-type: none">2. <b><tt>ContextRoot\WEB-INF\web.xml</tt></b>: applicable to the specific web context. It overrides the global setting, if any.</li>
+</ul>
+<br/>
+The complete specification for "web.xml" can be found in the "Java Servlet Specification" under "Deployment Descriptor".<br/>
+<br/>
+A sample configuration of a servlet with most of its sub-elements is as follows:<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">&lt;web-app ......&gt;</li>
+<li style="list-style-type: none">&nbsp; ......</li>
+<li style="list-style-type: none">&nbsp; &lt;servlet&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;icon&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &lt;small-icon&gt;/images/icon.jpg&lt;/small-icon&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;/icon&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;servlet-name&gt;MyServlat&lt;/servlet-name&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;display-name&gt;My Servlet Display Name&lt;/display-name&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;description&gt;My Testing Servlet long description&lt;/description&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;servlet-class&gt;MyServletClassname&lt;/servlet-class&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;init-param&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &lt;param-name&gt;myParmName&lt;/param-name&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &lt;param-value&gt;myParmValue&lt;/param-value&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;/init-param&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;load-on-startup&gt;25&lt;/load-on-startup&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;/servlet&gt;</li>
+<li style="list-style-type: none">&nbsp; ......</li>
+<li style="list-style-type: none">&nbsp;</li>
+<li style="list-style-type: none">&nbsp; &lt;servlet-mapping&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;servlet-name&gt;MyServlat&lt;/servlet-name&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;url-pattern&gt;/sayhello&lt;/url-pattern&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;/servlet-mapping&gt;</li>
+<li style="list-style-type: none">&nbsp; ......</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&lt;/web-app&gt;</span></tt></li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">2.4 &nbsp;Deploying a Web Application in a WAR file</span></b><br/>
+<br/>
+You could use the JDK's jar utility to "zip" up all the files of a web application to produce a so-called WAR (Web Application Archive) file for deployment, or distribution.<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">.... Change current directory to the web application's context root</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">contextRoot&gt; jar cvf test.war .</span></tt></li>
+</ul>
+<br/>
+Drop the test.war into &lt;CATALINA_HOME&gt;\webapps. A context called test will be created automatically. You can access the web application via URL <b><tt>http://host:port/test</tt></b>.<br/>
+<br/>
+Tomcat actually unpacks the test.war into a "test" directory in &lt;CATALINA_HOME&gt;\webapps. You need to remove this directory, if you reload a new version.<br/>
+<br/>
+<b><span style="font-size: 14pt">3. &nbsp;Running Tomcat</span></b><br/>
+<b><span style="font-size: 12pt">3.1 &nbsp;Tomcat's Manager</span></b><br/>
+<br/>
+References:<ul><li style="list-style-type: none">1. "Tomcat Web Application Manager How To" @ "webapps/docs/html-manager-howto.html".</li>
+<li style="list-style-type: none">2. "Tomcat Manager App How-To" @ "webapps/docs/manager-howto.html".</li>
+</ul>
+<br/>
+Tomcat "manager" webapp allows you to deploy a new web application; start, stop, reload or un-deploy an existing one, without having to shut down and restart the server, in a production environment.<br/>
+To enable Tomcat's manager, edit "&lt;CATALINA_HOME&gt;\conf\tomcat-users.xml" to include a role called "manager-gui" and a user with this role. You may also assign other roles, such as admin-gui for accessing the Tomcat "Host Manager".<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">&lt;role rolename="manager-gui" /&gt;</li>
+<li style="list-style-type: none">&lt;role rolename="manager-status" /&gt;</li>
+<li style="list-style-type: none">&lt;role rolename="manager-script" /&gt;</li>
+<li style="list-style-type: none">&lt;role rolename="manager-jmx" /&gt;</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">&lt;role rolename="admin-gui" /&gt;</li>
+<li style="list-style-type: none">&lt;role rolename="admin-script" /&gt;</li>
+<li style="list-style-type: none">&nbsp;</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&lt;user username="mymanager" password="xxxx" roles="manager-gui, admin-gui"/&gt;</span></tt></li>
+</ul>
+<br/>
+To invoke manager web application, use http://localhost:8080/manager/html. You can use Tomcat's manager to:<br/>
+<ul><li style="list-style-type: none">1. List all webapps.</li>
+<li style="list-style-type: none">2. Start/Stop/Reload a particular webapp.</li>
+<li style="list-style-type: none">3. Deploy a new webapp remotely, and undeploy a webapp without restarting the container.</li>
+<li style="list-style-type: none">4. Terminate (or Invalidate) sessions - a session has a pre-set expiry time (e.g., 30 sec).</li>
+<li style="list-style-type: none">5. Analyze memory leaks.</li>
+<li style="list-style-type: none">6. View JVM status and Server status.</li>
+</ul>
+<br/>
+Tomcat 7 provides separate manager roles for the GUI (manager-gui), status (manager-status), scripting (manager-script) and JMX proxy (manager-jmx), defined in "webapps/manager/WEB-INF/web.xml". This allows for fine-grained access control to management tasks.<br/>
+<ul><li>manager-gui - Access to the HTML "web" interface, via:</li>
+<li style="list-style-type: none"><tt><span style="color: #00007f">http://{host}:{port}/manager/html</span></tt></li>
+</ul>
+<ul><li>manager-status - Access to the "Server Status" page only, via:</li>
+<li style="list-style-type: none"><tt><span style="color: #00007f">http://{host}:{port}/manager/status</span></tt></li>
+</ul>
+<ul><li>manager-script - Access to the "plain-text" interface, and to the "Server Status" page, via command in the form of:</li>
+<li style="list-style-type: none"><tt><span style="color: #00007f">http://{host}:{port}/manager/text/{command}?{parameters}</span></tt></li>
+</ul>
+&nbsp;<ul><tt><span style="color: #00007f"><li style="list-style-type: none">// Examples</li>
+<li style="list-style-type: none">http://{host}:{port}/manager/text/list &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// List all webapps</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">http://{host}:{port}/manager/text/deploy?path=/testapp &nbsp;// Deploy webapp</span></tt></li>
+</ul>
+<ul><li>manager-jmx - Access to JMX proxy interface and to the "Server Status" page, via:</li>
+<li style="list-style-type: none"><tt><span style="color: #00007f">http://{host}:{port}/manager/jmxproxy/?{command}={parameter}</span></tt></li>
+</ul>
+<br/>
+For security reason, a user should NOT be given more than one of the following roles: manager-gui, manager-script, and manager-jmx.<br/>
+<br/>
+<b>Tomcat's "Administration Tool"</b><br/>
+The Tomcat "Adminstrative Tool" (or "Administrator Console") has been removed since Tomcat 6. Use JMX manager instead.<br/>
+<br/>
+<b><span style="font-size: 12pt">3.2 &nbsp;Automatic Startup at Boot-time</span></b><br/>
+<br/>
+(Windows) Running Tomcat as a Windows Service<br/>
+<br/>
+You need to download the Windows-specific version of Tomcat (from Tomcat's download, choose 32-bit or 64-bit Windows' zip version, e.g., apache-tomcat-7.0.{xx}-windows-x86.zip).<br/>
+<br/>
+Read "Windows service How-To" in the Tomcat documentation (&lt;CATALINA_HOME&gt;\webapps\docs\windows-service-howto.html).<br/>
+In a production environment, it is more convenient to run Tomcat as a service, so that it can start automatically whenever the system is started (or re-start automatically after an unexpected interruption).<br/>
+<br/>
+To install Tomcat as a service, start a CMD shell (with administrator right) and run the &lt;CATALINA_HOME&gt;\bin\service.bat with install option:<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">... Change directory to &lt;CATALINA_HOME&gt;\bin ...</li>
+<li style="list-style-type: none">&lt;CATALINA_HOME&gt;\bin&gt; service install</li>
+<li style="list-style-type: none">Installing the service 'Tomcat7' ...</li>
+<li style="list-style-type: none">......</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">The service 'Tomcat7' has been installed.</span></tt></li>
+</ul>
+<br/>
+The Tomcat service called "Apache Tomcat 7" is installed and will start automatically whenever the system is started. Check the "Services" under "Control Panel" ⇒ "Administrative Tools".<br/>
+<br/>
+A GUI application called Tomcat7w is available for monitoring and configuring Tomcat services. Launch Tomcat7w:<ul><li style="list-style-type: none"><tt><span style="color: #00007f">&lt;CATALINA_HOME&gt;\bin&gt; Tomcat7w</span></tt></li>
+</ul>
+<br/>
+You could put the Tomcat icon in the system tray via the MS (Monitor Service) option:<ul><li style="list-style-type: none"><tt><span style="color: #00007f">&lt;CATALINA_HOME&gt;\bin&gt; Tomcat7w //MS//</span></tt></li>
+</ul>
+<br/>
+You can start/stop the Tomcat service now via:<br/>
+<ul><li style="list-style-type: none">1. Tomcat7w;</li>
+<li style="list-style-type: none">2. "Control Panel" ⇒ "Administrator Tools" ⇒ "Services" ⇒ "Apache Tomcat 7" ⇒ "Start";</li>
+<li style="list-style-type: none">3. From CMD shell, Issue "net" command:</li>
+<li style="list-style-type: none"><ul><tt><span style="color: #00007f"><li style="list-style-type: none">prompt&gt; net start tomcat7</li>
+<li style="list-style-type: none">The Apache Tomcat 7 service is starting..</li>
+<li style="list-style-type: none">The Apache Tomcat 7 service was started successfully.</li>
+<li style="list-style-type: none">......</li>
+<li style="list-style-type: none">......</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">prompt&gt; net stop tomcat7</span></tt></li>
+<tt><span style="color: #00007f"><li style="list-style-type: none">The Apache Tomcat 7 service is stopping..</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">The Apache Tomcat 7 service was stopped successfully.</span></tt></li>
+</ul>
+</li>
+</ul>
+<br/>
+To uninstall Tomcat Service, run the &lt;CATALINA_HOME&gt;\bin\service.bat with remove option:<ul><tt><span style="color: #00007f"><li style="list-style-type: none">&lt;CATALINA_HOME&gt;\bin&gt; service remove</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">The service 'Tomcat7' has been removed</span></tt></li>
+</ul>
+<br/>
+You can also use Microsoft Management Console (MMC) to manage the services: Go to "Start" ⇒ ⇒ Run ⇒ enter "services.msc".<br/>
+<br/>
+A flip side of running Tomcat as a service is you need to read the error messages from &lt;CATALINA_HOME&gt;\logs instead of the Tomcat console.<br/>
+<br/>
+<b>(Linux and Mac OS) Automatic Startup on Reboots</b><br/>
+<br/>
+To start Tomcat automatically when the machine boots up, you need to create a init script in /etc/init.d, e.g., /etc/init.d/tomcat, as follows:<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">#!/bin/sh</li>
+<li style="list-style-type: none"># Tomcat init script for Linux.</li>
+<li style="list-style-type: none">#</li>
+<li style="list-style-type: none">JAVA_HOME={path-to-java-installed-directory}</li>
+<li style="list-style-type: none">CATALINA_HOME={path-to-Tomat-installed-directgory}</li>
+<li style="list-style-type: none">export JAVA_HOME CATALINA_HOME</li>
+<li style="list-style-type: none">exec $CATALINA_HOME/bin/catalina.sh $*</li>
+</span></tt><li style="list-style-type: none"></li>
+</ul>
+Save the script as "tomcat" in /etc/init.d.<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">$ cd /etc/init.d</li>
+<li style="list-style-type: none">$ sudo chown root.root tomcat &nbsp; // change owner to user root, group root</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">$ sudo chmod 755 tomcat &nbsp; &nbsp; &nbsp; &nbsp; // change mode u+rwx, g+rx, a+rx</span></tt></li>
+</ul>
+<br/>
+You can start|stop|restart Tomcat via:<ul><li style="list-style-type: none"><tt><span style="color: #00007f">$ service tomcat start|stop|restart</span></tt></li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">3.3 &nbsp;Tomcat's Startup Script</span></b><br/>
+<br/>
+To start tomcat server, you could invoke the batch file "startup.bat" (for Windows) or "startup.sh" (for Linux/Mac) (in directory "&lt;CATALINA_HOME&gt;\bin", where &lt;CATALINA_HOME&gt; refers to the Tomcat installed directory). The "startup.bat|startup.sh" invokes "catalina.bat start|catalina.sh start".<br/>
+<br/>
+Alternatively, you could call the "catalina.bat|catalina.sh" directly, which provides more options of starting Tomcat. Enter "catalina" to view the options:<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">&lt;CATALINA_HOME&gt;/bin&gt; catalina</li>
+<li style="list-style-type: none">Using CATALINA_BASE: &nbsp; D:\xxx\tomcat7.0.{xx}</li>
+<li style="list-style-type: none">Using CATALINA_HOME: &nbsp; D:\xxx\tomcat7.0.{xx}</li>
+<li style="list-style-type: none">Using CATALINA_TMPDIR: D:\xxx\tomcat7.0.{xx}\temp</li>
+<li style="list-style-type: none">Using JRE_HOME: &nbsp; &nbsp; &nbsp; &nbsp;d:\xxx\jdk1.6</li>
+<li style="list-style-type: none">Usage: &nbsp;catalina ( commands ... )</li>
+<li style="list-style-type: none">commands:</li>
+<li style="list-style-type: none">&nbsp; debug &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Start Catalina in a debugger</li>
+<li style="list-style-type: none">&nbsp; debug -security &nbsp; Debug Catalina with a security manager</li>
+<li style="list-style-type: none">&nbsp; jpda start &nbsp; &nbsp; &nbsp; &nbsp;Start Catalina under JPDA debugger</li>
+<li style="list-style-type: none">&nbsp; run &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Start Catalina in the current window</li>
+<li style="list-style-type: none">&nbsp; run -security &nbsp; &nbsp; Start in the current window with security manager</li>
+<li style="list-style-type: none">&nbsp; start &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Start Catalina in a separate window</li>
+<li style="list-style-type: none">&nbsp; start -security &nbsp; Start in a separate window with security manager</li>
+<li style="list-style-type: none">&nbsp; stop &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Stop Catalina</li>
+<li style="list-style-type: none">&nbsp; configtest &nbsp; &nbsp; &nbsp; &nbsp;Run a basic syntax check on server.xml</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&nbsp; version &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; What version of tomcat are you running?</span></tt></li>
+</ul>
+<br/>
+Study the source codes of "catalina.bat|catalina.sh". Take note that the environment variable JAVA_HOME is needed in this script.<br/>
+<br/>
+The other scripts provided are:<br/>
+<ul><li>shutdown.bat|shutdown.sh: for shuting down the Tomcat server.</li>
+<li>configtest.bat|configtest.sh: for checking the configuration file server.xml, same as "catalina configtest".</li>
+<li>version.bat|version.sh: for displaying the versions, same as "catalina version".</li>
+<li>digest.bat|digest.sh: making password hash and encrypting password.</li>
+<li>Internal used: setclasspath.bat|setclasspath.sh, cpappend.bat (classpath append), tool-wrapper.bat|tool-wrapper.sh, daemon.sh.</li>
+</ul>
+<br/>
+<b><span style="font-size: 14pt">4. &nbsp;Security</span></b><br/>
+<b><span style="font-size: 12pt">4.1 &nbsp;Realm and User Authentication in Tomcat</span></b><br/>
+References:<br/>
+<ul><li style="list-style-type: none">1. "Realm Configuration HOW-TO" (@ "&lt;CATALINA_HOME&gt;\webapps\docs\realm-howto.html").</li>
+<li style="list-style-type: none">2. "Java EE 5 Tutorial", Part IV "Services", Chapters 28-30 on Security.</li>
+</ul>
+<br/>
+In Information Security:<ul><li><i><b>Access control </b></i>deals with identifying which resources require protection, and which users (roles) are authorized to access the protected resources.</li>
+<li><b><i>Authentication</i></b>&nbsp;deals with verifying users' credential, i.e., ensuring the user is "who he said he is". User's credential is typically provided in the form of username/password and possibly IP address (hostname). Other means include biometrics (finger-print, face recognition, retina) and digital certificates.</li>
+<li><b><i>Confidentiality</i></b>&nbsp;deals with the encryption of the transmitted data over the network. This is often carried out via employing HTTP over SSL (Secure Socket Layer), known as HTTPS.</li>
+<li><b><i>Message Integrity </i></b>ensures that messages are not tempered during transmission. This is done via message digest or hash.</li>
+<li><b><i>Non-repudiation</i></b>: If he/she has sent a message, he/she cannot deny. This is done via digital certificate and public/private keys.</li>
+</ul>
+<br/>
+Security can be managed by the webapps themselves (called application-managed security) or via the Tomcat container (called container-managed security). In container-managed security, security is handled by the server. The server-side programs (servlets, JSPs) do not need any security-aware code. That is, the security control is totally transparent to the server-side programs. This section shall deal with container-managed security for access control and authentication.<br/>
+<br/>
+In Tomcat, a user is identified via username/password. A user is assigned role(s) (e.g., manager, admin, user, etc). Tomcat grants access for webapps to role(s), instead of individual users.<br/>
+<br/>
+A realm is a collection of usernames/passwords and roles. Tomcat supports the following types of realms:<br/>
+<ul><li style="list-style-type: none"><tt><b>UserDatabaseRealm</b></tt>: kept in a XML file "<b><tt>conf\tomcat-users.xml</tt></b>", accessed via JDNI (Java Naming and Directory Interface).</li>
+</ul>
+<ul><li style="list-style-type: none"><b><tt>JDBCRealm</tt></b>: kept in a relational database such as MySQL, accessed via JDBC.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">others: <b>JNDIRealm</b>&nbsp;(uses LDAP directory), <b>JAASRealm</b>&nbsp;(Java Authentication and Authorization Service).</li>
+</ul>
+<br/>
+You can used the &lt;realm&gt; element to configure a realm in "conf\server.xml". &lt;realm&gt; element can be placed in &lt;engine&gt;, &lt;host&gt;, or &lt;context&gt;, which determines the scope of the realm: all virtual hosts under the engine, a particular host, or a particular web application.<br/>
+<br/>
+<b><span style="font-size: 12pt">4.2 &nbsp;UserDatabaseRealm</span></b><br/>
+<br/>
+UserDatabaseRealm stores user information in a XML file and accessed via JNDI (Java Naming and Directory Interface). By default, the XML file is "&lt;CATALINA_HOME&gt;\conf\tomcat-users.xml". <tt><b>UserDatabaseRealm</b></tt>&nbsp;is loaded into memory from the specified file, and kept in memory until Tomcat is shut down.<br/>
+<br/>
+Tomcat provide a JSP example called "FORM Authentication" (@ <tt><b>http://localhost:8080/examples/jsp/security/protected/index.jsp</b></tt>"), which uses UserDatabaseRealm. Let us study this example. But before we get into the codes, let's look at the Tomcat's configurations.<br/>
+"conf\server.xml"<br/>
+<br/>
+You can specify the type of realm to be used via &lt;Realm&gt; element in server.xml. In this case, UserDatabaseRealm. The &lt;Realm&gt; is defined within the &lt;Engine&gt; elements, and thus applicable to all the virtual hosts and webapps, under this server.<br/>
+<br/>
+To specify the file used in <tt><b>UserDatabaseRealm</b></tt>, a JDNI resource named "UserDatabase" is defined, which maps to the file "<tt><b>conf\tomcat-users.xml</b></tt>".<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">&lt;Server ...... &gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;!-- Global JNDI resources --&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;GlobalNamingResources&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;!-- Editable user database that can also be used by</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;UserDatabaseRealm to authenticate users --&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;Resource name="UserDatabase" auth="Container"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; type="org.apache.catalina.UserDatabase"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; description="User database that can be updated and saved"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; factory="org.apache.catalina.users.MemoryUserDatabaseFactory"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; pathname="conf/tomcat-users.xml" /&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;/GlobalNamingResources&gt;</li>
+<li style="list-style-type: none">&nbsp; </li>
+<li style="list-style-type: none">&nbsp; &lt;Service name="Catalina"&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;Engine name="Catalina" defaultHost="localhost"&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &lt;!-- Use the LockOutRealm to prevent attempts to guess user passwords</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;via a brute-force attack --&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &lt;Realm className="org.apache.catalina.realm.LockOutRealm"&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &lt;Realm className="org.apache.catalina.realm.UserDatabaseRealm"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;resourceName="UserDatabase" /&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &lt;/Realm&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &lt;Host name="localhost" ......</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; ......</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &lt;/Host&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;/Engine&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;/Service&gt; &nbsp; </li>
+<li style="list-style-type: none">&lt;/Server&gt;</li>
+</span></tt><li style="list-style-type: none"></li>
+</ul>
+<b><tt><span style="font-size: 12pt">"conf\tomcat-users.xml"</span></tt></b><br/>
+<br/>
+Recall that a user is identified via username/password. A user is assigned role(s). Accesses for web applications are granted to role(s) instead of individual users. "Tomcat-users.xml" contains the following roles and username/password, but commented-out. Uncomment them for testing the example. Two roles, tomcat and role1, and three users, tomcat, role1 and both are defined.<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">&lt;?xml version="1.0" encoding="ISO-8859-1" ?&gt;</li>
+<li style="list-style-type: none">&lt;tomcat-users&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;role rolename="tomcat" /&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;role rolename="role1" /&gt;</li>
+<li style="list-style-type: none">&nbsp;</li>
+<li style="list-style-type: none">&nbsp; &lt;user username="tomcat" password="tomcat" roles="tomcat" /&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;user username="both" password="tomcat" roles="tomcat,role1" /&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;user username="role1" password="tomcat" roles="role1" /&gt;</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&lt;/tomcat-users&gt;</span></tt></li>
+</ul>
+<br/>
+Take note that the passwords are stored in clear text, which is not really desirable.<br/>
+<br/>
+<b><tt><span style="font-size: 12pt">"ContextRoot\WEB-INF\web.xml"</span></tt></b><br/>
+<br/>
+For Tomcat's webapp called "examples", the security roles are defined using &lt;security-constraint&gt; element in "webapps\examples\WEB-INF\web.xml" as follows. The URL patterns <tt>/jsp/security/protected/*</tt>&nbsp;are accessible by users having roles of tomcat and role1 only.<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">&lt;web-app ......&gt;</li>
+<li style="list-style-type: none">&nbsp; ......</li>
+<li style="list-style-type: none">&nbsp; &lt;security-constraint&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;display-name&gt;Example Security Constraint&lt;/display-name&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;web-resource-collection&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &lt;web-resource-name&gt;Protected Area&lt;/web-resource-name&gt;</li>
+</span><li style="list-style-type: none"><span style="color: #00007f">&nbsp; &nbsp; &nbsp; </span>&lt;!-- Define the context-relative URL(s) to be protected --&gt;</li>
+<span style="color: #00007f"><li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &lt;url-pattern&gt;/jsp/security/protected/*&lt;/url-pattern&gt;</li>
+</span><li style="list-style-type: none"><span style="color: #00007f">&nbsp; &nbsp; &nbsp; </span>&lt;!-- If you list http methods, only those methods are protected --&gt;</li>
+<span style="color: #00007f"><li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &lt;http-method&gt;DELETE&lt;/http-method&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &lt;http-method&gt;GET&lt;/http-method&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &lt;http-method&gt;POST&lt;/http-method&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &lt;http-method&gt;PUT&lt;/http-method&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;/web-resource-collection&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;auth-constraint&gt;</li>
+</span><li style="list-style-type: none"><span style="color: #00007f">&nbsp; &nbsp; &nbsp; </span>&lt;!-- Anyone with one of the listed roles may access this area --&gt;</li>
+<span style="color: #00007f"><li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &lt;role-name&gt;tomcat&lt;/role-name&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &lt;role-name&gt;role1&lt;/role-name&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;/auth-constraint&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;/security-constraint&gt;</li>
+<li style="list-style-type: none">&nbsp; </li>
+</span><li style="list-style-type: none"><span style="color: #00007f">&nbsp; </span>&lt;!-- Default login configuration uses form-based authentication --&gt;</li>
+<span style="color: #00007f"><li style="list-style-type: none">&nbsp; &lt;login-config&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;auth-method&gt;FORM&lt;/auth-method&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;realm-name&gt;Example Form-Based Authentication Area&lt;/realm-name&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;form-login-config&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &lt;form-login-page&gt;/jsp/security/protected/login.jsp&lt;/form-login-page&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &lt;form-error-page&gt;/jsp/security/protected/error.jsp&lt;/form-error-page&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;/form-login-config&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;/login-config&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; </li>
+</span><li style="list-style-type: none"><span style="color: #00007f">&nbsp; </span>&lt;!-- Security roles referenced by this web application --&gt;</li>
+<span style="color: #00007f"><li style="list-style-type: none">&nbsp; &lt;security-role&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;role-name&gt;role1&lt;/role-name&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;/security-role&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;security-role&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;role-name&gt;tomcat&lt;/role-name&gt;</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&nbsp; &lt;/security-role&gt; &nbsp; &nbsp;</span></tt></li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">4.3 &nbsp;HTML FORM-based Authentication Method</span></b><br/>
+<br/>
+The example uses HTML FORM-based authentication method, defined in element &lt;login-config&gt;. All accesses to the protected URLs (<tt>http://localhost:8080/examples/jsp/security/protected/*</tt>) will be redirected to the login.jsp page (defined in &lt;form-login-page&gt;), which prompts user for the credential. For example, if a user requests for h<tt>ttp://localhost:8080/examples/jsp/security/protected/index.jsp</tt>, the login.jsp will be displayed.<br/>
+<br/>
+The login.jsp page contain a html &lt;form&gt; (thus called FORM-based authentication):<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">&lt;html&gt;</li>
+<li style="list-style-type: none">&lt;head&gt;&lt;title&gt;Login Page for Examples&lt;/title&gt;&lt;/head&gt;</li>
+<li style="list-style-type: none">&lt;body&gt;</li>
+<li style="list-style-type: none">&lt;form method="POST" action='&lt;%= response.encodeURL("j_security_check") %&gt;' &gt;</li>
+<li style="list-style-type: none">&nbsp; Username:&lt;input type="text" name="j_username"&gt;</li>
+<li style="list-style-type: none">&nbsp; Password:&lt;input type="password" name="j_password"&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;input type="submit" value="Log In"&gt;</li>
+<li style="list-style-type: none">&lt;/form&gt;</li>
+<li style="list-style-type: none">&lt;/body&gt;</li>
+<li style="list-style-type: none">&lt;/html&gt;</li>
+</span></tt><li style="list-style-type: none"></li>
+</ul>
+The login page submits the username and password in parameters <tt>j_username</tt>&nbsp;and <tt>j_password</tt>&nbsp;to <tt>j_security_check</tt>. <tt>&lt;input type="password" ...&gt;</tt>&nbsp;is used for password text field, which displays the password as *'s. The response.encodeURL(URL) encodes the URL <tt>j_security_check</tt>&nbsp;by including the session ID if URL-rewriting is used for session tracking; it returns the URL unchanged if cookie is used. For robust session tracking, all URLs emitted by server-side programs (servlet/JSP) should be run through this method.<br/>
+<br/>
+If login fails, user will be redirected to error.jsp page, as follows,<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">&lt;html&gt;</li>
+<li style="list-style-type: none">&lt;head&gt;&lt;title&gt;Error Page For Examples&lt;/title&gt;&lt;/head&gt;</li>
+<li style="list-style-type: none">&lt;body&gt;</li>
+<li style="list-style-type: none">Invalid username and/or password, please try again</li>
+<li style="list-style-type: none">&lt;a href='&lt;%= response.encodeURL("index.jsp") %&gt;'&gt;again&lt;/a&gt;.</li>
+<li style="list-style-type: none">&lt;/body&gt;</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&lt;/html&gt;</span></tt></li>
+</ul>
+<br/>
+If login succeeds, the user will get the page he requested for. Study the "examples\jsp\security\protected\index.jsp" source.<br/>
+To logoff, terminate the current session via session.invalidate().<br/>
+<br/>
+You can use request.getRemoteUser() to get the authenticated login username; request.getUserPrincipal() to get a java.security.Principal object containing the name of the current authenticated user; request.isUserInRole(role) to check if the authenticated user is included in the specified role.<br/>
+<br/>
+<b><span style="font-size: 12pt">4.4 &nbsp;HTTPS</span></b><br/>
+<br/>
+In FORM-based authentication, the username/password are sent in clear text, and susceptible to eavesdropping. Hence, it is important to encrypt the transport by turning on SSL (HTTPS). Read "Tomcat with SSL" on how to setup Tomcat with SSL.<br/>
+<br/>
+To enforce user to use secure transport (HTTPS), add a &lt;transport-guarantee&gt;CONFIDENTIAL&lt;/transport-guarantee&gt;, inside the <br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">&lt;security-constraint&gt;, as follows:</li>
+<li style="list-style-type: none">&lt;security-constraint&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;display-name&gt;Example Security Constraint&lt;/display-name&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;web-resource-collection&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;web-resource-name&gt;Protected Area&lt;/web-resource-name&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;url-pattern&gt;/jsp/security/protected/*&lt;/url-pattern&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; ......</li>
+<li style="list-style-type: none">&nbsp; &lt;/web-resource-collection&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;auth-constraint&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;role-name&gt;tomcat&lt;/role-name&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; ......</li>
+<li style="list-style-type: none">&nbsp; &lt;/auth-constraint&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;!-- must use SSL for secure transport --&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;user-data-constraint&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;transport-guarantee&gt;CONFIDENTIAL&lt;/transport-guarantee&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;/user-data-constraint&gt;</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&lt;/security-constraint&gt;</span></tt></li>
+</ul>
+<br/>
+All accesses to HTTP at port 8080 (e.g., http://localhost:8080/examples/jsp/security/protected/index.jsp) will be redirected to HTTPS at port 8443 (e.g., https://localhost:8443/examples/jsp/security/protected/index.jsp).<br/>
+<br/>
+<b><span style="font-size: 12pt">4.5 &nbsp;HTTP BASIC Authentication</span></b><br/>
+<br/>
+HTTP defines two access authentication schemes to request for username/password: Basic and Digest. Read "HTTP Authentication".<br/>
+<br/>
+To use BASIC authentication, change the &lt;login-config&gt;'s &lt;auth-method&gt; to BASIC.<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">&lt;login-config&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp;&lt;auth-method&gt;BASIC&lt;/auth-method&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp;&lt;realm-name&gt;Basic Authentication Area&lt;/realm-name&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp;&lt;!-- Removed, no applicable for BASIC authentication</li>
+<li style="list-style-type: none">&nbsp; &nbsp;&lt;form-login-config&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &lt;form-login-page&gt;/jsp/security/protected/login.jsp&lt;/form-login-page&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &lt;form-error-page&gt;/jsp/security/protected/error.jsp&lt;/form-error-page&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;/form-login-config&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; --&gt;</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&lt;/login-config&gt;</span></tt></li>
+</ul>
+<br/>
+In BASIC authentication, Tomcat uses the HTTP Basic Authentication to ask for username and password. Try <tt>http://localhost:8080/examples/jsp/security/protected/index.jsp</tt>, you will be prompted for username/password automatically. There is no redirect to login.jsp and no need to write the login.jsp.<br/>
+<br/>
+Again, the HTTP Basic Authentication sends the username and password in clear text (password is encoded in Base64, but not encrypted). It is totally insecure, unless you use a secure transport (HTTPS) or VPN (Virtual Private Network).<br/>
+<br/>
+The Tomcat's webapp manager (under webapps/manager) uses BASIC authentication.<br/>
+<br/>
+<b><span style="font-size: 12pt">4.6 &nbsp;HTTP DIGEST Authentication</span></b><br/>
+<br/>
+To use DIGEST authentation, change the &lt;login-config&gt;'s &lt;auth-method&gt; to DIGEST. In DIGEST authentication, Tomcat uses HTTP Digest Authentication Scheme to ask for username/password. Instead of sending password in clear text, the digest of password is send to the server. Although DIGEST authentication is more secure than BASIC authentication, HTTPS is much more secure.<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">&lt;login-config&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp;&lt;auth-method&gt;DIGEST&lt;/auth-method&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp;&lt;realm-name&gt;Digest Authentication Area&lt;/realm-name&gt;</li>
+<li style="list-style-type: none">&lt;/login-config&gt;</li>
+</span></tt><li style="list-style-type: none"></li>
+</ul>
+<b><span style="font-size: 12pt">4.7 &nbsp;JDBCRealm</span></b><br/>
+<br/>
+UserDatabaseRealm is not meant for serious production environment, as it is hard to maintain. JDBCRealm is more appropriate.<br/>
+<br/>
+In JDBCRealm, user information is kept in a relational database, such as MySQL, accessed via JDBC, instead of an XML file. The information can be secured thruough proper database security.<br/>
+<br/>
+<b>Setting up Database</b><br/>
+<br/>
+We shall set up our user database in MySQL. Read "How to Install MySQL and Get Started" if you are new to MySQL.<br/>
+<br/>
+The following script can be used to set up the user database. Two tables are required: a users table containing username and password, and a user_roles containing username and the role assigned.<br/>
+create database tomcat_users;<br/>
+&nbsp; <ul><tt><span style="color: #00007f"><li style="list-style-type: none">use tomcat_users;</li>
+<li style="list-style-type: none">&nbsp; </li>
+<li style="list-style-type: none">create table users (</li>
+<li style="list-style-type: none">&nbsp; username varchar(15) not null,</li>
+<li style="list-style-type: none">&nbsp; password varchar(15) not null,</li>
+<li style="list-style-type: none">&nbsp; primary key (username)</li>
+<li style="list-style-type: none">);</li>
+<li style="list-style-type: none">&nbsp; </li>
+<li style="list-style-type: none">create table user_roles (</li>
+<li style="list-style-type: none">&nbsp; username varchar(15) not null,</li>
+<li style="list-style-type: none">&nbsp; role &nbsp; &nbsp; varchar(15) not null,</li>
+<li style="list-style-type: none">&nbsp; primary key (username, role)</li>
+<li style="list-style-type: none">);</li>
+<li style="list-style-type: none">&nbsp; </li>
+<li style="list-style-type: none">insert into users values </li>
+<li style="list-style-type: none">&nbsp; ('tomcat', 'tomcat'), </li>
+<li style="list-style-type: none">&nbsp; ('both', 'tomcat'), </li>
+<li style="list-style-type: none">&nbsp; ('role1', 'tomcat');</li>
+<li style="list-style-type: none">&nbsp; </li>
+<li style="list-style-type: none">insert into user_roles values </li>
+<li style="list-style-type: none">&nbsp; ('tomcat', 'tomcat'), </li>
+<li style="list-style-type: none">&nbsp; ('role1', 'role1'), </li>
+<li style="list-style-type: none">&nbsp; ('both', 'tomcat'), </li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&nbsp; ('both', 'role1');</span></tt></li>
+</ul>
+<br/>
+<b>JDBC Driver</b><br/>
+<br/>
+Next, copy the MySQL's JDBC driver ("mysql-connector-java-5.1.{xx}-bin.jar") into Tomcat's lib ("&lt;CATALINA_HOME&gt;\lib"). Read "How to Install MySQL and Get Started"<br/>
+<br/>
+<b><tt><span style="font-size: 12pt">"conf\server.xml"</span></tt></b><br/>
+<br/>
+Again, the realm is defined in server.xml via a &lt;Realm&gt; element. In this case, a JDBCRealm, with a connectionURL providing a MySQL database connection.<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">&lt;Realm className="org.apache.catalina.realm.JDBCRealm"</li>
+<li style="list-style-type: none">&nbsp; &nbsp;driverName="com.mysql.jdbc.Driver"</li>
+<li style="list-style-type: none">&nbsp; &nbsp;connectionURL="jdbc:mysql://localhost:{port}/tomcat_users"</li>
+<li style="list-style-type: none">&nbsp; &nbsp;connectionName="{dbuser}"</li>
+<li style="list-style-type: none">&nbsp; &nbsp;connectionPassword="{dbpassword}"</li>
+<li style="list-style-type: none">&nbsp; &nbsp;userTable="users" userNameCol="username" userCredCol="password"</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&nbsp; &nbsp;userRoleTable="user_roles" roleNameCol="role" /&gt;</span></tt></li>
+</ul>
+<br/>
+Replace the {port} with your MySQL server port number, and {dbuser} and {dbpass} with an authorized MySQL username/password.<br/>
+<br/>
+<b><tt><span style="font-size: 12pt">"ContextRoot\WEB-INF\web.xml"</span></tt></b><br/>
+<br/>
+Same as UserDatabaseRealm.<br/>
+<br/>
+<b>Authentication Methods</b><br/>
+<br/>
+Same as UserDatabaseRealm, you can use FORM, BASIC or DIGEST authentication method.<br/>
+<br/>
+<b>Testing</b><br/>
+You need to start MySQL server before starting the Tomcat Server.<br/>
+<br/>
+<b><span style="font-size: 12pt">4.8 &nbsp;Single Login</span></b><br/>
+<br/>
+By default, each protected webapp would request for login during the first access. You can enable single login to all webapps under the host by uncommenting the single-login valve, as follows:<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">&lt;Host ......&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;!-- SingleSignOn valve, share authentication between web applications</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp;Documentation at: /docs/config/valve.html --&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;Valve className="org.apache.catalina.authenticator.SingleSignOn" /&gt;</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&lt;/Host&gt;</span></tt></li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">4.9 &nbsp;Tomcat with SSL</span></b><br/>
+<br/>
+SSL (Secure Socket Layer), allows web browsers and web servers to communicate over a secured (encrypted) connection. Tomcat provides built-in support for SSL.<br/>
+<br/>
+Read:<br/>
+<ul><li>"SSL Configuration How-to" of Tomcat Documentation @ "&lt;CATALINA_HOME&gt;\webapps\docs\ssl-howto.html".</li>
+<li>"keytool - Key and Certificate Management Tool" @ JDK documentation.</li>
+<li></li>
+</ul>
+The steps to turn on SSL support are:<br/>
+<b><br/>
+</b><b>Step 1: </b>Check your JDK version. Tomcat's SSL uses Java Secure Socket Extension (JSSE), which has been integrated into JDK since 1.4.<br/>
+<b><br/>
+</b><b>Step 2:</b>&nbsp;Prepare the Tomcat's server certificate, using the JDK's Key and Certificate Management Tool called "keytool" (in <ul><tt><span style="color: #00007f"><li style="list-style-type: none"></li>
+<li style="list-style-type: none">"&lt;JAVA_HOME&gt;\bin" ), as follows:</li>
+<li style="list-style-type: none">&gt; keytool</li>
+<li style="list-style-type: none">... display the help menu ...</li>
+<li style="list-style-type: none">&nbsp;</li>
+<li style="list-style-type: none">// Generate a self-signed certificate for Tomcat</li>
+<li style="list-style-type: none">&gt; keytool -genkey -alias tomcat -keyalg RSA -keystore {TOMCAT_HOME}\conf\.keystore</li>
+<li style="list-style-type: none">Enter keystore password: xxxxxxxx</li>
+<li style="list-style-type: none">Re-enter new password: xxxxxxxx</li>
+<li style="list-style-type: none">What is your first and last name?</li>
+<li style="list-style-type: none">&nbsp; [Unknown]:</li>
+<li style="list-style-type: none">What is the name of your organizational unit?</li>
+<li style="list-style-type: none">&nbsp; [Unknown]:</li>
+<li style="list-style-type: none">What is the name of your organization?</li>
+<li style="list-style-type: none">&nbsp; [Unknown]:</li>
+<li style="list-style-type: none">What is the name of your City or Locality?</li>
+<li style="list-style-type: none">&nbsp; [Unknown]:</li>
+<li style="list-style-type: none">What is the name of your State or Province?</li>
+<li style="list-style-type: none">&nbsp; [Unknown]:</li>
+<li style="list-style-type: none">What is the two-letter country code for this unit?</li>
+<li style="list-style-type: none">&nbsp; [Unknown]:</li>
+<li style="list-style-type: none">Is CN=Unknown, OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=Unknown correct?</li>
+<li style="list-style-type: none">&nbsp; [no]: &nbsp;y</li>
+<li style="list-style-type: none">Enter key password for &lt;tomcat&gt;</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&nbsp; &nbsp; &nbsp; &nbsp; (RETURN if same as keystore password):</span></tt></li>
+</ul>
+<ul><li>The "-genkey" option is used to generate a public-private key pair. The public key is wrapped into an X.509 v1 self-signed certificate. The certificate and the private key are stored in a new keystore entry identified by the alias. In our case, the alias name must be "tomcat".</li>
+</ul>
+<br/>
+The "-keyalg" option specifies the key generation algorithm. RSA public key algorithm is used in this case.<br/>
+<ul><li>The "-keystore" option specifies the name and location of the key store file.</li>
+</ul>
+<ul><li>The password for alias tomcat must be the same as the keystore (i.e., hit enter for the last question).</li>
+</ul>
+<br/>
+<b>Step 3: </b>Enable SSL support for Tomcat. SSL is built into Tomcat. The Tomcat's configuration file commented out the SSL configuration directive. Uncomment them by removing the &lt;!-- and --&gt; around the SSL Coyote HTTP/1.1 Connector as follows:<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">&lt;!-- Define a SSL HTTP/1.1 Connector on port 8443</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp;This connector uses the JSSE configuration, when using APR, the </li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp;connector should be using the OpenSSL style configuration</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp;described in the APR documentation --&gt;</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">&lt;Connector port="8443" protocol="org.apache.coyote.http11.Http11Protocol"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp;SSLEnabled="true" maxThreads="150" scheme="https" secure="true"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp;clientAuth="false" sslProtocol="TLS" </li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp;keystoreFile="{TOMCAT_HOME}\conf\.keystore"</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&nbsp; &nbsp; &nbsp;keystorePass="passwordOfKeyStore" /&gt;</span></tt></li>
+</ul>
+<br/>
+Note that the SSL (or HTTPS) is running on port 8443 instead of its default port number 443.<br/>
+<br/>
+Add in the keystoreFile and keyStorePass attributes. The keystoreFile attribute specified the location of the keystore file. The keyStorePass provides the password for accessing the keystore file.<br/>
+<br/>
+<b>Step 4:</b>&nbsp;Start your tomcat (run "&lt;CATALINA_HOME&gt;\bin\startup.bat"). After that, start a web browser and issue an HTTPS request as follows:<ul><li style="list-style-type: none"><tt><span style="color: #00007f">https://localhost:8443</span></tt></li>
+</ul>
+<br/>
+<b><span style="font-size: 14pt">5. &nbsp;Clustering</span></b><br/>
+<b><span style="font-size: 12pt">5.1 &nbsp;Configuring Virtual Hosts</span></b><br/>
+<br/>
+To set up a virtual host called "<tt>www.mytest.com</tt>" (suppose that you have registered this hostname with at static IP address). Include the following &lt;Host&gt; element in <tt>server.xml</tt>&nbsp;under the Engine Catalina:<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">&lt;Engine name="Catalina" &gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;Host name="localhost .....&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; ......</li>
+<li style="list-style-type: none">&nbsp; &lt;/Host&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;Host name="www.mytest.com" appBase="webapps_mytest.com"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; unpackWARs="true" autoDeploy="true" &gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;Alias&gt;mytest.com&lt;/Alias&gt;</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &lt;Valve className="org.apache.catalina.valves.AccessLogValve"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;directory="logs"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;prefix="mytest.com_access_log." suffix=".log"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;pattern="%h %l %u %t &amp;quot;%r&amp;quot; %s %b"</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;resolveHosts="false" /&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;/Host&gt;</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&lt;/Engine&gt;</span></tt></li>
+</ul>
+<br/>
+The above lines configure a virtual host with hostname "www.mytest.com", with webapps base directory at "&lt;CATALINA_HOME&gt;\webapps_mytest.com". <br/>
+<br/>
+We also define a alias called "mytest.com". That is, this host can be accessed via http://www.mytest.com:port or http://mytest.com:port. We also define a Valve, which intercepts the request message to write a log entries (similar to localhost).<br/>
+<br/>
+Next:<br/>
+<ul><li style="list-style-type: none">1. Create a directory "webapps_mytest.com" under &lt;CATALINA_HOME&gt;, according to the appBase.</li>
+</ul>
+<ul><li style="list-style-type: none">2. Create a web application called ROOT, by creating a directory ROOT under the "webapps_mytest.com". Recall that ROOT was configured with an empty string URL. In other words, http://www.mytest.com:port/ accesses the ROOT application.</li>
+</ul>
+<ul><li style="list-style-type: none">3. Create a directory "www.mytest.com" under "conf\Catalina".</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">4. Write a welcome page called "index.html" and save it in "webapps_mytest.com\ROOT".</li>
+<li style="list-style-type: none"><ul><tt><span style="color: #00007f"><li style="list-style-type: none">&lt;html&gt;</li>
+<li style="list-style-type: none">&lt;head&gt;&lt;title&gt;Testing Virtual Host&lt;/title&gt;&lt;/head&gt;</li>
+<li style="list-style-type: none">&lt;body&gt;</li>
+<li style="list-style-type: none">&nbsp; &lt;h1&gt;It's work on virtual host&lt;/h1&gt;</li>
+<li style="list-style-type: none">&lt;/body&gt;</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&lt;/html&gt;</span></tt></li>
+</ul>
+</li>
+</ul>
+<ul><li style="list-style-type: none">To test the virtual host, without registering the hostname with an ISP, edit "C:\Windows\System32\drivers\etc\hosts" to include the following lines (required administrative authority):</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><tt><span style="color: #00007f"><li style="list-style-type: none">127.0.0.1 &nbsp; www.mytest.com</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">127.0.0.1 &nbsp; mytest.com</span></tt></li>
+</ul>
+</li>
+</ul>
+<br/>
+These lines maps host names www.mytest.com and mytest.com to IP address 127.0.0.1, which is the localhost. As the IP software checks the host file before asking Domain Name Service (DNS) to resolve a host name, you willl be able to test your virtual host.<br/>
+<br/>
+Now, you are ready to test the virtual hosts. Start the Tomcat server and issue these URL:<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">http://www.mytest.com:8080</li>
+<li style="list-style-type: none">http://mytest.com:8080</li>
+<li style="list-style-type: none">http://www.mytest.com:8080/</li>
+<li style="list-style-type: none">http://mytest.com:8080/</li>
+<li style="list-style-type: none">http://www.mytest.com:8080/index.html</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">http://mytest.com:8080/index.html</span></tt></li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">5.2 &nbsp;Tomcat Host Manager for Clustering and Admin Roles<br/>
+</span></b><br/>
+Reference: "Clustering/Session Replication HOW-TO" @ "webapps/docs/cluster-howto.html".<br/>
+<br/>
+The Tomcat "<tt><b>host-manager</b></tt>" webapp allows you to manage Tomcat clusters. To access host-manager, you need to define a user with admin role.<br/>
+<br/>
+The admin role has been separated out as admin-gui and admin-script, in Tomcat 7, as defined in webapps/host-manager/WEB-INF/web.xml.<br/>
+<br/>
+The "<b><tt>Host Manager</tt></b>" web application can be accessed via http://{host}:{port}/host-manager/html.<br/>
+<br/>
+<br/>
+<br/>
+END</body></html>

@@ -1,0 +1,311 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Create the root pair</title>
+</head><body><br/>
+<br/>
+<div style="text-align: center"><span style="font-size: 16pt"><b>Create the root pair</b></span></div><br/>
+<br/>
+Acting as a certificate authority (CA) means dealing with cryptographic pairs of private keys and public certificates. The very first cryptographic pair we’ll create is the root pair. This consists of the root key (ca.key.pem) and root certificate (ca.cert.pem). These form the identity of your CA.<br/>
+<br/>
+Typically, the root CA does not sign server or client certificates directly. The root CA is only ever used to create one or more intermediate CAs, which are trusted by the root CA to sign certificates on their behalf. This is best practice. It allows the root key to be kept offline and unused as much as possible, as any compromise of the root key is disastrous.<br/>
+<ul><li style="list-style-type: none"><b>Note</b></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none">It’s best practice to create the root pair in a secure environment. Ideally, this should be on a fully encrypted, air gapped computer that is permanently isolated from the Internet. Remove the wireless card and fill the ethernet port with glue.</li>
+<li style="list-style-type: none"></li>
+</ul>
+</li>
+</ul>
+<span style="font-size: 12pt"><b>Prepare the directory</b></span><br/>
+<br/>
+Choose a directory (<tt>/root/ca</tt>) to store all keys and certificates.<br/>
+<ul><li style="list-style-type: none"><span style="color: #00007f"><tt># mkdir /root/ca</tt></span></li>
+</ul>
+<br/>
+Create the directory structure. The <tt>index.txt</tt>&nbsp;and serial files act as a kind of flat file database to keep track of signed certificates.<br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none"># cd /root/ca</li>
+<li style="list-style-type: none"># mkdir certs crl newcerts private</li>
+<li style="list-style-type: none"># chmod 700 private</li>
+<li style="list-style-type: none"># touch index.txt</li>
+<li style="list-style-type: none"># echo 1000 &gt; serial</li>
+</tt></span></ul>
+<br/>
+<span style="font-size: 12pt"><b>Prepare the configuration file</b></span><br/>
+<br/>
+You must create a configuration file for OpenSSL to use. Copy the root CA configuration file from the Appendix to <tt>/root/ca/openssl.cnf</tt>.<br/>
+<br/>
+The [ ca ] section is mandatory. Here we tell OpenSSL to use the options from the [ CA_default ] section.<br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">[ ca ]</li>
+<li style="list-style-type: none"># `man ca`</li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>default_ca = CA_default</tt></span></li>
+</ul>
+<br/>
+The <tt>[ CA_default ]</tt>&nbsp;section contains a range of defaults. Make sure you declare the directory you chose earlier (<tt>/root/ca</tt>).<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">[ CA_default ]</li>
+<li style="list-style-type: none"># Directory and file locations.</li>
+<li style="list-style-type: none">dir &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; = /root/ca</li>
+<li style="list-style-type: none">certs &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; = $dir/certs</li>
+<li style="list-style-type: none">crl_dir &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; = $dir/crl</li>
+<li style="list-style-type: none">new_certs_dir &nbsp; &nbsp; = $dir/newcerts</li>
+<li style="list-style-type: none">database &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;= $dir/index.txt</li>
+<li style="list-style-type: none">serial &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;= $dir/serial</li>
+<li style="list-style-type: none">RANDFILE &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;= $dir/private/.rand</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># The root key and root certificate.</li>
+<li style="list-style-type: none">private_key &nbsp; &nbsp; &nbsp; = $dir/private/ca.key.pem</li>
+<li style="list-style-type: none">certificate &nbsp; &nbsp; &nbsp; = $dir/certs/ca.cert.pem</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># For certificate revocation lists.</li>
+<li style="list-style-type: none">crlnumber &nbsp; &nbsp; &nbsp; &nbsp; = $dir/crlnumber</li>
+<li style="list-style-type: none">crl &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; = $dir/crl/ca.crl.pem</li>
+<li style="list-style-type: none">crl_extensions &nbsp; &nbsp;= crl_ext</li>
+<li style="list-style-type: none">default_crl_days &nbsp;= 30</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># SHA-1 is deprecated, so use SHA-2 instead.</li>
+<li style="list-style-type: none">default_md &nbsp; &nbsp; &nbsp; &nbsp;= sha256</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">name_opt &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;= ca_default</li>
+<li style="list-style-type: none">cert_opt &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;= ca_default</li>
+<li style="list-style-type: none">default_days &nbsp; &nbsp; &nbsp;= 375</li>
+<li style="list-style-type: none">preserve &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;= no</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">policy &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;= policy_strict</span></tt></li>
+</ul>
+<br/>
+We’ll apply <tt>policy_strict</tt>&nbsp;for all root CA signatures, as the root CA is only being used to create intermediate CAs.<br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">[ policy_strict ]</li>
+<li style="list-style-type: none"># The root CA should only sign intermediate certificates that match.</li>
+<li style="list-style-type: none"># See the POLICY FORMAT section of `man ca`.</li>
+<li style="list-style-type: none">countryName &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; = match</li>
+<li style="list-style-type: none">stateOrProvinceName &nbsp; &nbsp; = match</li>
+<li style="list-style-type: none">organizationName &nbsp; &nbsp; &nbsp; &nbsp;= match</li>
+<li style="list-style-type: none">organizationalUnitName &nbsp;= optional</li>
+<li style="list-style-type: none">commonName &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;= supplied</li>
+<li style="list-style-type: none">emailAddress &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;= optional</li>
+</tt></span><li style="list-style-type: none"></li>
+</ul>
+We’ll apply <tt>policy_loose</tt>&nbsp;for all intermediate CA signatures, as the intermediate CA is signing server and client certificates which may come from a variety of third-parties.<br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">[ policy_loose ]</li>
+<li style="list-style-type: none"># Allow the intermediate CA to sign a more diverse range of certificates.</li>
+<li style="list-style-type: none"># See the POLICY FORMAT section of the `ca` man page.</li>
+<li style="list-style-type: none">countryName &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; = optional</li>
+<li style="list-style-type: none">stateOrProvinceName &nbsp; &nbsp; = optional</li>
+<li style="list-style-type: none">localityName &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;= optional</li>
+<li style="list-style-type: none">organizationName &nbsp; &nbsp; &nbsp; &nbsp;= optional</li>
+<li style="list-style-type: none">organizationalUnitName &nbsp;= optional</li>
+<li style="list-style-type: none">commonName &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;= supplied</li>
+<li style="list-style-type: none">emailAddress &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;= optional</li>
+</tt></span><li style="list-style-type: none"></li>
+</ul>
+Options from the<tt>&nbsp;[ req ]</tt>&nbsp;section are applied when creating certificates or certificate signing requests.<br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">[ req ]</li>
+<li style="list-style-type: none"># Options for the `req` tool (`man req`).</li>
+<li style="list-style-type: none">default_bits &nbsp; &nbsp; &nbsp; &nbsp;= 2048</li>
+<li style="list-style-type: none">distinguished_name &nbsp;= req_distinguished_name</li>
+<li style="list-style-type: none">string_mask &nbsp; &nbsp; &nbsp; &nbsp; = utf8only</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># SHA-1 is deprecated, so use SHA-2 instead.</li>
+<li style="list-style-type: none">default_md &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;= sha256</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># Extension to add when the -x509 option is used.</li>
+<li style="list-style-type: none">x509_extensions &nbsp; &nbsp; = v3_ca</li>
+</tt></span><li style="list-style-type: none"></li>
+</ul>
+<br/>
+The <tt>[ req_distinguished_name ]</tt>&nbsp;section declares the information normally required in a certificate signing request. You can optionally specify some defaults.<br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">[ req_distinguished_name ]</li>
+<li style="list-style-type: none"># See &lt;https://en.wikipedia.org/wiki/Certificate_signing_request&gt;.</li>
+<li style="list-style-type: none">countryName &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; = Country Name (2 letter code)</li>
+<li style="list-style-type: none">stateOrProvinceName &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; = State or Province Name</li>
+<li style="list-style-type: none">localityName &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;= Locality Name</li>
+<li style="list-style-type: none">0.organizationName &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;= Organization Name</li>
+<li style="list-style-type: none">organizationalUnitName &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;= Organizational Unit Name</li>
+<li style="list-style-type: none">commonName &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;= Common Name</li>
+<li style="list-style-type: none">emailAddress &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;= Email Address</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"># Optionally, specify some defaults.</li>
+<li style="list-style-type: none">countryName_default &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; = GB</li>
+<li style="list-style-type: none">stateOrProvinceName_default &nbsp; &nbsp; = England</li>
+<li style="list-style-type: none">localityName_default &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;=</li>
+<li style="list-style-type: none">0.organizationName_default &nbsp; &nbsp; &nbsp;= Alice Ltd</li>
+<li style="list-style-type: none">#organizationalUnitName_default =</li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>#emailAddress_default &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; =</tt></span></li>
+</ul>
+<br/>
+The next few sections are extensions that can be applied when signing certificates. For example, passing the <tt>-extensions v3_ca</tt>&nbsp;command-line argument will apply the options set in <tt>[ v3_ca ]</tt>.<br/>
+<br/>
+We’ll apply the <tt>v3_ca</tt>&nbsp;extension when we create the root certificate.<br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">[ v3_ca ]</li>
+<li style="list-style-type: none"># Extensions for a typical CA (`man x509v3_config`).</li>
+<li style="list-style-type: none">subjectKeyIdentifier = hash</li>
+<li style="list-style-type: none">authorityKeyIdentifier = keyid:always,issuer</li>
+<li style="list-style-type: none">basicConstraints = critical, CA:true</li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>keyUsage = critical, digitalSignature, cRLSign, keyCertSign</tt></span></li>
+</ul>
+<br/>
+We’ll apply the <tt>v3_ca_intermediate</tt>&nbsp;extension when we create the intermediate certificate. <tt>pathlen:0</tt>&nbsp;ensures that there can be no further certificate authorities below the intermediate CA.<br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">[ v3_intermediate_ca ]</li>
+<li style="list-style-type: none"># Extensions for a typical intermediate CA (`man x509v3_config`).</li>
+<li style="list-style-type: none">subjectKeyIdentifier = hash</li>
+<li style="list-style-type: none">authorityKeyIdentifier = keyid:always,issuer</li>
+<li style="list-style-type: none">basicConstraints = critical, CA:true, pathlen:0</li>
+<li style="list-style-type: none">keyUsage = critical, digitalSignature, cRLSign, keyCertSign</li>
+</tt></span><li style="list-style-type: none"></li>
+</ul>
+We’ll apply the <tt>usr_cert</tt>&nbsp;extension when signing client certificates, such as those used for remote user authentication.<br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">[ usr_cert ]</li>
+<li style="list-style-type: none"># Extensions for client certificates (`man x509v3_config`).</li>
+<li style="list-style-type: none">basicConstraints = CA:FALSE</li>
+<li style="list-style-type: none">nsCertType = client, email</li>
+<li style="list-style-type: none">nsComment = "OpenSSL Generated Client Certificate"</li>
+<li style="list-style-type: none">subjectKeyIdentifier = hash</li>
+<li style="list-style-type: none">authorityKeyIdentifier = keyid,issuer</li>
+<li style="list-style-type: none">keyUsage = critical, nonRepudiation, digitalSignature, keyEncipherment</li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>extendedKeyUsage = clientAuth, emailProtection</tt></span></li>
+</ul>
+<br/>
+We’ll apply the <tt>server_cert</tt>&nbsp;extension when signing server certificates, such as those used for web servers.<br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">[ server_cert ]</li>
+<li style="list-style-type: none"># Extensions for server certificates (`man x509v3_config`).</li>
+<li style="list-style-type: none">basicConstraints = CA:FALSE</li>
+<li style="list-style-type: none">nsCertType = server</li>
+<li style="list-style-type: none">nsComment = "OpenSSL Generated Server Certificate"</li>
+<li style="list-style-type: none">subjectKeyIdentifier = hash</li>
+<li style="list-style-type: none">authorityKeyIdentifier = keyid,issuer:always</li>
+<li style="list-style-type: none">keyUsage = critical, digitalSignature, keyEncipherment</li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>extendedKeyUsage = serverAuth</tt></span></li>
+</ul>
+<br/>
+The <span style="color: #00007f"><tt>crl_ext</tt></span>&nbsp;extension is automatically applied when creating certificate revocation lists.<br/>
+<ul><tt><li style="list-style-type: none">[ crl_ext ]</li>
+<li style="list-style-type: none"># Extension for CRLs (`man x509v3_config`).</li>
+</tt><li style="list-style-type: none"><tt>authorityKeyIdentifier=keyid:always</tt></li>
+</ul>
+<br/>
+We’ll apply the ocsp extension when signing the Online Certificate Status Protocol (OCSP) certificate.<br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">[ ocsp ]</li>
+<li style="list-style-type: none"># Extension for OCSP signing certificates (`man ocsp`).</li>
+<li style="list-style-type: none">basicConstraints = CA:FALSE</li>
+<li style="list-style-type: none">subjectKeyIdentifier = hash</li>
+<li style="list-style-type: none">authorityKeyIdentifier = keyid,issuer</li>
+<li style="list-style-type: none">keyUsage = critical, digitalSignature</li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>extendedKeyUsage = critical, OCSPSigning</tt></span></li>
+</ul>
+<br/>
+<span style="font-size: 12pt"><b>Create the root key</b></span><br/>
+<br/>
+Create the root key (<tt>ca.key.pem</tt>) and keep it absolutely secure. Anyone in possession of the root key can issue trusted certificates. Encrypt the root key with AES 256-bit encryption and a strong password.<br/>
+<ul><li style="list-style-type: none"><b>Note</b></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none">Use 4096 bits for all root and intermediate certificate authority keys. You’ll still be able to sign server and client certificates of a shorter length.</li>
+<li style="list-style-type: none"><ul><span style="color: #00007f"><tt><li style="list-style-type: none"># cd /root/ca</li>
+<li style="list-style-type: none"># openssl genrsa -aes256 -out private/ca.key.pem 4096</li>
+</tt></span></ul>
+</li>
+<li style="list-style-type: none"></li>
+</ul>
+</li>
+</ul>
+Enter pass phrase for ca.key.pem: secretpassword<br/>
+Verifying - Enter pass phrase for ca.key.pem: secretpassword<br/>
+<ul><li style="list-style-type: none"><span style="color: #00007f"><tt># chmod 400 private/ca.key.pem</tt></span></li>
+</ul>
+<br/>
+<span style="font-size: 12pt"><b>Create the root certificate</b></span><br/>
+<br/>
+Use the root key (<tt>ca.key.pem</tt>) to create a root certificate (<tt>ca.cert.pem</tt>). Give the root certificate a long expiry date, such as twenty years. Once the root certificate expires, all certificates signed by the CA become invalid.<br/>
+<ul><li style="list-style-type: none"><b>Warning</b></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none">Whenever you use the req tool, you must specify a configuration file to use with the -config option, otherwise OpenSSL will default to <span style="color: #00007f"><tt>/etc/pki/tls/openssl.cnf</tt></span>.</li>
+<li style="list-style-type: none"></li>
+</ul>
+</li>
+</ul>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none"># cd /root/ca</li>
+<li style="list-style-type: none"># openssl req -config openssl.cnf \</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; -key private/ca.key.pem \</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; -new -x509 -days 7300 -sha256 -extensions v3_ca \</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; -out certs/ca.cert.pem</li>
+<li style="list-style-type: none"></li>
+</tt></span><tt><li style="list-style-type: none">Enter pass phrase for ca.key.pem: secretpassword</li>
+<li style="list-style-type: none">You are about to be asked to enter information that will be incorporated</li>
+<li style="list-style-type: none">into your certificate request.</li>
+<li style="list-style-type: none">-----</li>
+<li style="list-style-type: none">Country Name (2 letter code) [XX]:GB</li>
+<li style="list-style-type: none">State or Province Name []:England</li>
+<li style="list-style-type: none">Locality Name []:</li>
+<li style="list-style-type: none">Organization Name []:Alice Ltd</li>
+<li style="list-style-type: none">Organizational Unit Name []:Alice Ltd Certificate Authority</li>
+<li style="list-style-type: none">Common Name []:Alice Ltd Root CA</li>
+<li style="list-style-type: none">Email Address []:<span style="color: #00007f"></span></li>
+<span style="color: #00007f"><li style="list-style-type: none"></li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f"># chmod 444 certs/ca.cert.pem</span></tt></li>
+</ul>
+<br/>
+<br/>
+<span style="font-size: 12pt"><b>Verify the root certificate</b></span><br/>
+<ul><li style="list-style-type: none"><span style="color: #00007f"><tt># openssl x509 -noout -text -in certs/ca.cert.pem</tt></span></li>
+</ul>
+<br/>
+<i><b>The output shows:</b></i><br/>
+<ul><li>the Signature Algorithm used</li>
+<li>the dates of certificate Validity</li>
+<li>the Public-Key bit length</li>
+<li>the Issuer, which is the entity that signed the certificate</li>
+<li>the Subject, which refers to the certificate itself</li>
+</ul>
+<br/>
+The Issuer and Subject are identical as the certificate is self-signed. Note that all root certificates are self-signed.<br/>
+<ul><tt><li style="list-style-type: none">Signature Algorithm: sha256WithRSAEncryption</li>
+<li style="list-style-type: none">&nbsp; &nbsp; Issuer: C=GB, ST=England,</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; O=Alice Ltd, OU=Alice Ltd Certificate Authority,</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; CN=Alice Ltd Root CA</li>
+<li style="list-style-type: none">&nbsp; &nbsp; Validity</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; Not Before: Apr 11 12:22:58 2015 GMT</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; Not After : Apr &nbsp;6 12:22:58 2035 GMT</li>
+<li style="list-style-type: none">&nbsp; &nbsp; Subject: C=GB, ST=England,</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;O=Alice Ltd, OU=Alice Ltd Certificate Authority,</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;CN=Alice Ltd Root CA</li>
+<li style="list-style-type: none">&nbsp; &nbsp; Subject Public Key Info:</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; Public Key Algorithm: rsaEncryption</li>
+</tt><li style="list-style-type: none"><tt>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Public-Key: (4096 bit)</tt></li>
+</ul>
+<br/>
+<br/>
+The output also shows the <tt>X509v3</tt>&nbsp;extensions. We applied the <tt>v3_ca</tt>&nbsp;extension, so the options from <tt>[ v3_ca ]</tt>&nbsp;should be reflected in the output.<br/>
+<ul><tt><li style="list-style-type: none">X509v3 extensions:</li>
+<li style="list-style-type: none">&nbsp; &nbsp; X509v3 Subject Key Identifier:</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; 38:58:29:2F:6B:57:79:4F:39:FD:32:35:60:74:92:60:6E:E8:2A:31</li>
+<li style="list-style-type: none">&nbsp; &nbsp; X509v3 Authority Key Identifier:</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; keyid:38:58:29:2F:6B:57:79:4F:39:FD:32:35:60:74:92:60:6E:E8:2A:31</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">&nbsp; &nbsp; X509v3 Basic Constraints: critical</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; CA:TRUE</li>
+<li style="list-style-type: none">&nbsp; &nbsp; X509v3 Key Usage: critical</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; Digital Signature, Certificate Sign, CRL Sign</li>
+</tt><li style="list-style-type: none"></li>
+</ul>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+END</body></html>

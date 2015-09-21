@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>OpenSSL</title>
+</head><body><br/>
+<br/>
+<b>REF</b>: <a href="https://www.openssl.org/docs/manmaster/apps/openssl.html">https://www.openssl.org/docs/manmaster/apps/openssl.html</a><br/>
+<br/>
+<br/>
+<b><span style="font-size: 12pt">[+] View the details of various OpenSSL files</span></b><br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none"># openssl x509 -in filename.crt -text -noout</li>
+<li style="list-style-type: none"># openssl req -in filename.csr -text -noout</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f"># openssl rsa -in filename.key -text -noout</span></tt></li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">[+] Generate a new RSA key only &nbsp;</span></b><br/>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f"># openssl genrsa 2048 -out new.key &nbsp;</span></tt></li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">[+] Generate a self-signed SSL certificate</span></b><br/>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f"># openssl req -new -newkey rsa:2048 -keyout selfsigned.key -out self.signed.crt -days 365 -nodes -x509</span></tt></li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">[+] Generating a Self-Signed Certificate</span></b><br/>
+<ul><li style="list-style-type: none">Once you have generated a key and CSR you will need to sign the request and generate the public certificate. If you do not have a certificate authority you can sign the certificate yourself. The below will generate a certificate which is valid for one year.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><tt><span style="color: #00007f"># openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt</span></tt></li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">[+] Convert format</span></b><br/>
+<ul><li style="list-style-type: none"><b><span style="font-size: 10pt">[+] Convert a Linux/Apache/OpenSSL (X509) certificate to use with Windows</span></b></li>
+</ul>
+<ul><li style="list-style-type: none">Given an existing .crt (X509 plaintext file) certificate, you can use the following command to convert it into a .der file which can be imported into Windows using the Certificates snap-in.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><tt><span style="color: #00007f"># openssl x509 -in filename.crt -outform der -out filename.cer</span></tt></li>
+</ul>
+<ul><li style="list-style-type: none"><b>[+] Convert x509 to pem</b></li>
+</ul>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f"># openssl x509 -inform der -in server.crt -out server.pem</span></tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><b>[+] pkcs12 to pem – key only</b></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Use the below command to extract only the key from a pkcs12 certificate.</li>
+</ul>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f"># openssl pkcs12 -nocerts -in c:\server.pfx -out c:\server-key.key</span></tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><b>[+] pkcs12 to pem – certificate only</b></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Use the below command to extract only the public certificate from a pkcs12 certificate.</li>
+</ul>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f"># openssl pkcs12 -nokeys -in server.pfx -out server-cert.cer</span></tt></li>
+<li style="list-style-type: none"></li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">[+] Generate a Certificate Signing Request and new Key</span></b><br/>
+<ul><li style="list-style-type: none">This will place a new 2048-bit RSA key in the file new.key, and then prompt you interactively for the details to place in the certificate signing request.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><tt><span style="color: #00007f"># openssl req -new -newkey rsa:2048 -keyout new.key -out new.csr -nodes</span></tt></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">You should keep the file new.key private on the server, and give the new.csr file to your Certificate Authority (it does not need to be kept private).</li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">[+] Remove Passphrase from Key</span></b><br/>
+<ul><li style="list-style-type: none">Some applications do not allow for the private key to have a passphrase. The below commands will remove the passphrase – be careful as it will mean the key is no longer protected and can be viewed by anyone with read access to the file.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><tt><span style="color: #00007f"># openssl rsa -in server-with-passphrase.key -out server.key</span></tt></li>
+<li style="list-style-type: none"></li>
+</ul>
+<br/>
+<br/>
+<br/>
+END</body></html>

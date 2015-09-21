@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Redhat - KVM</title>
+</head><body><br/>
+<br/>
+<br/>
+<b><span style="font-size: 12pt">[+] Create a new pool using virsh</span></b><br/>
+<ul><li style="list-style-type: none">If wanted to add a storage pool, here are examples of the command form, adding a directory, and adding a LVM volume:</li>
+<li style="list-style-type: none"><ul><tt><span style="color: #00007f"><li style="list-style-type: none">$ virsh pool-define-as name type [source-host] [source-path] [source-dev] [source-name] [&lt;target&gt;] [--source-format format]</li>
+<li style="list-style-type: none">$ virsh pool-define-as poolname dir - - - - /home/username/.local/libvirt/images</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">$ virsh pool-define-as poolname fs - - &nbsp;/dev/vg0/images - mntpoint</span></tt></li>
+</ul>
+</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">The above command defines the information for the pool, to build it:</li>
+<li style="list-style-type: none"><ul><tt><span style="color: #00007f"><li style="list-style-type: none">$ virsh pool-build &nbsp; &nbsp; poolname</li>
+<li style="list-style-type: none">$ virsh pool-start &nbsp; &nbsp; poolname</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">$ virsh pool-autostart poolname</span></tt></li>
+</ul>
+</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">To remove it:</li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none"><tt><span style="color: #00007f">$ virsh pool-undefine &nbsp;poolname</span></tt></li>
+</ul>
+</li>
+<b><li style="list-style-type: none"></li>
+</b><li style="list-style-type: none"><b>Tip</b>: For LVM storage pools:</li>
+<li style="list-style-type: none">It is a good practice to dedicate a volume group to the storage pool only.</li>
+<li style="list-style-type: none">Choose a LVM volume group that differs from the pool name, otherwise when the storage pool is deleted the LVM group will be too.</li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">[+] Storage volume</span></b><ul><li style="list-style-type: none"></li>
+<li style="list-style-type: none">Once the pool has been created, volumes can be created inside the pool. If building a new domain (virtual machine), this step can be skipped as a volume can be created in the domain creation process.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><tt><span style="color: #00007f">$ qemu-img create -f qcow2 -o backing_file=&lt;path to backing image&gt;,backing_fmt=qcow2 &lt;disk name&gt; &lt;disk size&gt; &nbsp;</span></tt></li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">[+] Create the virtual machine </span></b><br/>
+<br/>
+Now you can create the virtual machine itself from the ISO which you downloaded and the disk image that you created.<br/>
+<br/>
+This is the basic virt-install command:<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">virt-install -r 1024 --accelerate -n Fedora14 \</li>
+<li style="list-style-type: none">&nbsp; -f /path/to/guest.img \</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&nbsp; --cdrom Fedora-14-x86_64-Live.iso</span></tt></li>
+</ul>
+<br/>
+The -r option specifies the amount of RAM (in megabytes). This depends on the operating system, but 768 MB is a good starting point these days, and I use 1024 MB for modern graphical Linux and Windows guests.<br/>
+<ul><tt>--accelerate</tt>&nbsp;&#09;indicates you want to use hardware acceleration. Recent versions of virt-install default to this.</ul>
+<ul><tt>-n</tt>&nbsp;&#09;&#09;specifies the name of the virtual machine (as known to libvirt), and this is the name you will see in listings and use when starting and stopping the VM.</ul>
+<ul><tt>-f</tt>&nbsp;&#09;&#09;is the full path to the disk image you created before. For LVs, use the device path, eg. <tt>-f /dev/vg_host/lv_guest</tt></ul>
+<ul><li style="list-style-type: none"><tt>--cdrom</tt>&nbsp;&#09;is the path to the ISO file that you downloaded. The ISO is only needed during installation, and can be deleted after that.</li>
+</ul>
+<br/>
+Other virt-install options that might be useful (read virt-install(1) for the full list) include:<br/>
+<ul><li style="list-style-type: none"><tt>--vcpus=N</tt>&nbsp;&#09;Specify an SMP guest with N virtual CPUs.</li>
+<li style="list-style-type: none"><tt>--description</tt>&nbsp;&#09;Give a description string which appears in the libvirt XML.</li>
+<li style="list-style-type: none"><tt>-l</tt>&nbsp;&#09;&#09;Use this to install from a network URL (instead of needing to download an ISO). See network installs below.</li>
+<li style="list-style-type: none">--disk &#09;&#09;&#09;This option lets you specify other aspects of the disk such as the format (qcow2 instead of raw). See the man page for the full details.</li>
+<li style="list-style-type: none">--soundhw ac97 &#09;Give the guest a (virtual) AC'97 soundcard. Without this option no soundcard is provided for the guest.</li>
+<li style="list-style-type: none"></li>
+</ul>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none"># /bin/virt-install \</li>
+<li style="list-style-type: none">--virt-type kvm \</li>
+<li style="list-style-type: none">--name=postfix.example.com \</li>
+<li style="list-style-type: none">--disk path=/var/lib/libvirt/images/postfix.example.com.img,size=6 \</li>
+<li style="list-style-type: none">--ram=1024 \</li>
+<li style="list-style-type: none">--vcpus=1 \</li>
+<li style="list-style-type: none">--os-variant=rhel7 \</li>
+<li style="list-style-type: none">--accelerate \</li>
+<li style="list-style-type: none">--graphics vnc \</li>
+<li style="list-style-type: none">-v -l http://192.168.1.5/repo/CentOS/7/os/x86_64/ \</li>
+<li style="list-style-type: none">--network bridge:br0 \</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">-x ks=http://192.168.1.5/conf/ks_postfix.cfg</span></tt></li>
+</ul>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<b><span style="font-size: 12pt">[+] QEMU</span></b><br/>
+<ul><tt><li style="list-style-type: none"><span style="color: #00007f">qemu-img subcommand [options]</span></li>
+<li style="list-style-type: none">and supports the following subcommands:</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><span style="color: #00007f">create</span></li>
+<li style="list-style-type: none">Creates a new disk image on the file system.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><span style="color: #00007f">check</span></li>
+<li style="list-style-type: none">Checks an existing disk image for errors.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><span style="color: #00007f">convert</span></li>
+<li style="list-style-type: none">Converts an existing disk image to a new one in a different format.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><span style="color: #00007f">info</span></li>
+<li style="list-style-type: none">Displays information about the relevant disk image.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><span style="color: #00007f">snapshot</span></li>
+<li style="list-style-type: none">Manages snapshots of existing disk images.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><span style="color: #00007f">commit</span></li>
+<li style="list-style-type: none">Applies changes made to an existing disk image.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><span style="color: #00007f">rebase</span></li>
+<li style="list-style-type: none">Creates a new base image based on an existing image.</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><span style="color: #00007f">resize</span></li>
+<li style="list-style-type: none">Increases or decreases the size of an existing image.</li>
+</tt><li style="list-style-type: none"></li>
+</ul>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+END</body></html>

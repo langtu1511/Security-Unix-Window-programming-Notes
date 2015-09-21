@@ -1,0 +1,259 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Linux - bridge</title>
+</head><body><br/>
+REF: <a href="http://www.linuxfoundation.org/collaborate/workgroups/networking/bridge">http://www.linuxfoundation.org/collaborate/workgroups/networking/bridge</a><br/>
+<br/>
+<span style="font-size: 12pt"><b>Module loading</b></span><br/>
+<br/>
+In most cases, the bridge code is built as a module. If the module is configured and installed correctly, it will get automatically loaded on the first brctl command.<br/>
+<br/>
+If your bridge-utilities have been correctly built and your kernel and bridge-module are OK, then issuing a brctl should show a small command synopsis.<br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none"># brctl</li>
+<li style="list-style-type: none"># commands:</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; addbr &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;bridge&gt; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;add bridge</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; delbr &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;bridge&gt; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;delete bridge</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; addif &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;bridge&gt; &lt;device&gt; &nbsp; &nbsp; &nbsp; add interface to bridge</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; delif &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;bridge&gt; &lt;device&gt; &nbsp; &nbsp; &nbsp; delete interface from bridge</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; setageing &nbsp; &nbsp; &nbsp; &lt;bridge&gt; &lt;time&gt; &nbsp; &nbsp; &nbsp; &nbsp; set ageing time</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; setbridgeprio &nbsp; &lt;bridge&gt; &lt;prio&gt; &nbsp; &nbsp; &nbsp; &nbsp; set bridge priority</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; setfd &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;bridge&gt; &lt;time&gt; &nbsp; &nbsp; &nbsp; &nbsp; set bridge forward delay</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; sethello &nbsp; &nbsp; &nbsp; &nbsp;&lt;bridge&gt; &lt;time&gt; &nbsp; &nbsp; &nbsp; &nbsp; set hello time</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; setmaxage &nbsp; &nbsp; &nbsp; &lt;bridge&gt; &lt;time&gt; &nbsp; &nbsp; &nbsp; &nbsp; set max message age</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; setpathcost &nbsp; &nbsp; &lt;bridge&gt; &lt;port&gt; &lt;cost&gt; &nbsp;set path cost</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; setportprio &nbsp; &nbsp; &lt;bridge&gt; &lt;port&gt; &lt;prio&gt; &nbsp;set port priority</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; show &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;show a list of bridges</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; showmacs &nbsp; &nbsp; &nbsp; &nbsp;&lt;bridge&gt; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;show a list of mac addrs</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; showstp &nbsp; &nbsp; &nbsp; &nbsp; &lt;bridge&gt; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;show bridge stp info</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; stp &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;bridge&gt; &lt;state&gt; &nbsp; &nbsp; &nbsp; &nbsp;turn stp on/off</li>
+</tt></span><li style="list-style-type: none"></li>
+</ul>
+<span style="font-size: 12pt"><b>Creating a bridge device</b></span><br/>
+<ul><li style="list-style-type: none"><span style="color: #00007f"><tt>&nbsp;brctl addbr "bridgename"</tt></span></li>
+</ul>
+<br/>
+creates a logical bridge instance with the name bridgename. You will need at least one logical instance to do any bridging at all. You can interpret the logical bridge as a container for the interfaces taking part in the bridging. Each bridging instance is represented by a new network interface.<br/>
+<br/>
+The corresponding shutdown command is:<br/>
+<ul><li style="list-style-type: none"><span style="color: #00007f"><tt>&nbsp;brctl delbr bridgename</tt></span></li>
+</ul>
+<br/>
+<span style="font-size: 12pt"><b>Adding devices to a bridge</b></span><br/>
+<ul><li style="list-style-type: none">&nbsp;<span style="color: #00007f"><tt>brctl addif bridgename device</tt></span></li>
+</ul>
+<br/>
+adds the network device device to take part in the bridging of "bridgename." All the devices contained in a bridge act as one big network. It is not possible to add a device to multiple bridges or bridge a bridge device, because it just wouldn't make any sense! The bridge will take a short amount of time when a device is added to learn the Ethernet addresses on the segment before starting to forward.<br/>
+<br/>
+The corresponding command to take an interface out of the bridge is:<br/>
+<ul><li style="list-style-type: none">&nbsp;<span style="color: #00007f"><tt>brctl delif &nbsp;bridgename device</tt></span></li>
+</ul>
+<br/>
+Showing devices in a bridge<br/>
+<br/>
+The brctl show command gives you a summary about the overall bridge status, and the instances running as shown below:<br/>
+<ul><li style="list-style-type: none">&nbsp;<span style="color: #00007f"><tt># brctl addbr br549</tt></span></li>
+<span style="color: #00007f"><tt><li style="list-style-type: none">&nbsp;# brctl addif br549 eth0</li>
+<li style="list-style-type: none">&nbsp;# brctl addif br549 eth1</li>
+<li style="list-style-type: none">&nbsp;# brctl show</li>
+<li style="list-style-type: none">&nbsp;bridge name &nbsp; &nbsp; bridge id &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; STP enabled &nbsp; &nbsp; interfaces</li>
+<li style="list-style-type: none">&nbsp;br549 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 8000.00004c9f0bd2 &nbsp; &nbsp; &nbsp; no &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;eth0</li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;eth1</tt></span></li>
+</ul>
+Once a bridge is running the brctl showmacs will show information about network addresses of traffic being forwarded (and the bridge itself).<br/>
+<ul><li style="list-style-type: none">&nbsp;<span style="color: #00007f"><tt># brctl showmacs br549</tt></span></li>
+<span style="color: #00007f"><tt><li style="list-style-type: none">&nbsp;port no mac addr &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;is local? &nbsp; &nbsp; &nbsp; ageing timer</li>
+<li style="list-style-type: none">&nbsp; &nbsp;1 &nbsp; &nbsp; 00:00:4c:9f:0b:ae &nbsp; &nbsp; &nbsp; no &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;17.84</li>
+<li style="list-style-type: none">&nbsp; &nbsp;1 &nbsp; &nbsp; 00:00:4c:9f:0b:d2 &nbsp; &nbsp; &nbsp; yes &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0.00</li>
+<li style="list-style-type: none">&nbsp; &nbsp;2 &nbsp; &nbsp; 00:00:4c:9f:0b:d3 &nbsp; &nbsp; &nbsp; yes &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0.00</li>
+<li style="list-style-type: none">&nbsp; &nbsp;1 &nbsp; &nbsp; 00:02:55:1a:35:09 &nbsp; &nbsp; &nbsp; no &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;53.84</li>
+<li style="list-style-type: none">&nbsp; &nbsp;1 &nbsp; &nbsp; 00:02:55:1a:82:87 &nbsp; &nbsp; &nbsp; no &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;11.53</li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>&nbsp; ...</tt></span></li>
+</ul>
+The aging time is the number of seconds a MAC address will be kept in the forwarding database after having received a packet from this MAC address. The entries in the forwarding database are periodically timed out to ensure they won't stay around forever. Normally there should be no need to modify this parameter, but it can be changed with (time is in seconds).<br/>
+<ul><li style="list-style-type: none">&nbsp; <span style="color: #00007f"><tt># brctl setageing bridgename time</tt></span></li>
+</ul>
+<br/>
+Setting ageing time to zero makes all entries permanent.<br/>
+<br/>
+<span style="font-size: 12pt"><b>Spanning Tree Protocol</b></span><br/>
+<br/>
+If you are running multiple or redundant bridges, then you need to enable the Spanning Tree Protocol (STP) to handle multiple hops and avoid cyclic routes.<br/>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f"># brctl stp br549 on</span></tt></li>
+</ul>
+<br/>
+You can see the STP parameters with:<br/>
+<ul><li style="list-style-type: none">&nbsp;<span style="color: #00007f"><tt># brctl showstp br549</tt></span></li>
+<span style="color: #00007f"><tt><li style="list-style-type: none">&nbsp;br549</li>
+<li style="list-style-type: none">&nbsp; bridge id &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;8000.00004c9f0bd2</li>
+<li style="list-style-type: none">&nbsp; designated root &nbsp; &nbsp; &nbsp; &nbsp;0000.000480295a00</li>
+<li style="list-style-type: none">&nbsp; root port &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 1 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;path cost &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;104</li>
+<li style="list-style-type: none">&nbsp; max age &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;20.00 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; bridge max age &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 200.00</li>
+<li style="list-style-type: none">&nbsp; hello time &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;2.00 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; bridge hello time &nbsp; &nbsp; &nbsp; &nbsp; 20.00</li>
+<li style="list-style-type: none">&nbsp; forward delay &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 150.00 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; bridge forward delay &nbsp; &nbsp; &nbsp;15.00</li>
+<li style="list-style-type: none">&nbsp; ageing time &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 300.00 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; gc interval &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0.00</li>
+<li style="list-style-type: none">&nbsp; hello timer &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 0.00 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; tcn timer &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0.00</li>
+<li style="list-style-type: none">&nbsp; topology change timer &nbsp; &nbsp; 0.00 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; gc timer &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 0.33</li>
+<li style="list-style-type: none">&nbsp; flags</li>
+<li style="list-style-type: none">&nbsp;</li>
+<li style="list-style-type: none">&nbsp;eth0 (1)</li>
+<li style="list-style-type: none">&nbsp; port id &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;8001 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;state &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; forwarding</li>
+<li style="list-style-type: none">&nbsp; designated root &nbsp; &nbsp; &nbsp; &nbsp;0000.000480295a00 &nbsp; &nbsp; &nbsp; path cost &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;100</li>
+<li style="list-style-type: none">&nbsp; designated bridge &nbsp; &nbsp; &nbsp;001e.00048026b901 &nbsp; &nbsp; &nbsp; message age timer &nbsp; &nbsp; &nbsp; &nbsp; 17.84</li>
+<li style="list-style-type: none">&nbsp; designated port &nbsp; &nbsp; &nbsp; &nbsp;80c1 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;forward delay timer &nbsp; &nbsp; &nbsp; &nbsp;0.00</li>
+<li style="list-style-type: none">&nbsp; designated cost &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 4 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;hold timer &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 0.00</li>
+<li style="list-style-type: none">&nbsp; flags</li>
+<li style="list-style-type: none">&nbsp;</li>
+<li style="list-style-type: none">&nbsp;eth1 (2)</li>
+<li style="list-style-type: none">&nbsp; port id &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;8002 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;state &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; disabled</li>
+<li style="list-style-type: none">&nbsp; designated root &nbsp; &nbsp; &nbsp; &nbsp;8000.00004c9f0bd2 &nbsp; &nbsp; &nbsp; path cost &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;100</li>
+<li style="list-style-type: none">&nbsp; designated bridge &nbsp; &nbsp; &nbsp;8000.00004c9f0bd2 &nbsp; &nbsp; &nbsp; message age timer &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;0.00</li>
+<li style="list-style-type: none">&nbsp; designated port &nbsp; &nbsp; &nbsp; &nbsp;8002 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;forward delay timer &nbsp; &nbsp; &nbsp; &nbsp;0.00</li>
+<li style="list-style-type: none">&nbsp; designated cost &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 0 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;hold timer &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 0.00</li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>&nbsp; flags</tt></span></li>
+</ul>
+<br/>
+<b>STP tuning</b><br/>
+<br/>
+There are a number of parameters related to the Spanning Tree Protocol that can be configured. The code autodetects the speed of the link and other parameters, so these usually don't need to be changed.<br/>
+<br/>
+<b>Bridge priority</b><br/>
+<br/>
+Each bridge has a relative priority and cost. Each interface is associated with a port (number) in the STP code. Each has a priority and a cost, that is used to decide which is the shortest path to forward a packet. The lowest cost path is always used unless the other path is down. If you have multiple bridges and interfaces then you may need to adjust the priorities to achieve optimium performance.<br/>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f"># brctl setbridgeprio bridgename priority</span></tt></li>
+</ul>
+<br/>
+The bridge with the lowest priority will be elected as the root bridge. The root bridge is the "central" bridge in the spanning tree.<br/>
+<br/>
+<b>Path priority and cost</b><br/>
+<br/>
+Each interface in a bridge could have a different speed and this value is used when deciding which link to use. Faster interfaces should have lower costs.<br/>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f"># brctl setpathcost bridge port cost</span></tt></li>
+</ul>
+<br/>
+For multiple ports with the same cost there is also a priority<br/>
+<br/>
+<b>Forwarding delay</b><br/>
+<br/>
+Forwarding delay time is the time spent in each of the Listening and Learning states before the Forwarding state is entered. This delay is so that when a new bridge comes onto a busy network it looks at some traffic before participating.<br/>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f"># &nbsp;brctl setfd bridgename time</span></tt></li>
+</ul>
+<br/>
+<b>Hello time</b><br/>
+<br/>
+Periodically, a hello packet is sent out by the Root Bridge and the Designated Bridges. Hello packets are used to communicate information about the topology throughout the entire Bridged Local Area Network.<br/>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f"># brctl sethello bridgename time</span></tt></li>
+</ul>
+<br/>
+<b>Max age</b><br/>
+<br/>
+If a another bridge in the spanning tree does not send out a hello packet for a long period of time, it is assumed to be dead. This timeout is set with:<br/>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f"># brctl maxage &nbsp;bridgename time</span></tt></li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">Multicast (IGMP) snooping</span></b><br/>
+<br/>
+IGMP snooping support is not yet included in bridge-utils or iproute2, but it can be easily controlled through sysfs interface. For brN, the settings can be found under /sys/devices/virtual/net/brN/bridge.<br/>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">multicast_snooping</span></tt></li>
+</ul>
+<br/>
+This option allows the user to disable IGMP snooping completely. It also allows the user to reenable snooping when it has been automatically disabled due to hash collisions. If the collisions have not been resolved however the system will refuse to reenable snooping.<br/>
+<ul><li style="list-style-type: none"><span style="color: #00007f"><tt>multicast_router</tt></span></li>
+</ul>
+<br/>
+This allows the user to forcibly enable/disable ports as having multicast routers attached. A port with a multicast router will receive all multicast traffic.<br/>
+<br/>
+The value 0 disables it completely. The default is 1 which lets the system automatically detect the presence of routers (currently this is limited to picking up queries), and 2 means that the ports will always receive all multicast traffic.<br/>
+<br/>
+Note: this setting can be enabled/disable on a per-port basis, also through sysfs interface (e.g. if eth0 is some bridge's active port, then you can adjust /sys/...../eth0/brport/multicast_router)<br/>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">hash_{max,elasticity}</span></tt></li>
+</ul>
+<br/>
+These settings allow the user to control the hash elasticity/max parameters. The elasticity setting does not take effect until the next new multicast group is added. At which point it is checked and if after rehashing it still can't be satisfied then snooping will be disabled.<br/>
+<br/>
+The max setting on the other hand takes effect immediately. It must be a power of two and cannot be set to a value less than the current number of multicast group entries. This is the only way to shrink the multicast hash.<br/>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">remaining multicast_* options</span></tt></li>
+</ul>
+<br/>
+These allow the user to control various values related to IGMP snooping.<br/>
+<br/>
+More details about the options, some discussions and rationale can be found in http://thread.gmane.org/gmane.linux.network/153338<br/>
+<br/>
+<br/>
+<b><span style="font-size: 12pt">Sample setup<br/>
+</span></b><br/>
+The basic setup of a bridge is done like:<br/>
+<ul><li style="list-style-type: none">&nbsp;<tt><span style="color: #00007f"># ifconfig eth0 0.0.0.0</span></tt></li>
+<tt><span style="color: #00007f"><li style="list-style-type: none">&nbsp;# ifconfig eth1 0.0.0.0</li>
+<li style="list-style-type: none">&nbsp;# brctl addbr mybridge</li>
+<li style="list-style-type: none">&nbsp;# brctl addif mybridge eth0</li>
+<li style="list-style-type: none">&nbsp;# brctl addif mybridge eth1 </li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&nbsp;# ifconfig mybridge up</span></tt></li>
+</ul>
+<br/>
+This will set the host up as a pure bridge, it will not have an IP address for itself, so it can not be remotely accessed (or hacked) via TCP/IP.<br/>
+<br/>
+Optionally you can configure the virtual interface mybridge to take part in your network. It behaves like one interface (like a normal network card). Exactly that way you configure it, replacing the previous command with something like:<br/>
+<ul><li style="list-style-type: none"><tt>&nbsp;<span style="color: #00007f"># ifconfig mybridge 192.168.100.5 netmask 255.255.255.0</span></tt></li>
+</ul>
+<br/>
+If you want your bridge to automatically get its IP address from the ADSL modem via DHCP (or a similar configuration), do this:<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">&nbsp;# ifconfig eth0 0.0.0.0</li>
+<li style="list-style-type: none">&nbsp;# ifconfig eth1 0.0.0.0</li>
+<li style="list-style-type: none">&nbsp;# brctl addbr mybridge</li>
+<li style="list-style-type: none">&nbsp;# brctl addif mybridge eth0</li>
+<li style="list-style-type: none">&nbsp;# brctl addif mybridge eth1 </li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&nbsp;# dhclient mybridge</span></tt></li>
+</ul>
+<br/>
+If you do this many times, you may end up with lots of dhclient processes. Either kill them impolitely or learn about omshell(1).<br/>
+<br/>
+<b><span style="font-size: 12pt">Configuration with /etc/net</span></b><br/>
+<br/>
+In /etc/net we first configure two ethernet devices port0 and port1:<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">&nbsp;# cat &gt;&gt; /etc/net/iftab</li>
+<li style="list-style-type: none">&nbsp;port0 mac 00:13:46:66:01:5e</li>
+<li style="list-style-type: none">&nbsp;port1 mac 00:13:46:66:01:5f</li>
+<li style="list-style-type: none">&nbsp;^D</li>
+<li style="list-style-type: none">&nbsp;# mkdir /etc/net/ifaces/port0</li>
+<li style="list-style-type: none">&nbsp;# cat &gt; /etc/net/ifaces/port0/options</li>
+<li style="list-style-type: none">&nbsp;TYPE=eth</li>
+<li style="list-style-type: none">&nbsp;MODULE=via-rhine</li>
+<li style="list-style-type: none">&nbsp;# mkdir /etc/net/ifaces/port1</li>
+<li style="list-style-type: none">&nbsp;# cat &gt; /etc/net/ifaces/port1/options</li>
+<li style="list-style-type: none">&nbsp;TYPE=eth</li>
+<li style="list-style-type: none">&nbsp;MODULE=via-rhine</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&nbsp;^D</span></tt></li>
+</ul>
+<br/>
+Then we describe the bridge:<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">&nbsp;# mkdir /etc/net/ifaces/mybridge</li>
+<li style="list-style-type: none">&nbsp;# cat &gt; /etc/net/ifaces/mybridge/options</li>
+<li style="list-style-type: none">&nbsp;TYPE=bri</li>
+<li style="list-style-type: none">&nbsp;HOST='port0 port1'</li>
+<li style="list-style-type: none">&nbsp;^D</li>
+<li style="list-style-type: none">&nbsp;# cat &gt; /etc/net/ifaces/mybridge/brctl</li>
+<li style="list-style-type: none">&nbsp;stp AUTO on</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&nbsp;^D</span></tt></li>
+</ul>
+<br/>
+Now we can use "ifup mybridge" to bring it up. port0 and port1 will be brought up automatically.<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+END</body></html>

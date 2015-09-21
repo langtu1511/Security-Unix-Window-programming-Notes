@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Redhat - LDAP</title>
+</head><body><br/>
+<br/>
+*** <a href="http://suresh-chandra.blogspot.fr/2015/04/openldap-server-configuration-on-rhel-7.html">http://suresh-chandra.blogspot.fr/2015/04/openldap-server-configuration-on-rhel-7.html</a><br/>
+*** <a href="https://wiki.debian.org/LDAP/OpenLDAPSetup">https://wiki.debian.org/LDAP/OpenLDAPSetup</a><br/>
+<br/>
+LDAP and Kerberos: <a href="http://itdavid.blogspot.fr/2012/05/howto-centos-62-kerberos-kdc-with.html">http://itdavid.blogspot.fr/2012/05/howto-centos-62-kerberos-kdc-with.html</a><br/>
+<br/>
+***** <a href="http://www.vinidox.com/ldap/querying-an-ldap-server-from-the-command-line-with-ldap-utils-ldapsearch-ldapadd-ldapmodify/">http://www.vinidox.com/ldap/querying-an-ldap-server-from-the-command-line-with-ldap-utils-ldapsearch-ldapadd-ldapmodify/</a><ul><li style="list-style-type: none"></li>
+<li style="list-style-type: none">http://www.yolinux.com/TUTORIALS/LDAP_Authentication.html</li>
+</ul>
+<br/>
+<br/>
+<br/>
+<span style="font-size: 12pt"><b>[+] Term</b></span><br/>
+<ul><li style="list-style-type: none">c&#09;: country</li>
+<li style="list-style-type: none">cn&#09;: common or full name</li>
+<li style="list-style-type: none">dc&#09;: domain component</li>
+<li style="list-style-type: none">ou&#09;: organizational units</li>
+<li style="list-style-type: none">mail&#09;: email</li>
+<li style="list-style-type: none">o&#09;: organization</li>
+<li style="list-style-type: none">owner: Owner</li>
+<li style="list-style-type: none">sn&#09;: Surname</li>
+<li style="list-style-type: none">uid&#09;: User ID - user's login name.</li>
+</ul>
+<br/>
+<br/>
+<b><span style="font-size: 12pt">[+] Query all information from cn=config</span></b><br/>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f"># ldapsearch -Y EXTERNAL -H ldapi:/// -b "cn=config"</span></tt></li>
+<li style="list-style-type: none">&nbsp;</li>
+</ul>
+<b><span style="font-size: 12pt">[+] Modify cn=config</span></b><br/>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f"># ldapmodify -Y EXTERNAL -H ldapi:/// -f &lt;file.ldif&gt;</span></tt></li>
+<li style="list-style-type: none"></li>
+</ul>
+<b><span style="font-size: 12pt">[+] LDAP and Kerberos</span></b>&nbsp;<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+END</body></html>

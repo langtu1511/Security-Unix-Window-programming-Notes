@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Sign server and client certificates</title>
+</head><body><br/>
+<br/>
+<div style="text-align: center"><span style="font-size: 16pt"><b>Sign server and client certificates &nbsp;</b></span></div><br/>
+<br/>
+Certificates signed by a CA can be used in a variety of situations, such as securing connections to a web server or to authenticate clients connecting to a service.<br/>
+<br/>
+The steps below are performed from the perspective of the certificate authority. However, a third-party can instead create their own private key and certificate signing request (CSR). They would give the CSR to you, and you would give back a signed certificate. In that scenario, you can skip the genrsa and req commands. Note that the third-party doesn’t have to reveal their private key to you.<br/>
+<br/>
+<span style="font-size: 12pt"><b>Create a key</b></span><br/>
+<br/>
+Our root and intermediate pairs are 4096 bits. Since server and client certificates normally expire after one year, we can safely use 2048 bits instead.<br/>
+<ul><li style="list-style-type: none"><b>Note</b></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Although 4096 bits is slightly more secure than 2048 bits, it also reduces TLS handshake speed and significantly increases processor load during handshakes. For this reason, most websites use 2048-bit pairs.</li>
+</ul>
+<br/>
+If you’re creating a cryptographic pair for use with a web server (eg, Apache), you’ll need to enter this password every time you restart the web server. You may want to omit the<span style="color: #00007f"><tt>&nbsp;-aes256</tt></span>&nbsp;option to create a key without a password.<br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none"># cd /root/ca</li>
+<li style="list-style-type: none"># openssl genrsa -aes256 \</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; -out intermediate/private/www.example.com.key.pem 2048</li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt># chmod 400 intermediate/private/www.example.com.key.pem</tt></span></li>
+</ul>
+<br/>
+<span style="font-size: 12pt"><b>Create a certificate</b></span><br/>
+<br/>
+Use the private key to create a certificate signing request (CSR). The CSR details don’t need to match the intermediate CA. For server certificates, the Common Name must be a fully qualified domain name (eg, www.example.com), whereas for client certificates it can be any unique identifier (eg, e-mail address). Note that the Common Name cannot be the same as either your root or intermediate certificate.<br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none"># cd /root/ca</li>
+<li style="list-style-type: none"># openssl req -config intermediate/openssl.cnf \</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; -key intermediate/private/www.example.com.key.pem \</li>
+</tt></span><tt><li style="list-style-type: none"><span style="color: #00007f">&nbsp; &nbsp; &nbsp; -new -sha256 -out intermediate/csr/www.example.com.csr.pem</span></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Enter pass phrase for www.example.com.key.pem: secretpassword</li>
+<li style="list-style-type: none">You are about to be asked to enter information that will be incorporated</li>
+<li style="list-style-type: none">into your certificate request.</li>
+<li style="list-style-type: none">-----</li>
+<li style="list-style-type: none">Country Name (2 letter code) [XX]:US</li>
+<li style="list-style-type: none">State or Province Name []:California</li>
+<li style="list-style-type: none">Locality Name []:Mountain View</li>
+<li style="list-style-type: none">Organization Name []:Alice Ltd</li>
+<li style="list-style-type: none">Organizational Unit Name []:Alice Ltd Web Services</li>
+<li style="list-style-type: none">Common Name []:www.example.com</li>
+</tt><li style="list-style-type: none"><tt>Email Address []:</tt></li>
+</ul>
+<br/>
+To create a certificate, use the intermediate CA to sign the CSR. If the certificate is going to be used on a server, use the server_cert extension. If the certificate is going to be used for user authentication, use the usr_cert extension. Certificates are usually given a validity of one year, though a CA will typically give a few days extra for convenience.<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none"># cd /root/ca</li>
+<li style="list-style-type: none"># openssl ca -config intermediate/openssl.cnf \</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; -extensions server_cert -days 375 -notext -md sha256 \</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; -in intermediate/csr/www.example.com.csr.pem \</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; -out intermediate/certs/www.example.com.cert.pem</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f"># chmod 444 intermediate/certs/www.example.com.cert.pem</span></tt></li>
+</ul>
+<br/>
+The intermediate/index.txt file should contain a line referring to this new certificate.<br/>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">V 160420124233Z 1000 unknown ... /CN=www.example.com</span></tt></li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">Verify the certificate</span></b><br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none"># openssl x509 -noout -text \</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&nbsp; &nbsp; &nbsp; -in intermediate/certs/www.example.com.cert.pem</span></tt></li>
+</ul>
+<br/>
+The Issuer is the intermediate CA. The Subject refers to the certificate itself.<br/>
+<ul><tt><li style="list-style-type: none">Signature Algorithm: sha256WithRSAEncryption</li>
+<li style="list-style-type: none">&nbsp; &nbsp; Issuer: C=GB, ST=England,</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; O=Alice Ltd, OU=Alice Ltd Certificate Authority,</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; CN=Alice Ltd Intermediate CA</li>
+<li style="list-style-type: none">&nbsp; &nbsp; Validity</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; Not Before: Apr 11 12:42:33 2015 GMT</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; Not After : Apr 20 12:42:33 2016 GMT</li>
+<li style="list-style-type: none">&nbsp; &nbsp; Subject: C=US, ST=California, L=Mountain View,</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;O=Alice Ltd, OU=Alice Ltd Web Services,</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;CN=www.example.com</li>
+<li style="list-style-type: none">&nbsp; &nbsp; Subject Public Key Info:</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; Public Key Algorithm: rsaEncryption</li>
+</tt><li style="list-style-type: none"><tt>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Public-Key: (2048 bit)</tt></li>
+</ul>
+<br/>
+The output will also show the X509v3 extensions. When creating the certificate, you used either the server_cert or usr_cert extension. The options from the corresponding configuration section will be reflected in the output.<br/>
+<ul><tt><li style="list-style-type: none">X509v3 extensions:</li>
+<li style="list-style-type: none">&nbsp; &nbsp; X509v3 Basic Constraints:</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; CA:FALSE</li>
+<li style="list-style-type: none">&nbsp; &nbsp; Netscape Cert Type:</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; SSL Server</li>
+<li style="list-style-type: none">&nbsp; &nbsp; Netscape Comment:</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; OpenSSL Generated Server Certificate</li>
+<li style="list-style-type: none">&nbsp; &nbsp; X509v3 Subject Key Identifier:</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; B1:B8:88:48:64:B7:45:52:21:CC:35:37:9E:24:50:EE:AD:58:02:B5</li>
+<li style="list-style-type: none">&nbsp; &nbsp; X509v3 Authority Key Identifier:</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; keyid:69:E8:EC:54:7F:25:23:60:E5:B6:E7:72:61:F1:D4:B9:21:D4:45:E9</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; DirName:/C=GB/ST=England/O=Alice Ltd/OU=Alice Ltd Certificate Authority/CN=Alice Ltd Root CA</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; serial:10:00</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">&nbsp; &nbsp; X509v3 Key Usage: critical</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; Digital Signature, Key Encipherment</li>
+<li style="list-style-type: none">&nbsp; &nbsp; X509v3 Extended Key Usage:</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; TLS Web Server Authentication</li>
+</tt><li style="list-style-type: none"></li>
+</ul>
+Use the CA certificate chain file (<tt>ca-chain.cert.pem</tt>) to verify that the new certificate has a valid chain of trust.<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none"># openssl verify -CAfile intermediate/certs/ca-chain.cert.pem \</li>
+</span><li style="list-style-type: none"><span style="color: #00007f">&nbsp; &nbsp; &nbsp; intermediate/certs/www.example.com.cert.pem</span></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">www.example.com.cert.pem: OK</li>
+</tt><li style="list-style-type: none"></li>
+</ul>
+<b><span style="font-size: 12pt">Deploy the certificate</span></b><br/>
+<br/>
+The new certificate can now be deployed to the server or distributed to the client. When deploying to a server application, such as Apache, you need to make the following files available:<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">ca-chain.cert.pem</li>
+<li style="list-style-type: none">www.example.com.key.pem</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">www.example.com.cert.pem</span></tt></li>
+</ul>
+<br/>
+If you’re signing a CSR from a third-party, you don’t have access to their private key. Therefore you only need to give them back the chain file (ca-chain.cert.pem) and the certificate (<tt>www.example.com.cert.pem</tt>).<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+END</body></html>

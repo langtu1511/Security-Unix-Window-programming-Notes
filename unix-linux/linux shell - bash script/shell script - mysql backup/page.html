@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Shell script - MySQL backup</title>
+</head><body><br/>
+<br/>
+<tt>#!/bin/bash<br/>
+<br/>
+echo "<br/>
+##################################<br/>
+# MySQL BACKUP &nbsp;PROGRAM<br/>
+# COMPANY: inspheris.fr<br/>
+# EDITOR: duy.vu@inspheris.fr<br/>
+# CONTACT: cto@inspheris.fr<br/>
+##################################<br/>
+"<br/>
+<br/>
+<br/>
+USER="root"<br/>
+DB_NAME="siec"<br/>
+BACKUP_LOCATION=/backup/mysql<br/>
+BACKUP_FILE=$BACKUP_LOCATION/SIEC_`date +%Y%m%d_%Hh%M`.sql<br/>
+<br/>
+echo -n "Enter MySQL password of user $USER:"<br/>
+read PASSWORD<br/>
+<br/>
+mysqldump --user=$USER --password=$PASSWORD --databases $DB_NAME &gt; $BACKUP_FILE<br/>
+<br/>
+echo "The backup file is $BACKUP_FILE"<br/>
+</tt><tt>ls -ld $BACKUP_FILE</tt><br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+END</body></html>

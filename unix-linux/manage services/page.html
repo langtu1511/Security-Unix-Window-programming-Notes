@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>manage services</title>
+</head><body><br/>
+<br/>
+<br/>
+<b>[+] CENTOS</b><br/>
+<ul><span style="color: #00007f"><tt><li style="list-style-type: none">$ systemctl &nbsp;</li>
+<li style="list-style-type: none">$ systemctl list-units -t service --all &nbsp;</li>
+<li style="list-style-type: none">$ systemctl list-units -t service</li>
+<li style="list-style-type: none">$ systemctl status cman.service &nbsp;</li>
+<li style="list-style-type: none">$ systemctl status sshd.service &nbsp;</li>
+<li style="list-style-type: none"># systemctl start sshd.service</li>
+<li style="list-style-type: none"># systemctl enable sshd.service</li>
+<li style="list-style-type: none"># systemctl disable sshd.service</li>
+</tt></span><li style="list-style-type: none"><span style="color: #00007f"><tt>$ systemctl is-enabled sshd.service; echo $? &nbsp;</tt></span><i>&nbsp;</i></li>
+</ul>
+<br/>
+<img src="screenshot.png" /><br/>
+<br/>
+<img src="screenshot 2.png" /><br/>
+<br/>
+<img src="screenshot 3.png" /><br/>
+<br/>
+<br/>
+<b>[+] Ubuntu - Kali</b><br/>
+<br/>
+<ul><i><li style="list-style-type: none">rcconf </li>
+<li style="list-style-type: none">sysv-rc-conf</li>
+<li style="list-style-type: none">update-rc.d ssh enable</li>
+</i><li style="list-style-type: none"></li>
+</ul>
+<br/>
+<br/>
+<br/>
+<br/>
+<b>[+] Add service on CentOS 6</b><br/>
+<br/>
+Copy service <tt>service_name</tt>&nbsp;file to /etc/init.d/<br/>
+Then do the following commands<br/>
+<br/>
+<tt># chkconfig --add service_name<br/>
+# chkconfig service_name on<br/>
+</tt><tt># service service_name start</tt><br/>
+<tt># chkconfig --level 345 service_name on</tt>&nbsp; <br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+END<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+</body></html>

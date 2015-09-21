@@ -1,0 +1,29 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title> Nant/Ant naming patterns</title>
+</head><body>The rules are:<br/>
+<br/>
+a single star (*) matches zero or more characters within a path name<br/>
+a double star (**) matches zero or more characters across directory levels<br/>
+a question mark (?) matches exactly one character within a path name<br/>
+Another way to think about it is double star (**) matches slash (/) but single star (*) does not.<br/>
+<br/>
+Let's say you have the files:<br/>
+<ul><tt><li style="list-style-type: none">bar.txt</li>
+<li style="list-style-type: none">src/bar.c</li>
+<li style="list-style-type: none">src/baz.c</li>
+</tt><li style="list-style-type: none"><tt>src/test/bartest.c</tt></li>
+</ul>
+<br/>
+Then the patterns:<br/>
+<br/>
+<tt>*.c</tt>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;matches nothing (there are no .c files in the current directory)<br/>
+<tt>src/*.c</tt>&nbsp; &nbsp; &nbsp;matches 2 and 3<br/>
+<tt>*/*.c</tt>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;matches 2 and 3 (because * only matches one level)<br/>
+<tt>**/*.c</tt>&nbsp; &nbsp; &nbsp; &nbsp;matches 2, 3, and 4 (because ** matches any number of levels)<br/>
+<tt>bar.*</tt>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;matches 1<br/>
+<tt>**/bar.*</tt>&nbsp; &nbsp;matches 1 and 2<br/>
+<tt>**/bar*.*</tt>&nbsp;matches 1, 2, and 4<br/>
+<tt>src/ba?.c</tt>&nbsp;matches 2 and 3 </body></html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Certificate revocation lists</title>
+</head><body><br/>
+<b><span style="font-size: 16pt"><div style="text-align: center">Certificate revocation lists &nbsp;</div></span></b><br/>
+<br/>
+<br/>
+A certificate revocation list (CRL) contains information about which certificates have been revoked. A CRL can be used by a client application, such as a web browser, to check a server’s authenticity. A CRL can also be used by a server application, such as Apache or OpenVPN, to deny access to clients that are no longer trusted.<br/>
+<br/>
+A CRL is normally published at a publicly accessible location (eg, http://example.com/intermediate.crl.pem). Third-parties can fetch the CRL from this location to check whether any certificates they rely on have been revoked.<br/>
+<ul><li style="list-style-type: none"><b>Note</b></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">Some applications vendors have deprecated CRLs and are instead using the Online Certificate Status Protocol (OCSP).</li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">Prepare the configuration file</span></b><br/>
+<br/>
+A certificate authority normally encodes the CRL location into certificates that it signs. Add crlDistributionPoints to the appropriate sections, which usually means the [ server_cert ] section.<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">[ server_cert ]</li>
+<li style="list-style-type: none"># ... snipped ...</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">crlDistributionPoints = URI:http://example.com/intermediate.crl.pem</span></tt></li>
+</ul>
+<br/>
+<b><span style="font-size: 12pt">Create the CRL</span></b><br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none"># cd /root/ca</li>
+<li style="list-style-type: none"># openssl ca -config intermediate/openssl.cnf \</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; -gencrl -out intermediate/crl/intermediate.crl.pem</li>
+</span></tt><li style="list-style-type: none"></li>
+<li style="list-style-type: none"><b>Note</b></li>
+<li style="list-style-type: none"><ul><li style="list-style-type: none"></li>
+<li style="list-style-type: none">The CRL OPTIONS section of the ca man page contains more information on how to create CRLs.</li>
+<li style="list-style-type: none">You can check the contents of the CRL with the crl tool.</li>
+</ul>
+</li>
+</ul>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f"># openssl crl -in intermediate/crl/intermediate.crl.pem -noout -text</span></tt></li>
+</ul>
+<br/>
+No certificates have been revoked yet, so the output will state No Revoked Certificates.<br/>
+<br/>
+The CRL is usually re-created at regular intervals. By default, the CRL expires after 30 days. This is controlled by the default_crl_days option in the [ CA_default ] section.<br/>
+<br/>
+<b><span style="font-size: 12pt">Revoke a certificate</span></b><br/>
+<br/>
+Let’s walk through an example. Alice is running the Apache web server and has a private folder of heart-meltingly cute cat pictures. Alice wants to grant her friend, Bob, access to this collection.<br/>
+<br/>
+Bob creates a private key and certificate signing request (CSR).<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">$ cd /home/bob</li>
+<li style="list-style-type: none">$ openssl genrsa -out bob@example.com.key.pem 2048</li>
+<li style="list-style-type: none">$ openssl req -new -key bob@example.com.key.pem \</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; -out bob@example.com.csr.pem</li>
+</span><li style="list-style-type: none"></li>
+<li style="list-style-type: none">You are about to be asked to enter information that will be incorporated</li>
+<li style="list-style-type: none">into your certificate request.</li>
+<li style="list-style-type: none">-----</li>
+<li style="list-style-type: none">Country Name [XX]:US</li>
+<li style="list-style-type: none">State or Province Name []:California</li>
+<li style="list-style-type: none">Locality Name []:San Francisco</li>
+<li style="list-style-type: none">Organization Name []:Bob Ltd</li>
+<li style="list-style-type: none">Organizational Unit Name []:</li>
+<li style="list-style-type: none">Common Name []:bob@example.com</li>
+<li style="list-style-type: none">Email Address []:</li>
+</tt><li style="list-style-type: none"></li>
+</ul>
+Bob sends his CSR to Alice, who signs the CSR.<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none"># cd /root/ca</li>
+<li style="list-style-type: none"># openssl ca -config intermediate/openssl.cnf \</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; -extensions usr_cert -notext -md sha256 \</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; -in intermediate/csr/bob@example.com.csr.pem \</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&nbsp; &nbsp; &nbsp; -out intermediate/certs/bob@example.com.cert.pem</span></tt></li>
+</ul>
+<ul><tt><li style="list-style-type: none">Sign the certificate? [y/n]: y</li>
+<li style="list-style-type: none">1 out of 1 certificate requests certified, commit? [y/n]: y</li>
+</tt><li style="list-style-type: none"><tt>Alice verifies that the certificate is valid:</tt></li>
+</ul>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none"># openssl verify -CAfile intermediate/certs/ca-chain.cert.pem \</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">&nbsp; &nbsp; &nbsp; intermediate/certs/bob@example.com.cert.pem</span></tt></li>
+</ul>
+<ul><tt><li style="list-style-type: none">bob@example.com.cert.pem: OK</li>
+</tt></ul>
+<br/>
+The index.txt file should contain a new entry.<tt></tt><ul><tt><li style="list-style-type: none"></li>
+<li style="list-style-type: none">V 160420124740Z 1001 unknown ... /CN=bob@example.com</li>
+</tt><li style="list-style-type: none"></li>
+</ul>
+Alice sends Bob the signed certificate. Bob installs the certificate in his web browser and is now able to access Alice’s cat pictures. Hurray!<br/>
+<br/>
+Sadly, it turns out that Bob is misbehaving. Bob has posted Alice’s cat pictures to Hacker News, claiming that they’re his own and gaining huge popularity. Alice finds out and needs to revoke his access immediately!<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none"># cd /root/ca</li>
+<li style="list-style-type: none"># openssl ca -config intermediate/openssl.cnf \</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; -revoke intermediate/certs/bob@example.com.cert.pem</li>
+</span><li style="list-style-type: none"></li>
+<li style="list-style-type: none">Enter pass phrase for intermediate.key.pem: secretpassword</li>
+<li style="list-style-type: none">Revoking Certificate 1001.</li>
+</tt><li style="list-style-type: none"><tt>Data Base Updated</tt></li>
+</ul>
+<br/>
+The line in index.txt that corresponds to Bob’s certificate now begins with the character R. This means the certificate has been revoked.<br/>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">R 160420124740Z 150411125310Z 1001 unknown ... /CN=bob@example.com</span></tt></li>
+</ul>
+<br/>
+After revoking Bob’s certificate, Alice must re-create the CRL.<br/>
+<br/>
+<b><span style="font-size: 12pt">Server-side use of the CRL</span></b><br/>
+<br/>
+For client certificates, it’s typically a server-side application (eg, Apache) that is doing the verification. This application needs to have local access to the CRL.<br/>
+<br/>
+In Alice’s case, she can add the SSLCARevocationPath directive to her Apache configuration and copy the CRL to her web server. The next time that Bob connects to the web server, Apache will check his client certificate against the CRL and deny access.<br/>
+<br/>
+Similarly, OpenVPN has a crl-verify directive so that it can block clients that have had their certificates revoked.<br/>
+<br/>
+<b><span style="font-size: 12pt">Client-side use of the CRL</span></b><br/>
+<br/>
+For server certificates, it’s typically a client-side application (eg, web browser) that is doing the verification. This application needs to have remote access to the CRL.<br/>
+<br/>
+When signing a certificate with an extension that includes crlDistributionPoints, the certificate will contain a reference to the location specified. The application can read this information and fetch the CRL.<br/>
+<br/>
+If a certificate has a CRL distribution point set, it should be contained in the certificate X509v3 details.<br/>
+<ul><tt><li style="list-style-type: none"><span style="color: #00007f"># openssl x509 -in cute-cat-pictures.example.com.cert.pem -noout -text</span></li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">&nbsp; &nbsp; X509v3 CRL Distribution Points:</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; Full Name:</li>
+<li style="list-style-type: none">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; URI:http://example.com/intermediate.crl.pem</li>
+</tt></ul>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+END</body></html>

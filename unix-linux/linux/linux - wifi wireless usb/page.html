@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Linux - wifi wireless USB</title>
+</head><body><br/>
+<b><div style="text-align: center"><span style="font-size: 14pt">Horrible wireless network pings in Ubuntu and how to fix them</span></div></b><br/>
+<br/>
+<br/>
+Yesterday I had an important video call that I needed to carry out under Ubuntu as I need to demo some of my work. About two minutes before it was due to begin, I noticed that my pings to the home network router were ridiculously variable and high:<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">PING 192.168.0.1 (192.168.0.1) 56(84) bytes of data.</li>
+<li style="list-style-type: none">64 bytes from 192.168.0.1: icmp_req=1 ttl=64 time=60.3 ms</li>
+<li style="list-style-type: none">64 bytes from 192.168.0.1: icmp_req=2 ttl=64 time=82.9 ms</li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">64 bytes from 192.168.0.1: icmp_req=3 ttl=64 time=105 ms</span></tt></li>
+</ul>
+<br/>
+Awful.<br/>
+<br/>
+Unfortunately, two minutes before an important call is not the time to be tinkering with network settings, so I left it at the time. Fortunately, it didn't seem to adversely affect the call.<br/>
+<br/>
+Later, I booted into Windows to find my pings were perfectly normal (1 ms)1. So, what's the issue under Linux?<br/>
+<br/>
+What it turns out to be is wireless power management. You can easily test this by trying:<br/>
+<br/>
+sudo iwconfig wlan0 power off<br/>
+<br/>
+and remeasuring the pings:<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">64 bytes from 192.168.0.1: icmp_req=1 ttl=64 time=0.970 ms</li>
+<li style="list-style-type: none">64 bytes from 192.168.0.1: icmp_req=2 ttl=64 time=1.04 ms</li>
+<li style="list-style-type: none">64 bytes from 192.168.0.1: icmp_req=3 ttl=64 time=0.994 ms</li>
+</span></tt><li style="list-style-type: none"></li>
+</ul>
+Much better!<br/>
+<br/>
+Thanks to this forum thread, I found an easy way to make this fix permanent, you need to do something like:<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">sudo nano /etc/pm/power.d/wireless</li>
+</span></tt><li style="list-style-type: none"></li>
+</ul>
+and add the following lines to the newly created file:<br/>
+<ul><tt><span style="color: #00007f"><li style="list-style-type: none">#!/bin/sh</li>
+<li style="list-style-type: none"></li>
+</span></tt><li style="list-style-type: none"><tt><span style="color: #00007f">/sbin/iwconfig wlan0 power off</span></tt></li>
+</ul>
+<br/>
+Next, do:<br/>
+<ul><li style="list-style-type: none"><tt><span style="color: #00007f">sudo chmod +x /etc/pm/power.d/wireless</span></tt></li>
+</ul>
+<br/>
+so that this script is executable.<br/>
+<br/>
+Next time you reboot, the fix should still be in place.<br/>
+<br/>
+1I have a feeling that I disabled any wireless power management on Windows when I first installed it a few months back; it may be that you'd suffer a similar problem in Windows too otherwise.<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+END</body></html>

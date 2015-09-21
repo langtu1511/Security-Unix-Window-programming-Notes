@@ -1,0 +1,34 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>How to get your files out of a svn dump</title>
+</head><body><br/>
+<br/>
+<a href="http://www.mhermans.net/get-files-from-svn-dump.html"><div style="text-align: center"><b><span style="font-size: 14pt">How to get your files out of a svn dump</span></b></div></a><br/>
+<br/>
+<i><b>21 December 2009</b></i><br/>
+<br/>
+After a hosting provider-switch I received a (gzipped) dump-file containing my subversion-repository. As I have precious little svn-administration experience, I was unsure how to handle the dump-file. Google initially send me in the wrong direction (dump/restore), but the second try was more productive.<br/>
+<br/>
+I have no intention of running a svn-repository (partial to git), I just needed the files of the last revision. The following commands will accomplish this.<br/>
+<ul><tt><li style="list-style-type: none"># unzip the dump-file</li>
+<li style="list-style-type: none"><span style="color: #00007f">$ gunzip backup.dump.gz </span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </li>
+<li style="list-style-type: none"># create a directory for the repository</li>
+<li style="list-style-type: none"><span style="color: #00007f">$ mkdir [backup_repo] </span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </li>
+<li style="list-style-type: none"># initiate a svn-repository</li>
+<span style="color: #00007f"><li style="list-style-type: none"><strike>$ svn init backup_repo</strike></li>
+</span><li style="list-style-type: none"><span style="color: #00007f">$ svnadmin create [backup_repo]</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</li>
+<li style="list-style-type: none"># load the dump-file</li>
+<li style="list-style-type: none"><span style="color: #00007f">$ sudo svnadmin load [backup_repo] &lt; backup.dump &nbsp;</span></li>
+<li style="list-style-type: none"># temporary host the repository</li>
+<li style="list-style-type: none"><span style="color: #00007f">$ svnserve -r [backup_repo]/ -d &nbsp;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</li>
+<li style="list-style-type: none"># export the files</li>
+</tt><li style="list-style-type: none"><tt><span style="color: #00007f">$ svn export svn://localhost backup</span></tt></li>
+</ul>
+<br/>
+This will result in a folder “backup” with the last version of all the files in the repository, without the .svn directories.<br/>
+<br/>
+<br/>
+<br/>
+</body></html>

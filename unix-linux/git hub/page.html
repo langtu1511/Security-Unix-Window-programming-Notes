@@ -1,0 +1,24 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Git Hub</title>
+</head><body><br/>
+<b><span style="font-size: 12pt">setup GITHUB</span></b><br/>
+<ul><li style="list-style-type: none"><span style="color: #00007f"><tt>yum install git-core</tt></span></li>
+</ul>
+<br/>
+<br/>
+<b>Set up SSH key: </b><a href="https://help.github.com/articles/generating-ssh-keys/">LINK</a><br/>
+<br/>
+<br/>
+<br/>
+<b><span style="font-size: 12pt">Download private repo in zip &nbsp;format</span></b><br/>
+<ul><li style="list-style-type: none">Following this tutorial, the simplest solution is:</li>
+<li style="list-style-type: none"></li>
+<li style="list-style-type: none"><tt><span style="color: #00007f">curl --user "caspyin:PASSWD" ... &gt; repo_name.zip</span></tt></li>
+<li style="list-style-type: none">But the best practice is to avoid using the password directly in a command, and use a oauth token instead (associated to your GitHub account).</li>
+<li style="list-style-type: none"></li>
+<tt><span style="color: #00007f"><li style="list-style-type: none">curl -H "Authorization: token &lt;yourToken&gt;" ...</li>
+</span></tt></ul>
+</body></html>
